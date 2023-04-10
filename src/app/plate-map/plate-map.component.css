@@ -1,0 +1,7 @@
+.unselected-well {
+  background-color: white;
+}
+
+.selected-well {
+  background-color: blue;
+}

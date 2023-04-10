@@ -1,0 +1,20 @@
+<div class="container" [ngStyle]="containerStyle">
+  <div class="plate" [ngStyle]="plateStyle">
+    <div class="blankTitle"></div>
+    <div class="colHeader" *ngFor="let colHeader of plateMap.columnHeaders; let colIndex = index" [ngStyle]="colHeader.style"
+         (click)="toggleColumnSelection(colIndex, $event)">
+      {{colHeader.label}}
+    </div>
+    <div class="rowHeader" *ngFor="let rowHeader of plateMap.rowHeaders; let rowIndex = index" [ngStyle]="rowHeader.style"
+         (click)="toggleRowSelection(rowIndex, $event)">
+      {{rowHeader.label}}
+    </div>
+    <div class="plate-row" *ngFor="let plateRow of plateMap.wells; let i = index">
+      <div *ngFor="let well of plateRow; let j = index"
+           [ngStyle]="well.style"
+           [ngClass]="{'selected-well': well.selected, 'unselected-well': !well.selected, 'base-well-style': true}"
+           (click)="toggleWellSelection(i,j)">
+      </div>
+    </div>
+  </div>
+</div>

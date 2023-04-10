@@ -1,0 +1,16 @@
+.main-container {
+  display: flex;
+  justify-content: space-between;
+  padding: 32px;
+}
+
+.printhead-setup-container {
+  flex: 1;
+  margin-right: 16px;
+  padding: 12px;
+  max-width: 220px;
+}
+
+.plate-map-container {
+  flex: 3;
+}

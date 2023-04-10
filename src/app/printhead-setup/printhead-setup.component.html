@@ -1,0 +1,29 @@
+<mat-form-field appearance="fill">
+  <mat-label>Number of Printheads</mat-label>
+  <input matInput type="number" min="1" max="20" [(ngModel)]="numberOfPrintheads" (change)="updatePrintheads()">
+</mat-form-field>
+
+<div class="grid-list-container">
+  <mat-grid-list cols="1" rowHeight="220px" gutterSize="16px" style="padding: 16px;">
+    <mat-grid-tile *ngFor="let printhead of printheads; let i = index">
+      <mat-card [ngClass]="{'disabled': !printhead.active}">
+        <mat-card-header>
+          <div class="small-header">Printhead {{ i + 1 }}</div>
+        </mat-card-header>
+        <mat-form-field appearance="fill">
+          <mat-label>Printhead Description</mat-label>
+          <input matInput [(ngModel)]="printhead.description" [disabled]="!printhead.active">
+        </mat-form-field>
+
+        <mat-form-field appearance="fill">
+          <mat-label>Color</mat-label>
+          <input matInput type="color" [(ngModel)]="printhead.color" [disabled]="!printhead.active">
+        </mat-form-field>
+
+        <mat-slide-toggle [(ngModel)]="printhead.active" labelPosition="before">
+          {{printhead.active ? 'Active' : 'Inactive'}}
+        </mat-slide-toggle>
+      </mat-card>
+    </mat-grid-tile>
+  </mat-grid-list>
+</div>
