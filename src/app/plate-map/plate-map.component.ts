@@ -1,7 +1,9 @@
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, Input, OnChanges, SimpleChanges, OnInit  } from '@angular/core';
 import { range } from "rxjs";
 import { ScreenUtils } from "../screen-utils";
-import { Coordinates } from "../../types/Coordinates";
+import { PlateFormatService } from '../plate-format.service';
+import { Renderer2, RendererFactory2 } from '@angular/core';
+import { PlateFormat} from "../../types/PlateFormat";
 
 @Component({
   selector: 'app-plate-map',
@@ -9,8 +11,12 @@ import { Coordinates } from "../../types/Coordinates";
   styleUrls: ['./plate-map.component.css'],
   providers: [ScreenUtils]
 })
-export class PlateMapComponent implements OnChanges {
-  @Input() plate!: { plateId: number, name: string; rows: number; cols: number; well_size: number, well_spacing: number; a1_center: Coordinates  };
+export class PlateMapComponent implements OnChanges, OnInit {
+  @Input() plate!: PlateFormat;
+  @Input() selectedPlate!: typeof PlateMapComponent.prototype.plateFormats[0];
+
+  plateFormats: any[] = [];
+
   lastClicked: { row: number, col: number } | null = null;
   lastClickedRow: number | null = null;
   lastClickedCol: number | null = null;
@@ -21,62 +27,112 @@ export class PlateMapComponent implements OnChanges {
   plateHeightPX = this.toPX(this.plateHeight);
   plateWidthPX = this.toPX(this.plateWidth);
 
+  selectionRectangleStart: {row: number, col: number} | null = null;
+  selectionRectangleVisible = false;
+
   private alphabet_upperCase = [...Array(26)].map((_, i) => String.fromCharCode('a'.charCodeAt(0) + i).toUpperCase());
-  constructor(private screenUtils: ScreenUtils) {}
+  constructor(
+    private screenUtils: ScreenUtils,
+    private plateFormatService: PlateFormatService,
+    private renderer: Renderer2,
+    rendererFactory: RendererFactory2
+  ) {
+    this.renderer = rendererFactory.createRenderer(null, null);
+    this.plateFormats = plateFormatService.getPlateFormats()
+    this.selectedPlate = this.plateFormats[0];
+  }
+  ngOnInit() {
+    this.updatePlateMap(this.selectedPlate);
+  }
   ngOnChanges(changes: SimpleChanges) {
-    if (changes["plate"]) {
-      this.updatePlateMap();
+    if (changes['plate'] && changes['plate'].currentValue) {
+      console.log('changes-plate')
+      this.plateFormatService.setSelectedPlate(this.selectedPlate);
+      this.updatePlateMap(this.selectedPlate);
     } else {
       return;
     }
   }
 
   ngAfterViewInit() {
-    const wells = document.getElementsByClassName('plate-cell');
-    for (let i = 0; i < wells.length; i++) {
-      const well = wells[i];
 
-      well.addEventListener('click', () => {
-        const row = Number(well.getAttribute('data-row'));
-        const col = Number(well.getAttribute('data-col'));
-        this.toggleWellSelection(row, col);
-      });
-    }
   }
 
-  updatePlateMap() {
-    const rows = this.plate.rows;
-    const cols = this.plate.cols;
+  onMouseMove(event: MouseEvent, row: number, col: number): void {
+    if (event.shiftKey && this.selectionRectangleStart) {
+      // Update the ending coordinates of the selection rectangle and make it visible
+      this.selectionRectangleVisible = true;
+      const endRow = row;
+      const endCol = col;
 
-    const wellDiameterPX = this.toPX(this.plate.well_size); // pixels
-    const wellSpacingPX = this.toPX(this.plate.well_spacing - this.plate.well_size) // pixels
-    const a1_xPX = this.toPX(this.plate.a1_center.x) // pixels
-    const a1_yPX = this.toPX(this.plate.a1_center.y) // pixels
-    const colHeaderHeightPX = this.toPX(this.plate.a1_center.y - (this.plate.well_size/2));
-    const rowHeaderWidthPX=this.toPX(this.plate.a1_center.x - (this.plate.well_size/2));
+      // Update the selection rectangle's style based on the new ending coordinates
+      const style = this.getSelectionRectangleStyle(
+        this.selectionRectangleStart.row,
+        endRow,
+        this.selectionRectangleStart.col,
+        endCol
+      );
+
+      // Apply the new style to the selection rectangle element
+      // ... your logic to update the selection rectangle element's style ...
+    } else {
+      // Hide the selection rectangle when the shift key is not pressed
+      this.selectionRectangleVisible = false;
+    }
+  }
+  updatePlateMap(plate: PlateFormat, event?: MouseEvent) {
+    console.log('update plate map')
+    const rows = plate.rows;
+    const cols = plate.cols;
+
+    const wellDiameterPX = this.toPX(plate.well_size); // pixels
+    const wellSpacingPX = this.toPX(plate.well_spacing - plate.well_size) // pixels
+    const a1_xPX = this.toPX(plate.a1_center.x) // pixels
+    const a1_yPX = this.toPX(plate.a1_center.y) // pixels
+    const colHeaderHeightPX = this.toPX(plate.a1_center.y - (plate.well_size/2));
+    const rowHeaderWidthPX=this.toPX(plate.a1_center.x - (plate.well_size/2));
 
     const rowLabels = this.alphabet_upperCase.slice(0, cols);
 
     this.plateMap.wells = Array.from({ length: rows }, (_, row) => {
       return Array.from({ length: cols }, (_, col) => {
+        const wellElement = this.renderer.createElement('div');
+        this.renderer.addClass(wellElement, 'plate-cell');
+        this.renderer.setAttribute(wellElement, 'data-row', row.toString());
+        this.renderer.setAttribute(wellElement, 'data-col', col.toString());
+
+        this.renderer.listen(wellElement, 'click', (event: MouseEvent) => {
+          this.toggleWellSelection(row, col, event.shiftKey);
+        });
+
+        // Include the returned style in the final well object
         return {
           row,
           col,
           selected: false,
           style: {
             ...this.getCommonStyleHeaders(),
-            height:`${wellDiameterPX}px`,
-            width:`${wellDiameterPX}px`,
+            height: `${wellDiameterPX}px`,
+            width: `${wellDiameterPX}px`,
             top: `${(a1_yPX - (wellDiameterPX / 2)) + (row * (wellSpacingPX + wellDiameterPX))}px`,
             left: `${(a1_xPX - (wellDiameterPX / 2)) + (col * (wellSpacingPX + wellDiameterPX))}px`,
             borderRadius: '50%',
             border: '1px solid black'
           },
-        }; // Include the returned style in the final well object
+          element: wellElement,
+        };
       });
     });
 
-    this.plateMap.rowHeaders = Array.from({length: this.plate.rows}, (_, row) => {
+    this.plateMap.rowHeaders = Array.from({length: plate.rows}, (_, row) => {
+      const rowElement = this.renderer.createElement('div');
+      this.renderer.addClass(rowElement, 'row-header');
+      this.renderer.setAttribute(rowElement, 'data-row', row.toString());
+
+      this.renderer.listen(rowElement, 'click', () => {
+        this.toggleRowSelection(row, event);
+      });
+
       return {
         style: {
           ...this.getCommonStyleHeaders(),
@@ -90,8 +146,7 @@ export class PlateMapComponent implements OnChanges {
       };
     });
 
-
-    this.plateMap.columnHeaders = Array.from({length: this.plate.cols}, (_, col) => {
+    this.plateMap.columnHeaders = Array.from({length: plate.cols}, (_, col) => {
       return {
         style: {
           ...this.getCommonStyleHeaders(),
@@ -141,8 +196,35 @@ export class PlateMapComponent implements OnChanges {
     }
   }
 
+// Method to calculate the selection rectangle's style
+  getSelectionRectangleStyle(startRow: number, endRow: number, startCol: number, endCol: number): object {
+    // Calculate the position and dimensions of the selection rectangle based on the starting and ending coordinates
+    const wellDiameterPX = this.toPX(this.plate.well_size);
+    const wellSpacingPX = this.toPX(this.plate.a1_center.x - this.plate.well_size / 2);
+    const rowHeaderWidthPX = this.toPX(this.plate.a1_center.x - this.plate.well_size / 2);
+    const colHeaderHeightPX = this.toPX(this.plate.a1_center.y - this.plate.well_size / 2);
+
+    const startX = startCol * (wellDiameterPX + wellSpacingPX) + rowHeaderWidthPX;
+    const startY = startRow * (wellDiameterPX + wellSpacingPX) + colHeaderHeightPX;
+    const width = (endCol - startCol + 1) * (wellDiameterPX + wellSpacingPX) - wellSpacingPX;
+    const height = (endRow - startRow + 1) * (wellDiameterPX + wellSpacingPX) - wellSpacingPX;
+
+    console.log('getSelectionRectangleStyle: ', JSON.stringify(this.plate))
+    return {
+      position: 'absolute',
+      left: `${startX}px`,
+      top: `${startY}px`,
+      width: `${width}px`,
+      height: `${height}px`,
+      backgroundColor: 'rgba(0, 0, 255, 0.3)', // semi-transparent blue color
+      border: '1px solid blue',
+      zIndex: 10
+    };
+  }
+
   toggleWellSelection(row: number, col: number, shiftKey: boolean = false): void {
     if (shiftKey && this.lastClicked) {
+      this.selectionRectangleStart = {row, col};
       this.selectRegion(row, col, this.lastClicked.row, this.lastClicked.col);
     } else {
       this.plateMap.wells[row][col].selected = !this.plateMap.wells[row][col].selected;
@@ -150,56 +232,70 @@ export class PlateMapComponent implements OnChanges {
     }
   }
 
-  toggleRowSelection(rowIndex: number, event: MouseEvent): void {
-    const shiftKeyPressed = event.shiftKey;
+  toggleRowSelection(rowIndex: number, event?: MouseEvent): void {
 
-    if (shiftKeyPressed && this.lastClickedRow !== null) {
-      const startRow = Math.min(rowIndex, this.lastClickedRow);
-      const endRow = Math.max(rowIndex, this.lastClickedRow);
-      const allSelected = this.areAllWellsSelected(startRow, endRow, 0, this.plate.cols - 1, this.plateMap.wells);
+    if(event) {
+      const shiftKeyPressed = event.shiftKey;
 
-      for (let i = startRow; i <= endRow; i++) {
-        for (let j = 0; j < this.plate.cols; j++) {
-          this.plateMap.wells[i][j].selected = !allSelected;
+      if (shiftKeyPressed && this.lastClickedRow !== null) {
+        const startRow = Math.min(rowIndex, this.lastClickedRow);
+        const endRow = Math.max(rowIndex, this.lastClickedRow);
+        const allSelected = this.areAllWellsSelected(startRow, endRow, 0, this.selectedPlate.cols - 1, this.plateMap.wells);
+
+        this.selectionRectangleStart = {row: rowIndex, col: 0};
+        for (let i = startRow; i <= endRow; i++) {
+          for (let j = 0; j < this.selectedPlate.cols; j++) {
+            this.plateMap.wells[i][j].selected = !allSelected;
+          }
+        }
+      } else {
+        // Toggle entire row
+        const allSelectedInRow = this.areAllWellsSelected(rowIndex, rowIndex, 0, this.selectedPlate.cols - 1, this.plateMap.wells);
+        for (let j = 0; j < this.selectedPlate.cols; j++) {
+          this.plateMap.wells[rowIndex][j].selected = !allSelectedInRow;
         }
       }
     } else {
       // Toggle entire row
-      const allSelectedInRow = this.areAllWellsSelected(rowIndex, rowIndex, 0, this.plate.cols - 1, this.plateMap.wells);
-      for (let j = 0; j < this.plate.cols; j++) {
+      const allSelectedInRow = this.areAllWellsSelected(rowIndex, rowIndex, 0, this.selectedPlate.cols - 1, this.plateMap.wells);
+      for (let j = 0; j < this.selectedPlate.cols; j++) {
         this.plateMap.wells[rowIndex][j].selected = !allSelectedInRow;
       }
     }
-
     this.lastClickedRow = rowIndex;
   }
 
+  toggleColumnSelection(colIndex: number, event?: MouseEvent): void {
 
-  toggleColumnSelection(colIndex: number, event: MouseEvent): void {
-    const shiftKeyPressed = event.shiftKey;
+    if(event) {
+      const shiftKeyPressed = event.shiftKey;
+      if (shiftKeyPressed && this.lastClickedCol !== null) {
+        this.selectionRectangleStart = {row: 0, col: colIndex};
+        const startCol = Math.min(colIndex, this.lastClickedCol);
+        const endCol = Math.max(colIndex, this.lastClickedCol);
+        const allSelected = this.areAllWellsSelected(0, this.selectedPlate.rows - 1, startCol, endCol, this.plateMap.wells);
 
-    if (shiftKeyPressed && this.lastClickedCol !== null) {
-      const startCol = Math.min(colIndex, this.lastClickedCol);
-      const endCol = Math.max(colIndex, this.lastClickedCol);
-      const allSelected = this.areAllWellsSelected(0, this.plate.rows - 1, startCol, endCol, this.plateMap.wells);
-
-      for (let j = startCol; j <= endCol; j++) {
-        for (let i = 0; i < this.plate.rows; i++) {
-          this.plateMap.wells[i][j].selected = !allSelected;
+        for (let j = startCol; j <= endCol; j++) {
+          for (let i = 0; i < this.selectedPlate.rows; i++) {
+            this.plateMap.wells[i][j].selected = !allSelected;
+          }
+        }
+      } else {
+        // Toggle entire column
+        const allSelectedInCol = this.areAllWellsSelected(0, this.selectedPlate.rows - 1, colIndex, colIndex, this.plateMap.wells);
+        for (let i = 0; i < this.selectedPlate.rows; i++) {
+          this.plateMap.wells[i][colIndex].selected = !allSelectedInCol;
         }
       }
     } else {
       // Toggle entire column
-      const allSelectedInCol = this.areAllWellsSelected(0, this.plate.rows - 1, colIndex, colIndex, this.plateMap.wells);
-      for (let i = 0; i < this.plate.rows; i++) {
+      const allSelectedInCol = this.areAllWellsSelected(0, this.selectedPlate.rows - 1, colIndex, colIndex, this.plateMap.wells);
+      for (let i = 0; i < this.selectedPlate.rows; i++) {
         this.plateMap.wells[i][colIndex].selected = !allSelectedInCol;
       }
     }
-
     this.lastClickedCol = colIndex;
   }
-
-
 
   areAllWellsSelected(startRow: number, endRow: number, startCol: number, endCol: number, wells: any[][]): boolean {
     for (let i = startRow; i <= endRow; i++) {

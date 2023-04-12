@@ -5,10 +5,10 @@
 }
 
 .printhead-setup-container {
-  flex: 1;
+  flex: 2;
   margin-right: 16px;
   padding: 12px;
-  max-width: 220px;
+  max-width: 400px;
 }
 
 .plate-map-container {

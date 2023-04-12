@@ -1,7 +1,10 @@
-import { Component, OnInit } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import {Component, Input, OnChanges, SimpleChanges} from '@angular/core';
+import { PlateFormatService } from '../plate-format.service';
+import { Coordinates} from "../../types/Coordinates";
+import { PlateFormat} from "../../types/PlateFormat";
+import { ScreenUtils } from "../screen-utils";
 
-interface Printhead {
+interface PrintHead {
   description: string;
   color: string;
   active: boolean;
@@ -12,30 +15,129 @@ interface Printhead {
   templateUrl: './printhead-setup.component.html',
   styleUrls: ['./printhead-setup.component.css']
 })
-export class PrintheadSetupComponent implements OnInit {
-  numberOfPrintheads: number = 1;
-  printheads: Printhead[] = [];
-  cols: number = 4;
+export class PrintheadSetupComponent implements OnChanges {
+  @Input() selectedPlate!: PlateFormat;
 
-  constructor() {
-    this.updatePrintheads();
+  ngOnChanges(changes: SimpleChanges) {
+
   }
 
+  numberOfPrintheads: number = 1;
+  printHeads: PrintHead[] = [];
+  printPositions: any[] = [];
+  printPositionSizeMM = 3;
+  constructor(
+    private plateFormatService: PlateFormatService,
+    private screenUtils: ScreenUtils) {
+
+    this.plateFormatService.selectedPlate$.subscribe((plate) => {
+      if(this.selectedPlate) {
+        this.selectedPlate = plate;
+      } else {
+        this.selectedPlate = plateFormatService.getDefaultPlateFormat();
+      }
+      // Perform any necessary updates based on the new selectedPlate value
+      this.updatePrintheads();
+      this.updatePrintPositions();
+    });
+  }
   ngOnInit(): void {}
 
   updatePrintheads() {
-    const newPrinthead: Printhead = {
+
+    const newPrintHead: PrintHead = {
       description: '',
       color: '#000000',
       active: true
     };
 
-    if (this.numberOfPrintheads > this.printheads.length) {
-      for (let i = this.printheads.length; i < this.numberOfPrintheads; i++) {
-        this.printheads.push({ ...newPrinthead });
+    if (this.numberOfPrintheads > this.printHeads.length) {
+      for (let i = this.printHeads.length; i < this.numberOfPrintheads; i++) {
+        this.printHeads.push({ ...newPrintHead });
       }
     } else {
-      this.printheads = this.printheads.slice(0, this.numberOfPrintheads);
+      this.printHeads = this.printHeads.slice(0, this.numberOfPrintheads);
     }
+    if(this.selectedPlate) {
+      this.updatePrintPositions();
+    }
+  }
+
+  getWellStyle() {
+    if (!this.selectedPlate) {
+      return {
+        'border-radius': '50%',
+        'background-color': '#ccc',
+        'position': 'relative'};
+    }
+    const size = this.selectedPlate.well_size;
+    return {
+      'width': `${size}px`,
+      'height': `${size}px`,
+      'border-radius': '50%',
+      'background-color': '#ccc',
+      'position': 'relative'
+    };
+  }
+  getPrintPositionPickerStyle() {
+    if(this.selectedPlate) {
+      const well_diam = this.toPX(this.selectedPlate.well_size);
+      return {
+        width: `${well_diam}px`,
+        height: `${well_diam}px`,
+      };
+    }else {
+      return {}
+    }
+  }
+  getPrintPositionButtonStyle(position: { x: number; y: number }) {
+    if(this.selectedPlate) {
+      const radius = this.toPX(this.selectedPlate.well_size) / 2;
+      const buttonSize = this.toPX(this.printPositionSizeMM)
+      return {
+        left: `${position.x + radius}px`,
+        top: `${position.y + radius }px`,
+        width: `${buttonSize}px`,
+        height: `${buttonSize}px`,
+      };
+    } else {
+      return {}
+    }
+  }
+
+  updatePrintPositions() {
+    // Define the button positions here.
+    // You can adjust the x and y values to position the buttons as needed.
+    const well_diam = this.selectedPlate.well_size;
+    this.printPositions = this.getPrintPositionCoordinates(8,this.toPX(well_diam), this.toPX(this.printPositionSizeMM));
+  }
+
+  toggleButton(button: any) {
+    if (!button.active) {
+      button.active = true;
+      button.backgroundColor = 'red';
+    } else {
+      button.active = false;
+      button.backgroundColor = 'blue';
+    }
+  }
+
+  getPrintPositionCoordinates(numDots: number, wellSize:number, dotSize:number, adj_x= 0, adj_y= 0) {
+    const radius = (0.80 * wellSize) / 2;
+    const angles = Array.from({length: numDots}, (_, i) => i / numDots * 2 * Math.PI);
+
+    const x = angles.map(angle => radius * Math.cos(angle));
+    const y = angles.map(angle => radius * Math.sin(angle));
+
+    let printPositionCoordinates: Coordinates[] = [];
+    for (let i = 0; i < numDots; i++) {
+      printPositionCoordinates.push({'x': (x[i] - (dotSize/2) + adj_x), 'y': (y[i] - (dotSize/2) + adj_y), 'label': (i + 1).toString()});
+    }
+
+    return printPositionCoordinates;
+  }
+
+  toPX(size_in_mm:number) {
+    return this.screenUtils.convertMMToPPI(size_in_mm);
   }
 }

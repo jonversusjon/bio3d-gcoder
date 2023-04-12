@@ -4,11 +4,13 @@
 </mat-form-field>
 
 <div class="grid-list-container">
-  <mat-grid-list cols="1" rowHeight="220px" gutterSize="16px" style="padding: 16px;">
-    <mat-grid-tile *ngFor="let printhead of printheads; let i = index">
+  <mat-grid-list cols="1" rowHeight="400px" gutterSize="16px" style="padding: 16px;">
+    <mat-grid-tile *ngFor="let printhead of printHeads; let i = index">
       <mat-card [ngClass]="{'disabled': !printhead.active}">
         <mat-card-header>
           <div class="small-header">Printhead {{ i + 1 }}</div>
+          <mat-slide-toggle [(ngModel)]="printhead.active" class="active-toggle">
+          </mat-slide-toggle>
         </mat-card-header>
         <mat-form-field appearance="fill">
           <mat-label>Printhead Description</mat-label>
@@ -20,9 +22,17 @@
           <input matInput type="color" [(ngModel)]="printhead.color" [disabled]="!printhead.active">
         </mat-form-field>
 
-        <mat-slide-toggle [(ngModel)]="printhead.active" labelPosition="before">
-          {{printhead.active ? 'Active' : 'Inactive'}}
-        </mat-slide-toggle>
+        <mat-card-content appearance="fill">
+          <div class="print-position-picker" [ngStyle]="getPrintPositionPickerStyle()">
+            <div class="well"></div>
+            <div
+              *ngFor="let position of printPositions"
+              class="button"
+              [ngStyle]="getPrintPositionButtonStyle(position)"
+              (click)="toggleButton(position)"
+            ></div>
+          </div>
+        </mat-card-content>
       </mat-card>
     </mat-grid-tile>
   </mat-grid-list>

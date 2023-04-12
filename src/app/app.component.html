@@ -4,13 +4,6 @@
     <app-printhead-setup></app-printhead-setup>
   </div>
   <div class="plate-map-container">
-    <h1>Cell Culture Plate Map</h1>
-    <div style="top: 2em; left: 2em;">
-      <label for="plateFormat">Select a plate format:</label>
-      <select id="plateFormat" [(ngModel)]="selectedPlate">
-        <option *ngFor="let plate of plateFormats" [ngValue]="plate">{{ plate.name }}</option>
-      </select>
-    </div>
-    <app-plate-map [plate]="selectedPlate"></app-plate-map>
+    <app-plate-map></app-plate-map>
   </div>
 </div>

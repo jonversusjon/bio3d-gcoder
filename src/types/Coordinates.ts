@@ -38,4 +38,9 @@ export interface Coordinates {
    * The experiment identifier, used to differentiate between different experiments or study arms (optional).
    */
   experiment?: number;
+
+  /**
+   * a label to display with the object
+   */
+  label?: string;
 }

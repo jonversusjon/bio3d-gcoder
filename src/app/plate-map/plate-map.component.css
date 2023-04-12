@@ -3,5 +3,8 @@
 }
 
 .selected-well {
-  background-color: blue;
+  border: 1px solid green !important;
+  -webkit-box-shadow: 0px 0px 2px 3px rgba(39,204,6,0.39);
+  -moz-box-shadow: 0px 0px 2px 3px rgba(39,204,6,0.39);
+  box-shadow: 0px 0px 2px 3px rgba(39,204,6,0.39);
 }

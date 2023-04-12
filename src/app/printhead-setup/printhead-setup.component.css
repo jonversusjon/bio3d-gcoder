@@ -5,41 +5,30 @@ printhead-setup .mat-card {
 
 /* Reduce the font size of the title */
 printhead-setup .mat-card-title {
-  font-size: 11px; /* Adjust this value as needed */
+  font-size: 9px; /* Adjust this value as needed */
 }
 
 printhead-setup .mat-card-tile {
   box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14),
   0 1px 5px 0 rgba(0, 0, 0, 0.12),
   0 3px 1px -2px rgba(0, 0, 0, 0.2);
-  max-width:200px;
   margin: 10px;
 }
 
-mat-card {
-  max-width: 180px;
+mat-form-field {
+  font-size: 9px;
 }
-
-mat-card-content {
-  padding: 0;
-}
-mat-card > br {
-  display: none;
-}
-
 mat-card > input {
   font-size: 9px;
 }
 
-
-/* Hide white space */
-.mat-mdc-form-field-subscript-wrapper.mat-mdc-form-field-bottom-align.ng-tns-c11-1 {
-  display: none;
+.mat-mdc-card-header {
+  padding-bottom: 8px;
 }
 
 /* Add a maximum height and vertical scrollbar */
 .grid-list-container {
-  max-height: 600px; /* Adjust this value as needed */
+  max-height: 650px; /* Adjust this value as needed */
   overflow-y: auto;
 }
 
@@ -49,8 +38,25 @@ mat-card > input {
   margin: 0;
 }
 
-.mat-grid-tile.mat-elevation-z5 {
-  box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14),
-  0 1px 5px 0 rgba(0, 0, 0, 0.12),
-  0 3px 1px -2px rgba(0, 0, 0, 0.2);
+.button {
+  position: absolute;
+  border-radius: 50%;
+  background-color: blue;
+  cursor: pointer;
+}
+
+.active-toggle {
+  margin-left: auto;
+}
+
+.print-position-picker {
+  width: 85%;
+  aspect-ratio: 1 / 1;
+  border: 1px solid black;
+  border-radius: 50%;
+  position: relative;
+}
+
+.mat-mdc-form-field-bottom-align::before {
+  height: 5px;
 }
