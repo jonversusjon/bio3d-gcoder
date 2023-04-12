@@ -17,7 +17,14 @@ interface PrintHead {
 })
 export class PrintheadSetupComponent implements OnChanges {
   @Input() selectedPlate!: PlateFormat;
-
+  private colors: string[] = [
+    '#FF1F5B',
+    '#00CD6C',
+    '#FFC61E',
+    '#009ADE',
+    '#F28522',
+    '#AF58BA'
+  ];
   ngOnChanges(changes: SimpleChanges) {
 
   }
@@ -47,7 +54,7 @@ export class PrintheadSetupComponent implements OnChanges {
 
     const newPrintHead: PrintHead = {
       description: '',
-      color: '#000000',
+      color: this.getNextColor(),
       active: true
     };
 
@@ -79,22 +86,33 @@ export class PrintheadSetupComponent implements OnChanges {
       'position': 'relative'
     };
   }
-  getPrintPositionPickerStyle() {
+  getPrintPositionPickerStyle(isActive: boolean): object {
     if(this.selectedPlate) {
       const well_diam = this.toPX(this.selectedPlate.well_size);
-      return {
+      const commonStyle = {
         width: `${well_diam}px`,
         height: `${well_diam}px`,
-      };
+        marginLeft: 'auto',
+        marginRight: 'auto'
+      }
+      if(isActive) {
+        return {...commonStyle}
+        } else {
+          return {
+            ...commonStyle,
+            backgroundColor: 'lightgrey'
+          }
+      }
     }else {
       return {}
     }
   }
-  getPrintPositionButtonStyle(position: { x: number; y: number }) {
+  getPrintPositionButtonStyle(position: { x: number; y: number }, printhead: any) {
     if(this.selectedPlate) {
       const radius = this.toPX(this.selectedPlate.well_size) / 2;
       const buttonSize = this.toPX(this.printPositionSizeMM)
       return {
+        backgroundColor: printhead.color,
         left: `${position.x + radius}px`,
         top: `${position.y + radius }px`,
         width: `${buttonSize}px`,
@@ -139,5 +157,10 @@ export class PrintheadSetupComponent implements OnChanges {
 
   toPX(size_in_mm:number) {
     return this.screenUtils.convertMMToPPI(size_in_mm);
+  }
+
+  private getNextColor(): string {
+    const currentColorIndex = this.printHeads.length % this.colors.length;
+    return this.colors[currentColorIndex];
   }
 }

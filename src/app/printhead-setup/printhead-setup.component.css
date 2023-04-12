@@ -38,13 +38,6 @@ mat-card > input {
   margin: 0;
 }
 
-.button {
-  position: absolute;
-  border-radius: 50%;
-  background-color: blue;
-  cursor: pointer;
-}
-
 .active-toggle {
   margin-left: auto;
 }
@@ -57,6 +50,23 @@ mat-card > input {
   position: relative;
 }
 
+.print-position-picker button {
+  position: absolute;
+  border-radius: 50%;
+}
+
 .mat-mdc-form-field-bottom-align::before {
   height: 5px;
+}
+
+.input-container {
+  display: flex;
+}
+
+.color-field {
+  width: 50px;
+}
+
+.print-position-picker-scalar {
+  transform: scale(0.7);
 }

@@ -1,39 +1,42 @@
-<mat-form-field appearance="fill">
-  <mat-label>Number of Printheads</mat-label>
-  <input matInput type="number" min="1" max="20" [(ngModel)]="numberOfPrintheads" (change)="updatePrintheads()">
-</mat-form-field>
+<div class="print-position-picker-scalar">
+  <mat-form-field appearance="fill">
+    <mat-label>Number of Printheads</mat-label>
+    <input matInput type="number" min="1" max="20" [(ngModel)]="numberOfPrintheads" (change)="updatePrintheads()">
+  </mat-form-field>
 
-<div class="grid-list-container">
-  <mat-grid-list cols="1" rowHeight="400px" gutterSize="16px" style="padding: 16px;">
-    <mat-grid-tile *ngFor="let printhead of printHeads; let i = index">
-      <mat-card [ngClass]="{'disabled': !printhead.active}">
-        <mat-card-header>
-          <div class="small-header">Printhead {{ i + 1 }}</div>
-          <mat-slide-toggle [(ngModel)]="printhead.active" class="active-toggle">
-          </mat-slide-toggle>
-        </mat-card-header>
-        <mat-form-field appearance="fill">
-          <mat-label>Printhead Description</mat-label>
-          <input matInput [(ngModel)]="printhead.description" [disabled]="!printhead.active">
-        </mat-form-field>
+  <div class="grid-list-container">
+    <mat-grid-list cols="1" rowHeight="330px" gutterSize="24px" style="padding: 16px;">
+      <mat-grid-tile *ngFor="let printhead of printHeads; let i = index">
+        <mat-card [ngClass]="{'disabled': !printhead.active}">
+          <mat-card-header>
+            <div class="small-header">Printhead {{ i + 1 }}</div>
+            <mat-slide-toggle [(ngModel)]="printhead.active" class="active-toggle">
+            </mat-slide-toggle>
+          </mat-card-header>
+          <div class="input-container">
+            <mat-form-field appearance="fill" class="printhead-description-field"> <!-- Add a class here -->
+              <mat-label>Printhead Description</mat-label>
+              <input matInput [(ngModel)]="printhead.description" [disabled]="!printhead.active">
+            </mat-form-field>
 
-        <mat-form-field appearance="fill">
-          <mat-label>Color</mat-label>
-          <input matInput type="color" [(ngModel)]="printhead.color" [disabled]="!printhead.active">
-        </mat-form-field>
-
-        <mat-card-content appearance="fill">
-          <div class="print-position-picker" [ngStyle]="getPrintPositionPickerStyle()">
-            <div class="well"></div>
-            <div
-              *ngFor="let position of printPositions"
-              class="button"
-              [ngStyle]="getPrintPositionButtonStyle(position)"
-              (click)="toggleButton(position)"
-            ></div>
+            <mat-form-field appearance="fill" class="color-field"> <!-- Add a class here -->
+              <mat-label>Color</mat-label>
+              <input matInput type="color" [(ngModel)]="printhead.color" [disabled]="!printhead.active">
+            </mat-form-field>
           </div>
-        </mat-card-content>
-      </mat-card>
-    </mat-grid-tile>
-  </mat-grid-list>
+
+          <mat-card-content appearance="fill">
+            <div class="print-position-picker" [ngStyle]="getPrintPositionPickerStyle(printhead.active)">
+              <button mat-flat-button
+                *ngFor="let position of printPositions"
+                [attr.disabled]="!printhead.active ? true : null"
+                [ngStyle]="getPrintPositionButtonStyle(position, printhead)"
+                (click)="toggleButton(position)"
+              ></button>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </mat-grid-tile>
+    </mat-grid-list>
+  </div>
 </div>
