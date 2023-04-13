@@ -1,6 +1,19 @@
+.print-head-setup-component-wrapper {
+  display: flex;
+  background: lightblue;
+}
+
+.mat-mdc-floating-label {
+  font-size: 10px;
+}
+.printhead-number-input-wrapper {
+  flex: 1;
+  width:150px;
+}
+
 /* Reduce the padding of the mat-card */
 printhead-setup .mat-card {
-  padding: 8px; /* Adjust this value as needed */
+  padding: 16px; /* Adjust this value as needed */
 }
 
 /* Reduce the font size of the title */
@@ -12,14 +25,7 @@ printhead-setup .mat-card-tile {
   box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14),
   0 1px 5px 0 rgba(0, 0, 0, 0.12),
   0 3px 1px -2px rgba(0, 0, 0, 0.2);
-  margin: 10px;
-}
-
-mat-form-field {
-  font-size: 9px;
-}
-mat-card > input {
-  font-size: 9px;
+  margin: 4px;
 }
 
 .mat-mdc-card-header {
@@ -30,12 +36,34 @@ mat-card > input {
 .grid-list-container {
   max-height: 650px; /* Adjust this value as needed */
   overflow-y: auto;
+  min-width: 300px;
+  flex: 5;
 }
 
-.small-header {
-  font-size: 16px; /* Adjust the font size as needed */
-  font-weight: bold;
+/* Add this to your component's CSS file */
+.mat-mdc-form-field-subscript-wrapper {
   margin: 0;
+  padding: 0;
+}
+
+/* Add this to your component's CSS file */
+.mat-mdc-form-field-subscript-wrapper {
+  margin: 0;
+  padding: 0;
+}
+
+.mat-mdc-form-field-hint-wrapper {
+  display: none;
+}
+
+.mat-mdc-form-field-hint-wrapper {
+  display: none;
+}
+
+
+.active-toggle-wrapper {
+  display: flex;
+  vertical-align: top; /* Align the toggle to the top */
 }
 
 .active-toggle {
@@ -68,5 +96,9 @@ mat-card > input {
 }
 
 .print-position-picker-scalar {
-  transform: scale(0.7);
+  transform: scale(1.0);
+}
+
+.mat-mdc-form-field-subscript-wrapper {
+  display: none;
 }

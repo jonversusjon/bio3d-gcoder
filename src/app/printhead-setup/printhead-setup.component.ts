@@ -3,11 +3,15 @@ import { PlateFormatService } from '../plate-format.service';
 import { Coordinates} from "../../types/Coordinates";
 import { PlateFormat} from "../../types/PlateFormat";
 import { ScreenUtils } from "../screen-utils";
+import { PrintHeadStateService, PrintHeadButton } from "../printhead-state-service.service"
 
 interface PrintHead {
+  printHeadIndex: number;
   description: string;
   color: string;
   active: boolean;
+  printPositionStates: boolean[];
+  printHeadButtons: PrintHeadButton[];
 }
 
 @Component({
@@ -15,7 +19,7 @@ interface PrintHead {
   templateUrl: './printhead-setup.component.html',
   styleUrls: ['./printhead-setup.component.css']
 })
-export class PrintheadSetupComponent implements OnChanges {
+export class PrintheadSetupComponent {
   @Input() selectedPlate!: PlateFormat;
   private colors: string[] = [
     '#FF1F5B',
@@ -25,17 +29,17 @@ export class PrintheadSetupComponent implements OnChanges {
     '#F28522',
     '#AF58BA'
   ];
-  ngOnChanges(changes: SimpleChanges) {
-
-  }
 
   numberOfPrintheads: number = 1;
   printHeads: PrintHead[] = [];
   printPositions: any[] = [];
   printPositionSizeMM = 3;
+  inactiveColor = '#808080';
+
   constructor(
     private plateFormatService: PlateFormatService,
-    private screenUtils: ScreenUtils) {
+    private screenUtils: ScreenUtils,
+    private printHeadStateService: PrintHeadStateService) {
 
     this.plateFormatService.selectedPlate$.subscribe((plate) => {
       if(this.selectedPlate) {
@@ -46,6 +50,7 @@ export class PrintheadSetupComponent implements OnChanges {
       // Perform any necessary updates based on the new selectedPlate value
       this.updatePrintheads();
       this.updatePrintPositions();
+      this.printHeadStateService.initializeSelectedPrintheadButtons(this.numberOfPrintheads);
     });
   }
   ngOnInit(): void {}
@@ -53,9 +58,12 @@ export class PrintheadSetupComponent implements OnChanges {
   updatePrintheads() {
 
     const newPrintHead: PrintHead = {
+      printHeadIndex: this.printHeads.length,
       description: '',
       color: this.getNextColor(),
-      active: true
+      active: true,
+      printPositionStates: new Array(this.printPositions.length).fill(false),
+      printHeadButtons: []
     };
 
     if (this.numberOfPrintheads > this.printHeads.length) {
@@ -68,6 +76,7 @@ export class PrintheadSetupComponent implements OnChanges {
     if(this.selectedPlate) {
       this.updatePrintPositions();
     }
+    this.printHeadStateService.updateNumberOfPrintheads(this.printHeads.length);
   }
 
   getWellStyle() {
@@ -100,23 +109,28 @@ export class PrintheadSetupComponent implements OnChanges {
         } else {
           return {
             ...commonStyle,
-            backgroundColor: 'lightgrey'
+            backgroundColor: '#f8f8f8'
           }
       }
     }else {
       return {}
     }
   }
-  getPrintPositionButtonStyle(position: { x: number; y: number }, printhead: any) {
+  getPrintPositionButtonStyle(printhead: PrintHead, position: {x: number, y: number}, index: number) {
+
     if(this.selectedPlate) {
       const radius = this.toPX(this.selectedPlate.well_size) / 2;
       const buttonSize = this.toPX(this.printPositionSizeMM)
+      const selected = printhead.printPositionStates[index];
+
       return {
-        backgroundColor: printhead.color,
+        'background-color': selected ? printhead.color : 'transparent',
+        'border-color': printhead.active ? printhead.color : 'grey',
         left: `${position.x + radius}px`,
         top: `${position.y + radius }px`,
         width: `${buttonSize}px`,
-        height: `${buttonSize}px`,
+        aspectRatio: '1 / 1',
+        borderWidth: '1px'
       };
     } else {
       return {}
@@ -130,15 +144,48 @@ export class PrintheadSetupComponent implements OnChanges {
     this.printPositions = this.getPrintPositionCoordinates(8,this.toPX(well_diam), this.toPX(this.printPositionSizeMM));
   }
 
-  toggleButton(button: any) {
-    if (!button.active) {
-      button.active = true;
-      button.backgroundColor = 'red';
+  updatePrintheadButtons(printhead: PrintHead, printHeadIndex: number, updateAll: boolean = false) {
+    if (updateAll && !printhead.active) {
+      printhead.printPositionStates = printhead.printPositionStates.map(() => false);
+      printhead.printHeadButtons = printhead.printHeadButtons.map(button => ({
+        ...button,
+        selected: false
+      }));
     } else {
-      button.active = false;
-      button.backgroundColor = 'blue';
+      if (updateAll) {
+        printhead.printPositionStates = printhead.printPositionStates.map((state, index) => {
+          const button: PrintHeadButton = {
+            position: index,
+            color: printhead.color,
+            selected: state
+          };
+          printhead.printHeadButtons[index] = button;
+          return state;
+        });
+      } else {
+        printhead.printPositionStates[printHeadIndex] = !printhead.printPositionStates[printHeadIndex];
+        const button: PrintHeadButton = {
+          position: printHeadIndex,
+          color: printhead.color,
+          selected: printhead.printPositionStates[printHeadIndex]
+        };
+
+        if (!printhead.active) {
+          printhead.printPositionStates = printhead.printPositionStates.map(() => false);
+        }
+
+        printhead.printHeadButtons[printHeadIndex] = button;
+      }
     }
+
+    // Update selected printhead buttons
+    const selectedButtons = printhead.printHeadButtons.filter((button, index) => {
+      return printhead.printPositionStates[index];
+    }).map(button => ({ ...button, color: printhead.color }));
+
+    this.printHeadStateService.updateSelectedPrintheadButtons(printhead.printHeadIndex, selectedButtons);
   }
+
 
   getPrintPositionCoordinates(numDots: number, wellSize:number, dotSize:number, adj_x= 0, adj_y= 0) {
     const radius = (0.80 * wellSize) / 2;
@@ -147,7 +194,7 @@ export class PrintheadSetupComponent implements OnChanges {
     const x = angles.map(angle => radius * Math.cos(angle));
     const y = angles.map(angle => radius * Math.sin(angle));
 
-    let printPositionCoordinates: Coordinates[] = [];
+    let printPositionCoordinates: Coordinates[] = [{ x: - (dotSize/2) + adj_x, y: - (dotSize/2) + adj_y, label: "0" }];
     for (let i = 0; i < numDots; i++) {
       printPositionCoordinates.push({'x': (x[i] - (dotSize/2) + adj_x), 'y': (y[i] - (dotSize/2) + adj_y), 'label': (i + 1).toString()});
     }

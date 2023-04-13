@@ -1,9 +1,28 @@
-import { Component, Input, OnChanges, SimpleChanges, OnInit  } from '@angular/core';
+import {Component, Input, OnChanges, SimpleChanges, OnInit, OnDestroy} from '@angular/core';
 import { range } from "rxjs";
 import { ScreenUtils } from "../screen-utils";
 import { PlateFormatService } from '../plate-format.service';
 import { Renderer2, RendererFactory2 } from '@angular/core';
 import { PlateFormat} from "../../types/PlateFormat";
+import { PrintHeadButton, PrintHeadStateService } from "../printhead-state-service.service";
+import { Subscription } from 'rxjs';
+
+interface Well {
+  row: number;
+  col: number;
+  origin: {x: number, y: number};
+  selected: boolean;
+  style: {
+    height: string;
+    width: string;
+    top: string;
+    left: string;
+    borderRadius: string;
+    border: string;
+  };
+  element: HTMLElement;
+}
+
 
 @Component({
   selector: 'app-plate-map',
@@ -11,17 +30,24 @@ import { PlateFormat} from "../../types/PlateFormat";
   styleUrls: ['./plate-map.component.css'],
   providers: [ScreenUtils]
 })
-export class PlateMapComponent implements OnChanges, OnInit {
+export class PlateMapComponent implements OnChanges, OnInit, OnDestroy {
   @Input() plate!: PlateFormat;
   @Input() selectedPlate!: typeof PlateMapComponent.prototype.plateFormats[0];
 
   plateFormats: any[] = [];
 
+  containerStyle: any = {
+    // Define your style properties here, for example:
+    width: '100%',
+    height: '100%',
+    position: 'relative'
+  };
+
   lastClicked: { row: number, col: number } | null = null;
   lastClickedRow: number | null = null;
   lastClickedCol: number | null = null;
 
-  plateMap: { wells: any[][]; columnHeaders: any[]; rowHeaders: any[] } = { wells: [], columnHeaders: [], rowHeaders: [] };
+  plateMap: { wells: Well[][]; columnHeaders: any[]; rowHeaders: any[] } = { wells: [], columnHeaders: [], rowHeaders: [] };
   plateHeight = 85.4; // mm
   plateWidth = 127.6; //mm
   plateHeightPX = this.toPX(this.plateHeight);
@@ -30,10 +56,14 @@ export class PlateMapComponent implements OnChanges, OnInit {
   selectionRectangleStart: {row: number, col: number} | null = null;
   selectionRectangleVisible = false;
 
+  selectedPrintheadButtonsSubscription!: Subscription;
+  selectedPrintheadButtons: PrintHeadButton[][] = [];
+
   private alphabet_upperCase = [...Array(26)].map((_, i) => String.fromCharCode('a'.charCodeAt(0) + i).toUpperCase());
   constructor(
     private screenUtils: ScreenUtils,
     private plateFormatService: PlateFormatService,
+    private printHeadStateService: PrintHeadStateService,
     private renderer: Renderer2,
     rendererFactory: RendererFactory2
   ) {
@@ -41,8 +71,16 @@ export class PlateMapComponent implements OnChanges, OnInit {
     this.plateFormats = plateFormatService.getPlateFormats()
     this.selectedPlate = this.plateFormats[0];
   }
-  ngOnInit() {
-    this.updatePlateMap(this.selectedPlate);
+  ngOnInit(): void {
+    this.selectedPrintheadButtonsSubscription = this.printHeadStateService.selectedPrintheadButtons$.subscribe(buttons => {
+      this.selectedPrintheadButtons = buttons;
+      // Call a function to update the plate map with the new selected buttons
+      this.updatePlateMap(this.selectedPlate);
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.selectedPrintheadButtonsSubscription.unsubscribe();
   }
   ngOnChanges(changes: SimpleChanges) {
     if (changes['plate'] && changes['plate'].currentValue) {
@@ -80,6 +118,22 @@ export class PlateMapComponent implements OnChanges, OnInit {
       this.selectionRectangleVisible = false;
     }
   }
+
+  getSelectedWells(): Well[] {
+    const selectedWells: Well[] = [];
+
+    this.plateMap.wells.forEach(row => {
+      row.forEach(well => {
+        if (well.selected) {
+          selectedWells.push(well);
+        }
+      });
+    });
+
+    return selectedWells;
+  }
+
+
   updatePlateMap(plate: PlateFormat, event?: MouseEvent) {
     console.log('update plate map')
     const rows = plate.rows;
@@ -120,7 +174,12 @@ export class PlateMapComponent implements OnChanges, OnInit {
             border: '1px solid black'
           },
           element: wellElement,
-        };
+          origin: {
+            x: (a1_xPX - (wellDiameterPX / 2)) + (col * (wellSpacingPX + wellDiameterPX)),
+            y: (a1_yPX - (wellDiameterPX / 2)) + (row * (wellSpacingPX + wellDiameterPX))
+          }
+        } as Well;
+
       });
     });
 
@@ -168,11 +227,37 @@ export class PlateMapComponent implements OnChanges, OnInit {
     }
   }
 
-  get containerStyle() {
-    return {
+  updateExperiment(): void {
+    // Get the selectedPrintheadButtons from the PrintHeadStateService
+    const selectedPrintheadButtons = this.printHeadStateService.selectedPrintheadButtons;
 
-    }
+    // Iterate through the selectedPrintheadButtons
+    selectedPrintheadButtons.forEach((printheadButtons, printheadIndex) => {
+      printheadButtons.forEach((button) => {
+        // Get the selected wells on the plate map
+        const selectedWells = this.getSelectedWells();
+
+        // Draw a circle for each selected print position in every selected well
+        selectedWells.forEach((well) => {
+          this.drawCircle(well, button);
+        });
+      });
+    });
   }
+  drawCircle(well: Well, button: PrintHeadButton): void {
+    // Implement this method to draw a circle at the position of the button in the well.
+    // You need to replace 'Well' with the correct type representing a well in your application.
+
+    // Calculate the relative position of the button in the well using the ratio of the size of the well on the plate map divided by the size of the well on the printhead picker.
+    const relativePosition = {
+      // x: well.origin.x + (button.position.x * (well.width / printheadWellWidth)),
+      // y: well.origin.y + (button.position.y * (well.height / printheadWellHeight))
+    };
+
+    // Draw a circle at the relativePosition with the size and color of the button.
+    // You can use the appropriate method to draw the circle depending on the framework or library you are using to render the plate map.
+  }
+
   get plateStyle() {
     return {
       position: 'absolute',
@@ -263,6 +348,7 @@ export class PlateMapComponent implements OnChanges, OnInit {
       }
     }
     this.lastClickedRow = rowIndex;
+
   }
 
   toggleColumnSelection(colIndex: number, event?: MouseEvent): void {
@@ -295,6 +381,7 @@ export class PlateMapComponent implements OnChanges, OnInit {
       }
     }
     this.lastClickedCol = colIndex;
+
   }
 
   areAllWellsSelected(startRow: number, endRow: number, startCol: number, endCol: number, wells: any[][]): boolean {
