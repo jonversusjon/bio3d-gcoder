@@ -1,4 +1,4 @@
-import {Component, Input, OnChanges, SimpleChanges, OnInit, OnDestroy} from '@angular/core';
+import {Component, Input, OnChanges, SimpleChanges, OnInit, OnDestroy, AfterViewInit} from '@angular/core';
 import { range } from "rxjs";
 import { ScreenUtils } from "../screen-utils";
 import { PlateFormatService } from '../plate-format.service';
@@ -30,7 +30,7 @@ interface Well {
   styleUrls: ['./plate-map.component.css'],
   providers: [ScreenUtils]
 })
-export class PlateMapComponent implements OnChanges, OnInit, OnDestroy {
+export class PlateMapComponent implements OnChanges, OnInit, OnDestroy, AfterViewInit {
   @Input() plate!: PlateFormat;
   @Input() selectedPlate!: typeof PlateMapComponent.prototype.plateFormats[0];
 
@@ -71,29 +71,31 @@ export class PlateMapComponent implements OnChanges, OnInit, OnDestroy {
     this.plateFormats = plateFormatService.getPlateFormats()
     this.selectedPlate = this.plateFormats[0];
   }
+  ngAfterViewInit(): void {
+    // this.updatePlateMap(this.selectedPlate);
+    // console.log('plate-map-component ngAfterViewInit');
+  }
   ngOnInit(): void {
-    this.selectedPrintheadButtonsSubscription = this.printHeadStateService.selectedPrintheadButtons$.subscribe(buttons => {
-      this.selectedPrintheadButtons = buttons;
-      // Call a function to update the plate map with the new selected buttons
-      this.updatePlateMap(this.selectedPlate);
-    });
+    // Subscribe to changes in the printhead buttons
+    this.selectedPrintheadButtonsSubscription = this.printHeadStateService.selectedPrintheadButtons$.subscribe(
+      (selectedPrintheadButtons: PrintHeadButton[][]) => {
+        this.updateExperiment(selectedPrintheadButtons);
+      }
+    );
+    this.updatePlateMap(this.selectedPlate);
   }
 
   ngOnDestroy(): void {
     this.selectedPrintheadButtonsSubscription.unsubscribe();
   }
   ngOnChanges(changes: SimpleChanges) {
-    if (changes['plate'] && changes['plate'].currentValue) {
+    if (changes['selectedPlate'] && changes['selectedPlate'].currentValue) {
       console.log('changes-plate')
       this.plateFormatService.setSelectedPlate(this.selectedPlate);
       this.updatePlateMap(this.selectedPlate);
     } else {
       return;
     }
-  }
-
-  ngAfterViewInit() {
-
   }
 
   onMouseMove(event: MouseEvent, row: number, col: number): void {
@@ -227,9 +229,7 @@ export class PlateMapComponent implements OnChanges, OnInit, OnDestroy {
     }
   }
 
-  updateExperiment(): void {
-    // Get the selectedPrintheadButtons from the PrintHeadStateService
-    const selectedPrintheadButtons = this.printHeadStateService.selectedPrintheadButtons;
+  updateExperiment(selectedPrintheadButtons: PrintHeadButton[][]): void {
 
     // Iterate through the selectedPrintheadButtons
     selectedPrintheadButtons.forEach((printheadButtons, printheadIndex) => {
