@@ -35,9 +35,9 @@ export class PlateMapComponent implements OnChanges, OnInit, OnDestroy, AfterVie
   @Input() selectedPlate!: typeof PlateMapComponent.prototype.plateFormats[0];
 
   plateFormats: any[] = [];
+  wellSelectionStates: boolean[] = [];
 
   containerStyle: any = {
-    // Define your style properties here, for example:
     width: '100%',
     height: '100%',
     position: 'relative'
@@ -83,12 +83,14 @@ export class PlateMapComponent implements OnChanges, OnInit, OnDestroy, AfterVie
 // Subscription for selected position buttons changes
     this.selectedPrintheadButtonsSubscription = this.printHeadStateService.selectedPrintheadButtons$.subscribe(
       (selectedPrintheadButtons: PrintHeadButton[][]) => {
+        console.log('Called from selectedPrintheadButtonsSubscription');
         this.updateExperiment(this.activePrintHeads, selectedPrintheadButtons);
       }
     );
 
 // Subscription for active printheads changes
     this.printHeadsSubscription = this.printHeadStateService.printHeads$.subscribe(printHeads => {
+      console.log('Called from printHeadsSubscription');
       this.activePrintHeads = printHeads;
       // Call your updateExperiment() method here if needed, with this.printHeads and the latest selectedPrintheadButtons.
     });
@@ -131,23 +133,7 @@ export class PlateMapComponent implements OnChanges, OnInit, OnDestroy, AfterVie
     }
   }
 
-  getSelectedWells(): Well[] {
-    const selectedWells: Well[] = [];
-
-    this.plateMap.wells.forEach(row => {
-      row.forEach(well => {
-        if (well.selected) {
-          selectedWells.push(well);
-        }
-      });
-    });
-
-    return selectedWells;
-  }
-
-
   updatePlateMap(plate: PlateFormat, event?: MouseEvent) {
-    console.log('update plate map')
     const rows = plate.rows;
     const cols = plate.cols;
 
@@ -160,77 +146,82 @@ export class PlateMapComponent implements OnChanges, OnInit, OnDestroy, AfterVie
 
     const rowLabels = this.alphabet_upperCase.slice(0, cols);
 
-    this.plateMap.wells = Array.from({ length: rows }, (_, row) => {
-      return Array.from({ length: cols }, (_, col) => {
-        const wellElement = this.renderer.createElement('div');
-        this.renderer.addClass(wellElement, 'plate-cell');
-        this.renderer.setAttribute(wellElement, 'data-row', row.toString());
-        this.renderer.setAttribute(wellElement, 'data-col', col.toString());
+    if (this.selectedPlate) {
 
-        this.renderer.listen(wellElement, 'click', (event: MouseEvent) => {
-          this.toggleWellSelection(row, col, event.shiftKey);
+      this.plateMap.wells = Array.from({length: rows}, (_, row) => {
+        return Array.from({length: cols}, (_, col) => {
+          const wellElement = this.renderer.createElement('div');
+          this.renderer.addClass(wellElement, 'plate-cell');
+          this.renderer.setAttribute(wellElement, 'data-row', row.toString());
+          this.renderer.setAttribute(wellElement, 'data-col', col.toString());
+
+          this.renderer.listen(wellElement, 'click', (event: MouseEvent) => {
+            this.toggleWellSelection(row, col, event.shiftKey);
+          });
+
+          // Include the returned style in the final well object
+          return {
+            row,
+            col,
+            selected: false,
+            style: {
+              ...this.getCommonStyleHeaders(),
+              height: `${wellDiameterPX}px`,
+              width: `${wellDiameterPX}px`,
+              top: `${(a1_yPX - (wellDiameterPX / 2)) + (row * (wellSpacingPX + wellDiameterPX))}px`,
+              left: `${(a1_xPX - (wellDiameterPX / 2)) + (col * (wellSpacingPX + wellDiameterPX))}px`,
+              borderRadius: '50%',
+              border: '1px solid black'
+            },
+            element: wellElement,
+            origin: {
+              x: (a1_xPX - (wellDiameterPX / 2)) + (col * (wellSpacingPX + wellDiameterPX)),
+              y: (a1_yPX - (wellDiameterPX / 2)) + (row * (wellSpacingPX + wellDiameterPX))
+            }
+          } as Well;
+
+        });
+      });
+      //initialize or reset the wellSelectionStates Array
+      const wellCount = this.selectedPlate.rows * this.selectedPlate.cols
+      this.wellSelectionStates = new Array(wellCount).fill(false);
+
+      this.plateMap.rowHeaders = Array.from({length: plate.rows}, (_, row) => {
+        const rowElement = this.renderer.createElement('div');
+        this.renderer.addClass(rowElement, 'row-header');
+        this.renderer.setAttribute(rowElement, 'data-row', row.toString());
+
+        this.renderer.listen(rowElement, 'click', () => {
+          this.toggleRowSelection(row, event);
         });
 
-        // Include the returned style in the final well object
         return {
-          row,
-          col,
-          selected: false,
           style: {
             ...this.getCommonStyleHeaders(),
             height: `${wellDiameterPX}px`,
-            width: `${wellDiameterPX}px`,
-            top: `${(a1_yPX - (wellDiameterPX / 2)) + (row * (wellSpacingPX + wellDiameterPX))}px`,
-            left: `${(a1_xPX - (wellDiameterPX / 2)) + (col * (wellSpacingPX + wellDiameterPX))}px`,
-            borderRadius: '50%',
-            border: '1px solid black'
+            width: `${rowHeaderWidthPX}px`,
+            top: `${(row * (wellDiameterPX + wellSpacingPX)) + (wellDiameterPX / 2) + colHeaderHeightPX - 10}px`
           },
-          element: wellElement,
-          origin: {
-            x: (a1_xPX - (wellDiameterPX / 2)) + (col * (wellSpacingPX + wellDiameterPX)),
-            y: (a1_yPX - (wellDiameterPX / 2)) + (row * (wellSpacingPX + wellDiameterPX))
-          }
-        } as Well;
-
-      });
-    });
-
-    this.plateMap.rowHeaders = Array.from({length: plate.rows}, (_, row) => {
-      const rowElement = this.renderer.createElement('div');
-      this.renderer.addClass(rowElement, 'row-header');
-      this.renderer.setAttribute(rowElement, 'data-row', row.toString());
-
-      this.renderer.listen(rowElement, 'click', () => {
-        this.toggleRowSelection(row, event);
+          type: 'rowHeader',
+          label: rowLabels[row],
+          row,
+        };
       });
 
-      return {
-        style: {
-          ...this.getCommonStyleHeaders(),
-          height:`${wellDiameterPX}px`,
-          width:`${rowHeaderWidthPX}px`,
-          top: `${(row * (wellDiameterPX + wellSpacingPX)) + (wellDiameterPX/2) + colHeaderHeightPX - 10}px`
-        },
-        type: 'rowHeader',
-        label: rowLabels[row],
-        row,
-      };
-    });
-
-    this.plateMap.columnHeaders = Array.from({length: plate.cols}, (_, col) => {
-      return {
-        style: {
-          ...this.getCommonStyleHeaders(),
-          height:`${rowHeaderWidthPX}px`,
-          width: `${wellDiameterPX}px`,
-          left: `${(col * (wellDiameterPX + wellSpacingPX)) + rowHeaderWidthPX}px`
-        },
-        type: 'columnHeader',
-        label: (col+1).toString(),
-        col,
-      };
-    });
-
+      this.plateMap.columnHeaders = Array.from({length: plate.cols}, (_, col) => {
+        return {
+          style: {
+            ...this.getCommonStyleHeaders(),
+            height: `${rowHeaderWidthPX}px`,
+            width: `${wellDiameterPX}px`,
+            left: `${(col * (wellDiameterPX + wellSpacingPX)) + rowHeaderWidthPX}px`
+          },
+          type: 'columnHeader',
+          label: (col + 1).toString(),
+          col,
+        };
+      });
+    }
     const blankTile= {
       ...this.getCommonStyleHeaders(),
       backgroundColor: 'blue',
@@ -240,34 +231,42 @@ export class PlateMapComponent implements OnChanges, OnInit, OnDestroy, AfterVie
   }
 
   updateExperiment(printHeads: PrintHead[], selectedPrintheadButtons: PrintHeadButton[][]): void {
-    //Iterate through all the active printheads
-    printHeads.forEach((activePrintHead, printheadIndex) => {
-      if (activePrintHead.active) {
-        // Iterate through the selectedPrintheadButtons
-        selectedPrintheadButtons.forEach((printheadButtons, printHeadIndex) => {
-          printheadButtons.forEach((button) => {
-            // Get the selected wells on the plate map
-            const pickerWell_to_plateWell_ratio = this.selectedPlate.wells[0].size / activePrintHead.pickerWell.size;
-            const selectedWells = this.getSelectedWells();
-            // console.log('updateExperiment, selectedWells: ', JSON.stringify(selectedWells));
-            // Draw a circle for each selected print position in every selected well
-            selectedWells.forEach((well) => {
-              this.drawCircle(well, button, pickerWell_to_plateWell_ratio);
+    console.log('this.selectedPlate: ', JSON.stringify(this.selectedPlate));
+    console.log('this.wellSelectionStates: ', JSON.stringify(this.wellSelectionStates));
+    console.log('this.wellSelectionStates.some(well => well): ', JSON.stringify(this.wellSelectionStates.some(well => well)));
+    if (this.selectedPlate && this.wellSelectionStates && this.wellSelectionStates.some(well => well)) {
+      //Iterate through all the active printheads
+      printHeads.forEach((activePrintHead, printheadIndex) => {
+        if (activePrintHead.active) {
+          // Iterate through the selectedPrintheadButtons
+          selectedPrintheadButtons.forEach((printheadButtons, printHeadIndex) => {
+            printheadButtons.forEach((button) => {
+              // Get the selected wells on the plate map
+              const pickerWell_to_plateWell_ratio = this.selectedPlate.well_size / this.printHeadStateService.printPickerSize;
+              // console.log('updateExperiment, wellSelectionStates: ', JSON.stringify(wellSelectionStates));
+              // Draw a circle for each selected print position in every selected well
+              this.plateMap.wells.forEach((row) => {
+                row.forEach((well) => {
+                  this.drawCircle(well.origin, button, pickerWell_to_plateWell_ratio);
+                });
+              });
+
             });
           });
-        });
-      }
-    });
+        }
+      });
+    } else {
+      console.warn('Selected plate wells are not defined or empty');
+    }
   }
-
-  drawCircle(well: Well, button: PrintHeadButton, ratio: number): void {
+  drawCircle(origin: {x:number, y:number}, button: PrintHeadButton, ratio: number): void {
     // Implement this method to draw a circle at the position of the button in the well.
     // You need to replace 'Well' with the correct type representing a well in your application.
 
     // Calculate the relative position of the button in the well using the ratio of the size of the well on the plate map divided by the size of the well on the printhead picker.
     const relativePosition = {
-      x: (well.origin.x + button.coordinates.x) * ratio,
-      y: (well.origin.y + button.coordinates.y) * ratio
+      x: (origin.x + button.coordinates.x) * ratio,
+      y: (origin.y + button.coordinates.y) * ratio
     };
 
     // Draw a circle at the relativePosition with the size and color of the button.
@@ -329,11 +328,14 @@ export class PlateMapComponent implements OnChanges, OnInit, OnDestroy, AfterVie
       this.selectRegion(row, col, this.lastClicked.row, this.lastClicked.col);
     } else {
       this.plateMap.wells[row][col].selected = !this.plateMap.wells[row][col].selected;
+      const wellIndex = row * this.plateMap.columnHeaders.length + col;
+      this.wellSelectionStates[wellIndex] = this.plateMap.wells[row][col].selected;
       this.lastClicked = { row, col };
     }
     // Call updateExperiment for the changed well(s)
     this.updateExperiment(this.activePrintHeads, this.printHeadStateService.selectedPrintheadButtons);
   }
+
 
   toggleRowSelection(rowIndex: number, event?: MouseEvent): void {
 

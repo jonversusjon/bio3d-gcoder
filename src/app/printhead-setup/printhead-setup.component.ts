@@ -42,6 +42,8 @@ export class PrintheadSetupComponent {
         this.selectedPlate = plateFormatService.getDefaultPlateFormat();
       }
       // Perform any necessary updates based on the new selectedPlate value
+      // Assuming you have a reference to the PrintheadStateService as 'printHeadStateService'
+      this.printHeadStateService.printPickerSize = this.printPickerSize;
       this.updatePrintheads();
       this.printHeadStateService.initializeSelectedPrintheadButtons(this.numberOfPrintheads);
     });
@@ -166,20 +168,7 @@ export class PrintheadSetupComponent {
       } else if (buttonIndex !== undefined) { // Execute this part only when pressing an individual printpositionbutton
 
         printhead.printPositionStates[buttonIndex] = !printhead.printPositionStates[buttonIndex];
-        // const button: PrintHeadButton = {
-        //   printHead: printhead.printHeadIndex,
-        //   position: buttonIndex, // Set the position to the buttonIndex
-        //   color: printhead.color,
-        //   selected: printhead.printPositionStates[buttonIndex],
-        //   Coordinates:
-        // };
 
-        // Update selected printhead buttons
-        const selectedButtons = printhead.printHeadButtons.filter((button, index) => {
-          return printhead.printPositionStates[index];
-        }).map(button => ({ ...button, color: printhead.color }));
-
-        this.printHeadStateService.updateSelectedPrintheadButtons(printhead.printHeadIndex, selectedButtons);
       }
     }
 
