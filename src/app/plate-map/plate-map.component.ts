@@ -4,7 +4,7 @@ import { ScreenUtils } from "../screen-utils";
 import { PlateFormatService } from '../plate-format.service';
 import { Renderer2, RendererFactory2 } from '@angular/core';
 import { PlateFormat} from "../../types/PlateFormat";
-import { PrintHeadButton, PrintHeadStateService } from "../printhead-state-service.service";
+import {PrintHead, PrintHeadButton, PrintHeadStateService} from "../printhead-state-service.service";
 import { Subscription } from 'rxjs';
 
 interface Well {
@@ -59,6 +59,9 @@ export class PlateMapComponent implements OnChanges, OnInit, OnDestroy, AfterVie
   selectedPrintheadButtonsSubscription!: Subscription;
   selectedPrintheadButtons: PrintHeadButton[][] = [];
 
+  private printHeadsSubscription!: Subscription;
+  activePrintHeads: PrintHead[] = [];
+
   private alphabet_upperCase = [...Array(26)].map((_, i) => String.fromCharCode('a'.charCodeAt(0) + i).toUpperCase());
   constructor(
     private screenUtils: ScreenUtils,
@@ -70,23 +73,30 @@ export class PlateMapComponent implements OnChanges, OnInit, OnDestroy, AfterVie
     this.renderer = rendererFactory.createRenderer(null, null);
     this.plateFormats = plateFormatService.getPlateFormats()
     this.selectedPlate = this.plateFormats[0];
+    this.printHeadsSubscription = new Subscription();
   }
   ngAfterViewInit(): void {
-    // this.updatePlateMap(this.selectedPlate);
-    // console.log('plate-map-component ngAfterViewInit');
+    this.updatePlateMap(this.selectedPlate);
+    console.log('plate-map-component ngAfterViewInit');
   }
   ngOnInit(): void {
-    // Subscribe to changes in the printhead buttons
+// Subscription for selected position buttons changes
     this.selectedPrintheadButtonsSubscription = this.printHeadStateService.selectedPrintheadButtons$.subscribe(
       (selectedPrintheadButtons: PrintHeadButton[][]) => {
-        this.updateExperiment(selectedPrintheadButtons);
+        this.updateExperiment(this.activePrintHeads, selectedPrintheadButtons);
       }
     );
-    this.updatePlateMap(this.selectedPlate);
+
+// Subscription for active printheads changes
+    this.printHeadsSubscription = this.printHeadStateService.printHeads$.subscribe(printHeads => {
+      this.activePrintHeads = printHeads;
+      // Call your updateExperiment() method here if needed, with this.printHeads and the latest selectedPrintheadButtons.
+    });
   }
 
   ngOnDestroy(): void {
     this.selectedPrintheadButtonsSubscription.unsubscribe();
+    this.printHeadsSubscription.unsubscribe();
   }
   ngOnChanges(changes: SimpleChanges) {
     if (changes['selectedPlate'] && changes['selectedPlate'].currentValue) {
@@ -229,29 +239,35 @@ export class PlateMapComponent implements OnChanges, OnInit, OnDestroy, AfterVie
     }
   }
 
-  updateExperiment(selectedPrintheadButtons: PrintHeadButton[][]): void {
-
-    // Iterate through the selectedPrintheadButtons
-    selectedPrintheadButtons.forEach((printheadButtons, printheadIndex) => {
-      printheadButtons.forEach((button) => {
-        // Get the selected wells on the plate map
-        const selectedWells = this.getSelectedWells();
-
-        // Draw a circle for each selected print position in every selected well
-        selectedWells.forEach((well) => {
-          this.drawCircle(well, button);
+  updateExperiment(printHeads: PrintHead[], selectedPrintheadButtons: PrintHeadButton[][]): void {
+    //Iterate through all the active printheads
+    printHeads.forEach((activePrintHead, printheadIndex) => {
+      if (activePrintHead.active) {
+        // Iterate through the selectedPrintheadButtons
+        selectedPrintheadButtons.forEach((printheadButtons, printHeadIndex) => {
+          printheadButtons.forEach((button) => {
+            // Get the selected wells on the plate map
+            const pickerWell_to_plateWell_ratio = this.selectedPlate.wells[0].size / activePrintHead.pickerWell.size;
+            const selectedWells = this.getSelectedWells();
+            // console.log('updateExperiment, selectedWells: ', JSON.stringify(selectedWells));
+            // Draw a circle for each selected print position in every selected well
+            selectedWells.forEach((well) => {
+              this.drawCircle(well, button, pickerWell_to_plateWell_ratio);
+            });
+          });
         });
-      });
+      }
     });
   }
-  drawCircle(well: Well, button: PrintHeadButton): void {
+
+  drawCircle(well: Well, button: PrintHeadButton, ratio: number): void {
     // Implement this method to draw a circle at the position of the button in the well.
     // You need to replace 'Well' with the correct type representing a well in your application.
 
     // Calculate the relative position of the button in the well using the ratio of the size of the well on the plate map divided by the size of the well on the printhead picker.
     const relativePosition = {
-      // x: well.origin.x + (button.position.x * (well.width / printheadWellWidth)),
-      // y: well.origin.y + (button.position.y * (well.height / printheadWellHeight))
+      x: (well.origin.x + button.coordinates.x) * ratio,
+      y: (well.origin.y + button.coordinates.y) * ratio
     };
 
     // Draw a circle at the relativePosition with the size and color of the button.
@@ -315,6 +331,8 @@ export class PlateMapComponent implements OnChanges, OnInit, OnDestroy, AfterVie
       this.plateMap.wells[row][col].selected = !this.plateMap.wells[row][col].selected;
       this.lastClicked = { row, col };
     }
+    // Call updateExperiment for the changed well(s)
+    this.updateExperiment(this.activePrintHeads, this.printHeadStateService.selectedPrintheadButtons);
   }
 
   toggleRowSelection(rowIndex: number, event?: MouseEvent): void {

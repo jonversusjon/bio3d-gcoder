@@ -4,16 +4,9 @@ import { Coordinates} from "../../types/Coordinates";
 import { PlateFormat} from "../../types/PlateFormat";
 import { ScreenUtils } from "../screen-utils";
 import { PrintHeadStateService, PrintHeadButton } from "../printhead-state-service.service"
+import { PrintHead } from "../printhead-state-service.service";
 
-interface PrintHead {
-  printHeadIndex: number;
-  description: string;
-  color: string;
-  active: boolean;
-  printPositionStates: boolean[];
-  printHeadButtons: PrintHeadButton[];
-}
-
+const PRINT_POSITIONS_COUNT = 9;
 @Component({
   selector: 'app-printhead-setup',
   templateUrl: './printhead-setup.component.html',
@@ -34,6 +27,7 @@ export class PrintheadSetupComponent {
   printHeads: PrintHead[] = [];
   printPositions: any[] = [];
   printPositionSizeMM = 3;
+  printPickerSize: number = 34.8;
   inactiveColor = '#808080';
 
   constructor(
@@ -49,7 +43,6 @@ export class PrintheadSetupComponent {
       }
       // Perform any necessary updates based on the new selectedPlate value
       this.updatePrintheads();
-      this.updatePrintPositions();
       this.printHeadStateService.initializeSelectedPrintheadButtons(this.numberOfPrintheads);
     });
   }
@@ -62,8 +55,9 @@ export class PrintheadSetupComponent {
       description: '',
       color: this.getNextColor(),
       active: true,
-      printPositionStates: new Array(this.printPositions.length).fill(false),
-      printHeadButtons: []
+      printPositionStates: Array.from({ length: this.printPositions.length >= 1 ? this.printPositions.length : PRINT_POSITIONS_COUNT }, () => false),
+      printHeadButtons: [],
+      pickerWell: { size: this.printPickerSize }
     };
 
     if (this.numberOfPrintheads > this.printHeads.length) {
@@ -73,10 +67,14 @@ export class PrintheadSetupComponent {
     } else {
       this.printHeads = this.printHeads.slice(0, this.numberOfPrintheads);
     }
-    if(this.selectedPlate) {
-      this.updatePrintPositions();
-    }
-    this.printHeadStateService.updateNumberOfPrintheads(this.printHeads.length);
+
+    this.printHeads.forEach((printhead) => {
+      console.log('printHeads.forEach: ', JSON.stringify(printhead));
+      this.updatePrintheadButtons(printhead, undefined, true);
+    });
+
+    this.printHeadStateService.updatePrintHeads(this.printHeads);
+
   }
 
   getWellStyle() {
@@ -137,44 +135,51 @@ export class PrintheadSetupComponent {
     }
   }
 
-  updatePrintPositions() {
-    // Define the button positions here.
-    // You can adjust the x and y values to position the buttons as needed.
-    const well_diam = this.selectedPlate.well_size;
-    this.printPositions = this.getPrintPositionCoordinates(8,this.toPX(well_diam), this.toPX(this.printPositionSizeMM));
-  }
+  // updatePrintPositions() {
+  //   // Define the button positions here.
+  //   // You can adjust the x and y values to position the buttons as needed.
+  //   const well_diam = this.selectedPlate.well_size;
+  //   this.printPositions = this.getPrintPositionCoordinates(8,this.toPX(well_diam), this.toPX(this.printPositionSizeMM));
+  // }
 
-  updatePrintheadButtons(printhead: PrintHead, printHeadIndex: number, updateAll: boolean = false) {
+  updatePrintheadButtons(printhead: PrintHead, buttonIndex?: number, updateAll: boolean = false) {
     if (updateAll && !printhead.active) {
       printhead.printPositionStates = printhead.printPositionStates.map(() => false);
       printhead.printHeadButtons = printhead.printHeadButtons.map(button => ({
         ...button,
         selected: false
       }));
-    } else {
+    } else { //update All and the printhead is active
       if (updateAll) {
+        this.printPositions = this.getPrintPositionCoordinates(8,this.toPX(this.printPickerSize), this.toPX(this.printPositionSizeMM));
         printhead.printPositionStates = printhead.printPositionStates.map((state, index) => {
           const button: PrintHeadButton = {
+            printHead: printhead.printHeadIndex,
             position: index,
             color: printhead.color,
-            selected: state
+            selected: state,
+            coordinates: {x:this.printPositions[index].x, y:this.printPositions[index].y}
           };
           printhead.printHeadButtons[index] = button;
           return state;
         });
-      } else {
-        printhead.printPositionStates[printHeadIndex] = !printhead.printPositionStates[printHeadIndex];
-        const button: PrintHeadButton = {
-          position: printHeadIndex,
-          color: printhead.color,
-          selected: printhead.printPositionStates[printHeadIndex]
-        };
+      } else if (buttonIndex !== undefined) { // Execute this part only when pressing an individual printpositionbutton
 
-        if (!printhead.active) {
-          printhead.printPositionStates = printhead.printPositionStates.map(() => false);
-        }
+        printhead.printPositionStates[buttonIndex] = !printhead.printPositionStates[buttonIndex];
+        // const button: PrintHeadButton = {
+        //   printHead: printhead.printHeadIndex,
+        //   position: buttonIndex, // Set the position to the buttonIndex
+        //   color: printhead.color,
+        //   selected: printhead.printPositionStates[buttonIndex],
+        //   Coordinates:
+        // };
 
-        printhead.printHeadButtons[printHeadIndex] = button;
+        // Update selected printhead buttons
+        const selectedButtons = printhead.printHeadButtons.filter((button, index) => {
+          return printhead.printPositionStates[index];
+        }).map(button => ({ ...button, color: printhead.color }));
+
+        this.printHeadStateService.updateSelectedPrintheadButtons(printhead.printHeadIndex, selectedButtons);
       }
     }
 
@@ -188,7 +193,7 @@ export class PrintheadSetupComponent {
 
 
   getPrintPositionCoordinates(numDots: number, wellSize:number, dotSize:number, adj_x= 0, adj_y= 0) {
-    const radius = (0.80 * wellSize) / 2;
+    const radius = (0.8 * wellSize ) / 2;
     const angles = Array.from({length: numDots}, (_, i) => i / numDots * 2 * Math.PI);
 
     const x = angles.map(angle => radius * Math.cos(angle));
@@ -196,7 +201,7 @@ export class PrintheadSetupComponent {
 
     let printPositionCoordinates: Coordinates[] = [{ x: - (dotSize/2) + adj_x, y: - (dotSize/2) + adj_y, label: "0" }];
     for (let i = 0; i < numDots; i++) {
-      printPositionCoordinates.push({'x': (x[i] - (dotSize/2) + adj_x), 'y': (y[i] - (dotSize/2) + adj_y), 'label': (i + 1).toString()});
+      printPositionCoordinates.push({'x': (x[i] - (dotSize/2) + adj_x), 'y': (y[i] - (dotSize/2) + adj_y)});
     }
 
     return printPositionCoordinates;
