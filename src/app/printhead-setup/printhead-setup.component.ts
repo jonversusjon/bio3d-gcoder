@@ -6,7 +6,6 @@ import { ScreenUtils } from "../screen-utils";
 import { PrintHeadStateService, PrintHeadButton } from "../printhead-state-service.service"
 import { PrintHead } from "../printhead-state-service.service";
 
-const PRINT_POSITIONS_COUNT = 9;
 @Component({
   selector: 'app-printhead-setup',
   templateUrl: './printhead-setup.component.html',
@@ -26,7 +25,7 @@ export class PrintheadSetupComponent {
   numberOfPrintheads: number = 1;
   printHeads: PrintHead[] = [];
   printPositions: any[] = [];
-  printPositionSizeMM = 3;
+
   printPickerSize: number = 34.8;
   inactiveColor = '#808080';
 
@@ -45,7 +44,7 @@ export class PrintheadSetupComponent {
       // Assuming you have a reference to the PrintheadStateService as 'printHeadStateService'
       this.printHeadStateService.printPickerSize = this.printPickerSize;
       this.updatePrintheads();
-      this.printHeadStateService.initializeSelectedPrintheadButtons(this.numberOfPrintheads);
+      this.printHeadStateService.initializeSelectedPrintheadButtons(this.numberOfPrintheads, this.printHeadStateService.PRINT_POSITIONS_COUNT);
     });
   }
   ngOnInit(): void {}
@@ -57,7 +56,7 @@ export class PrintheadSetupComponent {
       description: '',
       color: this.getNextColor(),
       active: true,
-      printPositionStates: Array.from({ length: this.printPositions.length >= 1 ? this.printPositions.length : PRINT_POSITIONS_COUNT }, () => false),
+      printPositionStates: Array.from({ length: this.printPositions.length >= 1 ? this.printPositions.length : this.printHeadStateService.PRINT_POSITIONS_COUNT }, () => false),
       printHeadButtons: [],
       pickerWell: { size: this.printPickerSize }
     };
@@ -116,22 +115,9 @@ export class PrintheadSetupComponent {
       return {}
     }
   }
-  getPrintPositionButtonStyle(printhead: PrintHead, position: {x: number, y: number}, index: number) {
-
+  _getPrintPositionButtonStyle(printHead: PrintHead, printPosition: number, well_size?: number) {
     if(this.selectedPlate) {
-      const radius = this.toPX(this.selectedPlate.well_size) / 2;
-      const buttonSize = this.toPX(this.printPositionSizeMM)
-      const selected = printhead.printPositionStates[index];
-
-      return {
-        'background-color': selected ? printhead.color : 'transparent',
-        'border-color': printhead.active ? printhead.color : 'grey',
-        left: `${position.x + radius}px`,
-        top: `${position.y + radius }px`,
-        width: `${buttonSize}px`,
-        aspectRatio: '1 / 1',
-        borderWidth: '1px'
-      };
+      return this.printHeadStateService.getPrintPositionButtonStyle(printHead, printPosition, this.selectedPlate.well_size);
     } else {
       return {}
     }
@@ -153,7 +139,7 @@ export class PrintheadSetupComponent {
       }));
     } else { //update All and the printhead is active
       if (updateAll) {
-        this.printPositions = this.getPrintPositionCoordinates(8,this.toPX(this.printPickerSize), this.toPX(this.printPositionSizeMM));
+        this.printPositions = this.getPrintPositionCoordinates(8,this.toPX(this.printPickerSize), this.toPX(this.printHeadStateService.PRINT_POSITION_SIZE_MM));
         printhead.printPositionStates = printhead.printPositionStates.map((state, index) => {
           const button: PrintHeadButton = {
             printHead: printhead.printHeadIndex,

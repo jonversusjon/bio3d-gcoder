@@ -2,6 +2,9 @@
   display: flex;
   justify-content: space-between;
   padding: 24px;
+  background-color: #333333;
+  height:100%;
+  width:100%;
 }
 
 app-printhead-setup {

@@ -36,6 +36,7 @@ export class PlateMapComponent implements OnChanges, OnInit, OnDestroy, AfterVie
 
   plateFormats: any[] = [];
   wellSelectionStates: boolean[] = [];
+  printHeadButtons: PrintHeadButton[][][] = []; // 3D array to store buttons for each well
 
   containerStyle: any = {
     width: '100%',
@@ -109,6 +110,25 @@ export class PlateMapComponent implements OnChanges, OnInit, OnDestroy, AfterVie
       return;
     }
   }
+
+  plotPrintPositionsOnPlateMap() {
+    this.activePrintHeads.forEach(printhead => {
+      if (printhead.active) {
+        printhead.printHeadButtons.forEach(button => {
+          if (button.selected) {
+            // Iterate through each well in the plateMap and add buttons to the wells
+            this.plateMap.wells.forEach(row => {
+              row.forEach(well => {
+                // Add a button to the well here, you may need to modify the well object to store the button information
+                // Example: well.button = { ...button, color: printhead.color };
+              });
+            });
+          }
+        });
+      }
+    });
+  }
+
 
   onMouseMove(event: MouseEvent, row: number, col: number): void {
     if (event.shiftKey && this.selectionRectangleStart) {
@@ -231,46 +251,33 @@ export class PlateMapComponent implements OnChanges, OnInit, OnDestroy, AfterVie
   }
 
   updateExperiment(printHeads: PrintHead[], selectedPrintheadButtons: PrintHeadButton[][]): void {
-    console.log('this.selectedPlate: ', JSON.stringify(this.selectedPlate));
-    console.log('this.wellSelectionStates: ', JSON.stringify(this.wellSelectionStates));
-    console.log('this.wellSelectionStates.some(well => well): ', JSON.stringify(this.wellSelectionStates.some(well => well)));
+    // console.log('this.selectedPlate: ', JSON.stringify(this.selectedPlate));
+    // console.log('this.wellSelectionStates: ', JSON.stringify(this.wellSelectionStates));
+    // console.log('this.wellSelectionStates.some(well => well): ', JSON.stringify(this.wellSelectionStates.some(well => well)));
     if (this.selectedPlate && this.wellSelectionStates && this.wellSelectionStates.some(well => well)) {
       //Iterate through all the active printheads
-      printHeads.forEach((activePrintHead, printheadIndex) => {
-        if (activePrintHead.active) {
-          // Iterate through the selectedPrintheadButtons
-          selectedPrintheadButtons.forEach((printheadButtons, printHeadIndex) => {
-            printheadButtons.forEach((button) => {
-              // Get the selected wells on the plate map
-              const pickerWell_to_plateWell_ratio = this.selectedPlate.well_size / this.printHeadStateService.printPickerSize;
-              // console.log('updateExperiment, wellSelectionStates: ', JSON.stringify(wellSelectionStates));
-              // Draw a circle for each selected print position in every selected well
-              this.plateMap.wells.forEach((row) => {
-                row.forEach((well) => {
-                  this.drawCircle(well.origin, button, pickerWell_to_plateWell_ratio);
-                });
-              });
-
-            });
-          });
-        }
-      });
+      // printHeads.forEach((activePrintHead, printheadIndex) => {
+      //   if (activePrintHead.active) {
+      //     // Iterate through the selectedPrintheadButtons
+      //     selectedPrintheadButtons.forEach((printheadButtons, printHeadIndex) => {
+      //       printheadButtons.forEach((button) => {
+      //         // Get the selected wells on the plate map
+      //
+      //         // console.log('updateExperiment, wellSelectionStates: ', JSON.stringify(wellSelectionStates));
+      //         // Draw a circle for each selected print position in every selected well
+      //         this.plateMap.wells.forEach((row) => {
+      //           row.forEach((well) => {
+      //             this.drawCircle(well.origin, button, pickerWell_to_plateWell_ratio);
+      //           });
+      //         });
+      //
+      //       });
+      //     });
+      //   }
+      // });
     } else {
       console.warn('Selected plate wells are not defined or empty');
     }
-  }
-  drawCircle(origin: {x:number, y:number}, button: PrintHeadButton, ratio: number): void {
-    // Implement this method to draw a circle at the position of the button in the well.
-    // You need to replace 'Well' with the correct type representing a well in your application.
-
-    // Calculate the relative position of the button in the well using the ratio of the size of the well on the plate map divided by the size of the well on the printhead picker.
-    const relativePosition = {
-      x: (origin.x + button.coordinates.x) * ratio,
-      y: (origin.y + button.coordinates.y) * ratio
-    };
-
-    // Draw a circle at the relativePosition with the size and color of the button.
-    // You can use the appropriate method to draw the circle depending on the framework or library you are using to render the plate map.
   }
 
   get plateStyle() {
@@ -418,7 +425,18 @@ export class PlateMapComponent implements OnChanges, OnInit, OnDestroy, AfterVie
   toPX(size_in_mm: number) {
     return this.screenUtils.convertMMToPPI(size_in_mm);
   }
+  _getPrintPositionButtonStyle(printHead: PrintHead, printPosition: number, well: Well) {
+    // console.log(JSON.stringify(this.printHeadStateService.getPrintPositionButtonStyle(printHead, printPosition, well_size ?? this.selectedPlate.well_size)))
+    const pickerWell_to_plateWell_ratio = this.selectedPlate.well_size / this.printHeadStateService.printPickerSize;
+    console.log('this.selectedPlate.well_size: ', this.selectedPlate.well_size, 'this.printHeadStateService.printPickerSize: ', this.printHeadStateService.printPickerSize)
+    const printPositionButtonStyleRaw = this.printHeadStateService.getPrintPositionButtonStyle(printHead, printPosition, this.selectedPlate.well_size);
+    const printPositionButtonStyle = {
+      ...printPositionButtonStyleRaw,
+      width: `${this.toPX(this.printHeadStateService.PRINT_POSITION_SIZE_MM) * pickerWell_to_plateWell_ratio}px`
+    }
 
+    return printPositionButtonStyle;
+  }
   getCommonStyleHeaders() {
     return {
       display: 'block',

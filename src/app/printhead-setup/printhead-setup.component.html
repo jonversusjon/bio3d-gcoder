@@ -5,37 +5,36 @@
     </mat-form-field>
   </div>
 
-    <div class="grid-list-container">
-      <mat-grid-list cols="1" rowHeight="330px" gutterSize="8px" style="padding: 8px;">
-        <mat-grid-tile *ngFor="let printhead of printHeads; let i = index">
-          <mat-card [ngClass]="{'disabled': !printhead.active}">
-              <div>
-                <mat-form-field appearance="fill" class="printhead-description-field"> <!-- Add a class here -->
-                  <mat-label>Printhead Description</mat-label>
-                  <input matInput [(ngModel)]="printhead.description" [disabled]="!printhead.active">
-                </mat-form-field>
-                <mat-form-field appearance="fill" class="color-field"> <!-- Add a class here -->
-                  <mat-label>Color</mat-label>
-                  <!-- When the printhead is active -->
-                  <input *ngIf="printhead.active" matInput type="color" [(ngModel)]="printhead.color" (change)="updatePrintheadButtons(printhead, i, true)">
-                  <!-- When the printhead is inactive -->
-                  <input *ngIf="!printhead.active" matInput type="color" [(ngModel)]="inactiveColor" [disabled]="true">
-                </mat-form-field>
-              </div>
-            <div class="active-toggle-wrapper">
-              <mat-slide-toggle [(ngModel)]="printhead.active" class="active-toggle" (change)="updatePrintheadButtons(printhead, i, true)"></mat-slide-toggle>
+  <div class="grid-list-container">
+    <div class="flex-container">
+      <div *ngFor="let printhead of printHeads; let i = index" class="flex-item">
+        <mat-card [ngClass]="{'disabled': !printhead.active}">
+          <div class="printhead-header flex-container">
+            <mat-form-field appearance="fill" class="printhead-description-field flex-item">
+              <mat-label>Printhead Description</mat-label>
+              <input matInput [(ngModel)]="printhead.description" [disabled]="!printhead.active">
+            </mat-form-field>
+            <mat-form-field appearance="fill" class="color-field flex-item">
+              <mat-label>Color</mat-label>
+              <input *ngIf="printhead.active" matInput type="color" [(ngModel)]="printhead.color" (change)="updatePrintheadButtons(printhead, i, true)">
+              <input *ngIf="!printhead.active" matInput type="color" [(ngModel)]="inactiveColor" [disabled]="true">
+            </mat-form-field>
+          </div>
+          <div class="active-toggle-wrapper">
+            <mat-slide-toggle [(ngModel)]="printhead.active" class="active-toggle" (change)="updatePrintheadButtons(printhead, i, true)"></mat-slide-toggle>
+          </div>
+          <mat-card-content>
+            <div class="print-position-picker" [ngStyle]="getPrintPositionPickerStyle(printhead.active)">
+              <button mat-flat-button
+                      *ngFor="let position of printPositions; let j = index"
+                      [attr.disabled]="!printhead.active ? true : null"
+                      [ngStyle]="_getPrintPositionButtonStyle(printhead, j)"
+                      (click)="updatePrintheadButtons(printhead, j)"
+              ></button>
             </div>
-            <mat-card-content>
-              <div class="print-position-picker" [ngStyle]="getPrintPositionPickerStyle(printhead.active)">
-                <button mat-flat-button
-                  *ngFor="let position of printPositions; let j = index"
-                  [attr.disabled]="!printhead.active ? true : null"
-                  [ngStyle]="getPrintPositionButtonStyle(printhead, position, j)"
-                  (click)="updatePrintheadButtons(printhead, j)"
-                ></button>
-              </div>
-            </mat-card-content>
-          </mat-card>
-        </mat-grid-tile>
-      </mat-grid-list>
+          </mat-card-content>
+        </mat-card>
+      </div>
     </div>
+  </div>
+
