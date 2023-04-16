@@ -1,10 +1,14 @@
 <div class="container" [ngStyle]="containerStyle">
   <h1>Cell Culture Plate Map</h1>
   <div style="top: 2em; left: 2em;">
-    <label for="plateFormat">Select a plate format:</label>
-    <select id="plateFormat" [(ngModel)]="selectedPlate" (ngModelChange)="updatePlateMap(selectedPlate)">
-      <option *ngFor="let plate of plateFormats" [ngValue]="plate">{{ plate.name }}</option>
-    </select>
+    <mat-form-field appearance="fill">
+      <mat-label for="plateFormat">Select a plate format</mat-label>
+      <mat-select id="plateFormat" [(ngModel)]="selectedPlate" (ngModelChange)="updatePlateMap(selectedPlate)">
+        <mat-option *ngFor="let plate of plateFormats" [value]="plate">
+          {{ plate.name }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
   </div>
   <div class="plate" [ngStyle]="plateStyle">
     <div class="blankTitle"></div>

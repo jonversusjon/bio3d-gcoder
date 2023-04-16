@@ -20,10 +20,12 @@
 }
 
 /* Reduce the padding of the mat-card */
-printhead-setup .mat-card {
-  padding: 16px; /* Adjust this value as needed */
+mat-mdc-card {
+  padding: 16px;
 }
-
+.printhead-header.flex-container {
+  height: 62px;
+}
 /* Reduce the font size of the title */
 printhead-setup .mat-card-title {
   font-size: 9px; /* Adjust this value as needed */

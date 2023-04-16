@@ -1,11 +1,26 @@
-import {Component, Input, OnChanges, SimpleChanges, OnInit, OnDestroy, AfterViewInit} from '@angular/core';
-import { range } from "rxjs";
-import { ScreenUtils } from "../screen-utils";
-import { PlateFormatService } from '../plate-format.service';
-import { Renderer2, RendererFactory2 } from '@angular/core';
-import { PlateFormat} from "../../types/PlateFormat";
-import {PrintHead, PrintHeadButton, PrintHeadStateService} from "../printhead-state-service.service";
-import { Subscription } from 'rxjs';
+// TODO: make a legend showing color, order and description of print steps
+// TODO: some kind of calibration input
+// TODO: calculate print moves
+// TODO: create input for printing depth (other controllable parameters?)
+// TODO: the radius of print positions needs to update to match well_size
+
+import {
+  AfterViewInit,
+  Component,
+  Input,
+  OnChanges,
+  OnDestroy,
+  OnInit,
+  Renderer2,
+  RendererFactory2,
+  SimpleChanges
+} from '@angular/core';
+import {Subscription} from "rxjs";
+import {FormsModule} from "@angular/forms";
+import {ScreenUtils} from "../screen-utils";
+import {PlateFormatService} from '../plate-format.service';
+import {PlateFormat} from "../../types/PlateFormat";
+import {PrintHead, PrintHeadButton, PrintHeadStateService} from "../printhead-state.service";
 
 interface Well {
   row: number;
@@ -36,7 +51,6 @@ export class PlateMapComponent implements OnChanges, OnInit, OnDestroy, AfterVie
 
   plateFormats: any[] = [];
   wellSelectionStates: boolean[] = [];
-  printHeadButtons: PrintHeadButton[][][] = []; // 3D array to store buttons for each well
 
   containerStyle: any = {
     width: '100%',
@@ -58,13 +72,13 @@ export class PlateMapComponent implements OnChanges, OnInit, OnDestroy, AfterVie
   selectionRectangleVisible = false;
 
   selectedPrintheadButtonsSubscription!: Subscription;
-  selectedPrintheadButtons: PrintHeadButton[][] = [];
 
   private printHeadsSubscription!: Subscription;
   activePrintHeads: PrintHead[] = [];
 
   private alphabet_upperCase = [...Array(26)].map((_, i) => String.fromCharCode('a'.charCodeAt(0) + i).toUpperCase());
   constructor(
+    private formsModule: FormsModule,
     private screenUtils: ScreenUtils,
     private plateFormatService: PlateFormatService,
     private printHeadStateService: PrintHeadStateService,
@@ -82,10 +96,10 @@ export class PlateMapComponent implements OnChanges, OnInit, OnDestroy, AfterVie
   }
   ngOnInit(): void {
 // Subscription for selected position buttons changes
-    this.selectedPrintheadButtonsSubscription = this.printHeadStateService.selectedPrintheadButtons$.subscribe(
+    this.selectedPrintheadButtonsSubscription = this.printHeadStateService.selectedPrintHeadButtons$.subscribe(
       (selectedPrintheadButtons: PrintHeadButton[][]) => {
         console.log('Called from selectedPrintheadButtonsSubscription');
-        this.updateExperiment(this.activePrintHeads, selectedPrintheadButtons);
+        // this.updateExperiment(this.activePrintHeads, selectedPrintheadButtons);
       }
     );
 
@@ -109,24 +123,6 @@ export class PlateMapComponent implements OnChanges, OnInit, OnDestroy, AfterVie
     } else {
       return;
     }
-  }
-
-  plotPrintPositionsOnPlateMap() {
-    this.activePrintHeads.forEach(printhead => {
-      if (printhead.active) {
-        printhead.printHeadButtons.forEach(button => {
-          if (button.selected) {
-            // Iterate through each well in the plateMap and add buttons to the wells
-            this.plateMap.wells.forEach(row => {
-              row.forEach(well => {
-                // Add a button to the well here, you may need to modify the well object to store the button information
-                // Example: well.button = { ...button, color: printhead.color };
-              });
-            });
-          }
-        });
-      }
-    });
   }
 
 
@@ -191,7 +187,8 @@ export class PlateMapComponent implements OnChanges, OnInit, OnDestroy, AfterVie
               top: `${(a1_yPX - (wellDiameterPX / 2)) + (row * (wellSpacingPX + wellDiameterPX))}px`,
               left: `${(a1_xPX - (wellDiameterPX / 2)) + (col * (wellSpacingPX + wellDiameterPX))}px`,
               borderRadius: '50%',
-              border: '1px solid black'
+              border: '1px solid black',
+              backgroundColor: '#fefefe'
             },
             element: wellElement,
             origin: {
@@ -248,36 +245,8 @@ export class PlateMapComponent implements OnChanges, OnInit, OnDestroy, AfterVie
       width:`${rowHeaderWidthPX}px`,
       height:`${colHeaderHeightPX}px`
     }
-  }
 
-  updateExperiment(printHeads: PrintHead[], selectedPrintheadButtons: PrintHeadButton[][]): void {
-    // console.log('this.selectedPlate: ', JSON.stringify(this.selectedPlate));
-    // console.log('this.wellSelectionStates: ', JSON.stringify(this.wellSelectionStates));
-    // console.log('this.wellSelectionStates.some(well => well): ', JSON.stringify(this.wellSelectionStates.some(well => well)));
-    if (this.selectedPlate && this.wellSelectionStates && this.wellSelectionStates.some(well => well)) {
-      //Iterate through all the active printheads
-      // printHeads.forEach((activePrintHead, printheadIndex) => {
-      //   if (activePrintHead.active) {
-      //     // Iterate through the selectedPrintheadButtons
-      //     selectedPrintheadButtons.forEach((printheadButtons, printHeadIndex) => {
-      //       printheadButtons.forEach((button) => {
-      //         // Get the selected wells on the plate map
-      //
-      //         // console.log('updateExperiment, wellSelectionStates: ', JSON.stringify(wellSelectionStates));
-      //         // Draw a circle for each selected print position in every selected well
-      //         this.plateMap.wells.forEach((row) => {
-      //           row.forEach((well) => {
-      //             this.drawCircle(well.origin, button, pickerWell_to_plateWell_ratio);
-      //           });
-      //         });
-      //
-      //       });
-      //     });
-      //   }
-      // });
-    } else {
-      console.warn('Selected plate wells are not defined or empty');
-    }
+    this.plateFormatService.setSelectedPlate(this.selectedPlate);
   }
 
   get plateStyle() {
@@ -286,7 +255,9 @@ export class PlateMapComponent implements OnChanges, OnInit, OnDestroy, AfterVie
       border: '1px solid #000',
       height: `${this.plateHeightPX}px`,
       width: `${this.plateWidthPX}px`,
-      margin: '2em'
+      marginTop: '1em',
+      backgroundColor: '#eeeeee',
+      borderRadius: '12px'
     };
   }
 
@@ -340,7 +311,7 @@ export class PlateMapComponent implements OnChanges, OnInit, OnDestroy, AfterVie
       this.lastClicked = { row, col };
     }
     // Call updateExperiment for the changed well(s)
-    this.updateExperiment(this.activePrintHeads, this.printHeadStateService.selectedPrintheadButtons);
+    // this.updateExperiment(this.activePrintHeads, this.printHeadStateService.selectedPrintHeadButtons);
   }
 
 
@@ -427,15 +398,12 @@ export class PlateMapComponent implements OnChanges, OnInit, OnDestroy, AfterVie
   }
   _getPrintPositionButtonStyle(printHead: PrintHead, printPosition: number, well: Well) {
     // console.log(JSON.stringify(this.printHeadStateService.getPrintPositionButtonStyle(printHead, printPosition, well_size ?? this.selectedPlate.well_size)))
-    const pickerWell_to_plateWell_ratio = this.selectedPlate.well_size / this.printHeadStateService.printPickerSize;
+
     console.log('this.selectedPlate.well_size: ', this.selectedPlate.well_size, 'this.printHeadStateService.printPickerSize: ', this.printHeadStateService.printPickerSize)
     const printPositionButtonStyleRaw = this.printHeadStateService.getPrintPositionButtonStyle(printHead, printPosition, this.selectedPlate.well_size);
-    const printPositionButtonStyle = {
-      ...printPositionButtonStyleRaw,
-      width: `${this.toPX(this.printHeadStateService.PRINT_POSITION_SIZE_MM) * pickerWell_to_plateWell_ratio}px`
-    }
-
-    return printPositionButtonStyle;
+    return {
+      ...printPositionButtonStyleRaw
+    };
   }
   getCommonStyleHeaders() {
     return {
@@ -449,7 +417,4 @@ export class PlateMapComponent implements OnChanges, OnInit, OnDestroy, AfterVie
     }
   };
 
-  protected readonly range = range;
-  protected readonly length = length;
-  protected readonly Math = Math;
 }

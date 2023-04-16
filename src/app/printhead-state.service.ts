@@ -26,24 +26,24 @@ export interface PrintHead {
 })
 export class PrintHeadStateService {
   PRINT_POSITIONS_COUNT = 9;
-  PRINT_POSITION_SIZE_MM = 3;
+  PRINT_POSITION_SIZE_MM = 1.3; // size it's displayed in the plate map
   constructor(private screenUtils: ScreenUtils) {}
-  private selectedPrintheadButtonsSubject = new BehaviorSubject<PrintHeadButton[][]>([]);
-  selectedPrintheadButtons: PrintHeadButton[][] = [];
-  selectedPrintheadButtons$ = this.selectedPrintheadButtonsSubject.asObservable();
+  private selectedPrintHeadButtonsSubject = new BehaviorSubject<PrintHeadButton[][]>([]);
+  selectedPrintHeadButtons: PrintHeadButton[][] = [];
+  selectedPrintHeadButtons$ = this.selectedPrintHeadButtonsSubject.asObservable();
 
   private _printHeads = new BehaviorSubject<PrintHead[]>([]);
   public printHeads$ = this._printHeads.asObservable();
   private _printPickerSize: number = 34.8;
 
-  initializeSelectedPrintheadButtons(numberOfPrintheads: number, numberOfPrintPositions: number): void {
-    this.selectedPrintheadButtons = new Array(numberOfPrintheads).fill(null).map(() => new Array(numberOfPrintPositions).fill(false));
+  initializeSelectedPrintHeadButtons(numberOfPrintHeads: number, numberOfPrintPositions: number): void {
+    this.selectedPrintHeadButtons = new Array(numberOfPrintHeads).fill(null).map(() => new Array(numberOfPrintPositions).fill(false));
   }
-  updateSelectedPrintheadButtons(printheadID: number, buttons: PrintHeadButton[]): void {
-    this.selectedPrintheadButtons[printheadID] = buttons;
-    console.log('Emitting event to selectedPrintheadButtons$');
-    this.selectedPrintheadButtonsSubject.next(this.selectedPrintheadButtons);
-    console.log('Selected printhead buttons:', this.selectedPrintheadButtons);
+  updateSelectedPrintHeadButtons(printHeadID: number, buttons: PrintHeadButton[]): void {
+    this.selectedPrintHeadButtons[printHeadID] = buttons;
+    console.log('Emitting event to selectedPrintHeadButtons$');
+    this.selectedPrintHeadButtonsSubject.next(this.selectedPrintHeadButtons);
+    console.log('Selected printHead buttons:', this.selectedPrintHeadButtons);
   }
   toPX(size_in_mm:number) {
     return this.screenUtils.convertMMToPPI(size_in_mm);

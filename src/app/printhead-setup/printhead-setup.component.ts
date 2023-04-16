@@ -1,18 +1,20 @@
-import {Component, Input, OnChanges, SimpleChanges} from '@angular/core';
-import { PlateFormatService } from '../plate-format.service';
-import { Coordinates} from "../../types/Coordinates";
-import { PlateFormat} from "../../types/PlateFormat";
-import { ScreenUtils } from "../screen-utils";
-import { PrintHeadStateService, PrintHeadButton } from "../printhead-state-service.service"
-import { PrintHead } from "../printhead-state-service.service";
+// TODO: print select widget - print positions should get larger when the plate map well size is smaller
+
+import {Component, Input} from '@angular/core';
+import {PlateFormatService} from '../plate-format.service';
+import {Coordinates} from "../../types/Coordinates";
+import {ScreenUtils} from "../screen-utils";
+import {PrintHead, PrintHeadStateService} from "../printhead-state.service"
+import { Subscription } from "rxjs";
+import {PlateFormat} from "../../types/PlateFormat";
 
 @Component({
   selector: 'app-printhead-setup',
   templateUrl: './printhead-setup.component.html',
   styleUrls: ['./printhead-setup.component.css']
 })
-export class PrintheadSetupComponent {
-  @Input() selectedPlate!: PlateFormat;
+export class PrintHeadSetupComponent {
+  private selectedPlateSubscription: Subscription;
   private colors: string[] = [
     '#FF1F5B',
     '#00CD6C',
@@ -22,34 +24,37 @@ export class PrintheadSetupComponent {
     '#AF58BA'
   ];
 
-  numberOfPrintheads: number = 1;
+  numberOfPrintHeads: number = 1;
   printHeads: PrintHead[] = [];
   printPositions: any[] = [];
 
   printPickerSize: number = 34.8;
   inactiveColor = '#808080';
 
+  private _selectedPlate!: PlateFormat;
   constructor(
     private plateFormatService: PlateFormatService,
     private screenUtils: ScreenUtils,
     private printHeadStateService: PrintHeadStateService) {
 
-    this.plateFormatService.selectedPlate$.subscribe((plate) => {
-      if(this.selectedPlate) {
+    this.selectedPlateSubscription = this.plateFormatService.selectedPlate$.subscribe((plate) => {
+      console.log('Selected plate changed:', plate);
+      if (this.selectedPlate) {
         this.selectedPlate = plate;
       } else {
         this.selectedPlate = plateFormatService.getDefaultPlateFormat();
       }
-      // Perform any necessary updates based on the new selectedPlate value
-      // Assuming you have a reference to the PrintheadStateService as 'printHeadStateService'
       this.printHeadStateService.printPickerSize = this.printPickerSize;
-      this.updatePrintheads();
-      this.printHeadStateService.initializeSelectedPrintheadButtons(this.numberOfPrintheads, this.printHeadStateService.PRINT_POSITIONS_COUNT);
+      console.log('updatePrintHeads called from selectedPlateSub');
+      this.updatePrintHeads();
+      this.printHeadStateService.initializeSelectedPrintHeadButtons(this.numberOfPrintHeads, this.printHeadStateService.PRINT_POSITIONS_COUNT);
     });
   }
-  ngOnInit(): void {}
 
-  updatePrintheads() {
+  ngOnDestroy() {
+    this.selectedPlateSubscription.unsubscribe();
+  }
+  updatePrintHeads() {
 
     const newPrintHead: PrintHead = {
       printHeadIndex: this.printHeads.length,
@@ -61,45 +66,28 @@ export class PrintheadSetupComponent {
       pickerWell: { size: this.printPickerSize }
     };
 
-    if (this.numberOfPrintheads > this.printHeads.length) {
-      for (let i = this.printHeads.length; i < this.numberOfPrintheads; i++) {
+    if (this.numberOfPrintHeads > this.printHeads.length) {
+      for (let i = this.printHeads.length; i < this.numberOfPrintHeads; i++) {
         this.printHeads.push({ ...newPrintHead });
       }
     } else {
-      this.printHeads = this.printHeads.slice(0, this.numberOfPrintheads);
+      this.printHeads = this.printHeads.slice(0, this.numberOfPrintHeads);
     }
 
-    this.printHeads.forEach((printhead) => {
-      console.log('printHeads.forEach: ', JSON.stringify(printhead));
-      this.updatePrintheadButtons(printhead, undefined, true);
+    this.printHeads.forEach((PrintHead) => {
+      this.updatePrintHeadButtons(PrintHead, undefined, true);
     });
 
     this.printHeadStateService.updatePrintHeads(this.printHeads);
 
   }
 
-  getWellStyle() {
-    if (!this.selectedPlate) {
-      return {
-        'border-radius': '50%',
-        'background-color': '#ccc',
-        'position': 'relative'};
-    }
-    const size = this.selectedPlate.well_size;
-    return {
-      'width': `${size}px`,
-      'height': `${size}px`,
-      'border-radius': '50%',
-      'background-color': '#ccc',
-      'position': 'relative'
-    };
-  }
   getPrintPositionPickerStyle(isActive: boolean): object {
     if(this.selectedPlate) {
       const well_diam = this.toPX(this.selectedPlate.well_size);
       const commonStyle = {
-        width: `${well_diam}px`,
-        height: `${well_diam}px`,
+        width: `${this.toPX(this.printPickerSize)}px`,
+        aspectRatio: '1 / 1',
         marginLeft: 'auto',
         marginRight: 'auto'
       }
@@ -115,56 +103,68 @@ export class PrintheadSetupComponent {
       return {}
     }
   }
-  _getPrintPositionButtonStyle(printHead: PrintHead, printPosition: number, well_size?: number) {
+  _getPrintPositionButtonStyle(PrintHead: PrintHead, printPosition: number) {
     if(this.selectedPlate) {
-      return this.printHeadStateService.getPrintPositionButtonStyle(printHead, printPosition, this.selectedPlate.well_size);
+      const pickerWell_to_plateWell_ratio = this.printPickerSize / this.selectedPlate.well_size;
+      const printPositionButtonStyleRaw = this.printHeadStateService.getPrintPositionButtonStyle(PrintHead, printPosition, this.selectedPlate.well_size);
+      return {
+        ...printPositionButtonStyleRaw,
+        width: `${this.toPX(this.printHeadStateService.PRINT_POSITION_SIZE_MM) * pickerWell_to_plateWell_ratio}px`
+      }
     } else {
       return {}
     }
   }
 
-  // updatePrintPositions() {
-  //   // Define the button positions here.
-  //   // You can adjust the x and y values to position the buttons as needed.
-  //   const well_diam = this.selectedPlate.well_size;
-  //   this.printPositions = this.getPrintPositionCoordinates(8,this.toPX(well_diam), this.toPX(this.printPositionSizeMM));
-  // }
-
-  updatePrintheadButtons(printhead: PrintHead, buttonIndex?: number, updateAll: boolean = false) {
-    if (updateAll && !printhead.active) {
-      printhead.printPositionStates = printhead.printPositionStates.map(() => false);
-      printhead.printHeadButtons = printhead.printHeadButtons.map(button => ({
-        ...button,
-        selected: false
-      }));
-    } else { //update All and the printhead is active
-      if (updateAll) {
-        this.printPositions = this.getPrintPositionCoordinates(8,this.toPX(this.printPickerSize), this.toPX(this.printHeadStateService.PRINT_POSITION_SIZE_MM));
-        printhead.printPositionStates = printhead.printPositionStates.map((state, index) => {
-          const button: PrintHeadButton = {
-            printHead: printhead.printHeadIndex,
-            position: index,
-            color: printhead.color,
-            selected: state,
-            coordinates: {x:this.printPositions[index].x, y:this.printPositions[index].y}
-          };
-          printhead.printHeadButtons[index] = button;
-          return state;
-        });
-      } else if (buttonIndex !== undefined) { // Execute this part only when pressing an individual printpositionbutton
-
-        printhead.printPositionStates[buttonIndex] = !printhead.printPositionStates[buttonIndex];
-
-      }
+  updatePrintHeadButtons(PrintHead: PrintHead, buttonIndex?: number, updateAll: boolean = false) {
+    if (updateAll) {
+      this.updateAllPrintHeadButtons(PrintHead);
+    } else if (buttonIndex !== undefined) {
+      this.toggleButtonElectedState(PrintHead, buttonIndex);
     }
-
-    // Update selected printhead buttons
-    const selectedButtons = printhead.printHeadButtons.filter((button, index) => {
-      return printhead.printPositionStates[index];
-    }).map(button => ({ ...button, color: printhead.color }));
-
-    this.printHeadStateService.updateSelectedPrintheadButtons(printhead.printHeadIndex, selectedButtons);
+    this.updatePrintHeadStateService(PrintHead);
   }
+
+  updateAllPrintHeadButtons(PrintHead: PrintHead) {
+    if (!PrintHead.active) {
+      this.setAllButtonsInactive(PrintHead);
+    } else {
+      this.repopulatePrintHeadButtons(PrintHead);
+    }
+  }
+
+  setAllButtonsInactive(PrintHead: PrintHead) {
+    PrintHead.printPositionStates = PrintHead.printPositionStates.map(() => false);
+    PrintHead.printHeadButtons = PrintHead.printHeadButtons.map(button => ({ ...button, selected: false }));
+  }
+
+  repopulatePrintHeadButtons(PrintHead: PrintHead) {
+    const ratio = this.selectedPlate.well_size / this.printPickerSize;
+    this.printPositions = this.getPrintPositionCoordinates(this.printHeadStateService.PRINT_POSITIONS_COUNT - 1, this.toPX(this.printPickerSize), this.toPX(this.printHeadStateService.PRINT_POSITION_SIZE_MM));
+    PrintHead.printPositionStates = PrintHead.printPositionStates.map((state, index) => {
+      PrintHead.printHeadButtons[index] = {
+        printHead: PrintHead.printHeadIndex,
+        position: index,
+        color: PrintHead.color,
+        selected: state,
+        coordinates: {x: this.printPositions[index].x, y: this.printPositions[index].y}
+      };
+      return state;
+    });
+  }
+
+  toggleButtonElectedState(PrintHead: PrintHead, buttonIndex: number) {
+    PrintHead.printPositionStates[buttonIndex] = !PrintHead.printPositionStates[buttonIndex];
+  }
+
+  updatePrintHeadStateService(PrintHead: PrintHead) {
+    const selectedButtons = PrintHead.printHeadButtons.filter((button, index) => {
+      return PrintHead.printPositionStates[index];
+    }).map(button => ({ ...button, color: PrintHead.color }));
+
+    this.printHeadStateService.updateSelectedPrintHeadButtons(PrintHead.printHeadIndex, selectedButtons);
+  }
+
 
 
   getPrintPositionCoordinates(numDots: number, wellSize:number, dotSize:number, adj_x= 0, adj_y= 0) {
@@ -189,5 +189,13 @@ export class PrintheadSetupComponent {
   private getNextColor(): string {
     const currentColorIndex = this.printHeads.length % this.colors.length;
     return this.colors[currentColorIndex];
+  }
+
+  get selectedPlate(): PlateFormat {
+    return this._selectedPlate;
+  }
+
+  set selectedPlate(plate: PlateFormat) {
+    this._selectedPlate = plate;
   }
 }
