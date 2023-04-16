@@ -3,7 +3,35 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { LocalStorageService } from './local-storage.service';
+import {Coordinates} from "../types/Coordinates";
 
+export interface Well {
+  row: number;
+  col: number;
+  originPX: Coordinates;
+  originMM: Coordinates;
+  selected: boolean;
+  style: {
+    height: string;
+    width: string;
+    top: string;
+    left: string;
+    borderRadius: string;
+    border: string;
+  };
+  element: HTMLElement;
+}
+
+export interface PlateFormat {
+  name: string;
+  plateId: number;
+  rows: number;
+  cols: number;
+  well_sizeMM: number;
+  well_spacing_x_MM: number;
+  well_spacing_y_MM: number;
+  a1_centerMM: Coordinates;
+}
 @Injectable({
   providedIn: 'root',
 })
@@ -11,11 +39,18 @@ export class PlateFormatService {
   private selectedPlateSource = new BehaviorSubject<any>(null);
   selectedPlate$ = this.selectedPlateSource.asObservable();
 
-  private plateFormats: any[] = [];
+  private plateFormats = [
+    { name: '6-well plate', 'plateId': 6, rows: 2, cols: 3, well_sizeMM: 34.8, well_spacing_x_MM: 39, well_spacing_y_MM: 39,'a1_centerMM': {x:24.798,y:23.275} },
+    { name: '12-well plate','plateId': 12,  rows: 3, cols: 4, well_sizeMM: 22.1, well_spacing_x_MM: 26, well_spacing_y_MM: 26, 'a1_centerMM': {x:24.75,y:16.68} },
+    { name: '24-well plate','plateId': 24,  rows: 4, cols: 6, well_sizeMM: 15.6, well_spacing_x_MM: 19.3, well_spacing_y_MM: 19.3, 'a1_centerMM': {x:15.12,y:13.49} },
+    { name: '48-well plate','plateId': 48,  rows: 6, cols: 8, well_sizeMM: 11.37, well_spacing_x_MM: 13.0, well_spacing_y_MM: 13.0, 'a1_centerMM': {x:18.38,y:10.24} },
+    { name: '96-well plate', 'plateId': 96, rows: 8, cols: 12, well_sizeMM: 6.96, well_spacing_x_MM: 9, well_spacing_y_MM: 9, 'a1_centerMM': {x:14.38,y:11.24} },
+    { name: '384-well plate', 'plateId': 384, rows: 12, cols: 24, well_sizeMM: 3.3, well_spacing_x_MM: 4.5, well_spacing_y_MM: 4.5, 'a1_centerMM': {x:12.13,y:8.99} }
+  ];
 
 
-  constructor(private localStorageService: LocalStorageService) {
-    this.loadPlateFormats();
+  constructor() {
+
   }
 
   getPlateFormats() {
@@ -29,20 +64,22 @@ export class PlateFormatService {
     this.selectedPlateSource.next(plate);
   }
 
-  savePlateFormats() {
-    this.localStorageService.setItem('plateFormats', this.plateFormats);
+  getWellOrigins(startingX: number, startingY: number, rows: number, cols: number, spacingX: number, spacingY: number): { x: number, y: number }[][] {
+    const coordinates: { x: number, y: number }[][] = [];
+
+    for (let i = 0; i < rows; i++) {
+      const rowCoordinates: { x: number, y: number }[] = [];
+      for (let j = 0; j < cols; j++) {
+        const x = startingX + j * spacingX;
+        const y = startingY + i * spacingY;
+        rowCoordinates.push({ x, y });
+      }
+      coordinates.push(rowCoordinates);
+    }
+
+    return coordinates;
   }
 
-  loadPlateFormats() {
-    const storedPlateFormats = this.localStorageService.getItem<any[]>('plateFormats');
-    if (storedPlateFormats) {
-      this.plateFormats = storedPlateFormats;
-    } else {
-      this.plateFormats = [
-        // Default plate formats data
-      ];
-      this.savePlateFormats(); // Save the default data to LocalStorage
-    }
-  }
+
 }
 

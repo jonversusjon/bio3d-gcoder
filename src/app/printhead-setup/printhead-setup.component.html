@@ -7,6 +7,7 @@
 
   <div class="grid-list-container">
     <div class="flex-container">
+
       <div *ngFor="let printhead of printHeads; let i = index" class="flex-item">
         <mat-card [ngClass]="{'disabled': !printhead.active}">
           <div class="printhead-header flex-container">
@@ -26,7 +27,7 @@
           <mat-card-content>
             <div class="print-position-picker" [ngStyle]="getPrintPositionPickerStyle(printhead.active)">
               <button mat-flat-button
-                      *ngFor="let position of printPositions; let j = index"
+                      *ngFor="let printHeadButton of printhead.printHeadButtons; let j = index"
                       [attr.disabled]="!printhead.active ? true : null"
                       [ngStyle]="_getPrintPositionButtonStyle(printhead, j)"
                       (click)="updatePrintHeadButtons(printhead, j)"

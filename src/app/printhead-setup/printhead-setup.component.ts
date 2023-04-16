@@ -1,12 +1,11 @@
 // TODO: print select widget - print positions should get larger when the plate map well size is smaller
 
-import {Component, Input} from '@angular/core';
-import {PlateFormatService} from '../plate-format.service';
+import {Component} from '@angular/core';
+import { PlateFormatService, Well, PlateFormat} from "../plate-format.service";
 import {Coordinates} from "../../types/Coordinates";
 import {ScreenUtils} from "../screen-utils";
-import {PrintHead, PrintHeadStateService} from "../printhead-state.service"
+import {PrintHead, PrintHeadButton, PrintHeadStateService} from "../printhead-state.service"
 import { Subscription } from "rxjs";
-import {PlateFormat} from "../../types/PlateFormat";
 
 @Component({
   selector: 'app-printhead-setup',
@@ -16,19 +15,19 @@ import {PlateFormat} from "../../types/PlateFormat";
 export class PrintHeadSetupComponent {
   private selectedPlateSubscription: Subscription;
   private colors: string[] = [
-    '#FF1F5B',
+    '#009ADE',
     '#00CD6C',
     '#FFC61E',
-    '#009ADE',
+    '#FF1F5B',
     '#F28522',
     '#AF58BA'
   ];
 
   numberOfPrintHeads: number = 1;
   printHeads: PrintHead[] = [];
-  printPositions: any[] = [];
+  printHeadButtons: PrintHeadButton[] = [];
 
-  printPickerSize: number = 34.8;
+  printPickerSizeMM: number = 34.8;
   inactiveColor = '#808080';
 
   private _selectedPlate!: PlateFormat;
@@ -38,14 +37,14 @@ export class PrintHeadSetupComponent {
     private printHeadStateService: PrintHeadStateService) {
 
     this.selectedPlateSubscription = this.plateFormatService.selectedPlate$.subscribe((plate) => {
-      console.log('Selected plate changed:', plate);
+
       if (this.selectedPlate) {
         this.selectedPlate = plate;
       } else {
         this.selectedPlate = plateFormatService.getDefaultPlateFormat();
       }
-      this.printHeadStateService.printPickerSize = this.printPickerSize;
-      console.log('updatePrintHeads called from selectedPlateSub');
+      this.printHeadStateService.printPickerSizeMM = this.printPickerSizeMM;
+      // console.log('updatePrintHeads called from selectedPlateSub');
       this.updatePrintHeads();
       this.printHeadStateService.initializeSelectedPrintHeadButtons(this.numberOfPrintHeads, this.printHeadStateService.PRINT_POSITIONS_COUNT);
     });
@@ -61,9 +60,17 @@ export class PrintHeadSetupComponent {
       description: '',
       color: this.getNextColor(),
       active: true,
-      printPositionStates: Array.from({ length: this.printPositions.length >= 1 ? this.printPositions.length : this.printHeadStateService.PRINT_POSITIONS_COUNT }, () => false),
-      printHeadButtons: [],
-      pickerWell: { size: this.printPickerSize }
+      printPositionStates: Array.from({ length: this.printHeadButtons.length >= 1 ? this.printHeadButtons.length : this.printHeadStateService.PRINT_POSITIONS_COUNT }, () => false),
+      printHeadButtons: Array.from({ length: this.printHeadStateService.PRINT_POSITIONS_COUNT }, (_, index) => ({
+        printHead: this.printHeads.length,
+        position: index,
+        color: this.getNextColor(),
+        selected: false,
+        originPX: { x: 0, y: 0 },
+        originMM: { x: 0, y: 0 },
+        style: {}
+      })),
+      pickerWell: { sizeMM: this.printPickerSizeMM }
     };
 
     if (this.numberOfPrintHeads > this.printHeads.length) {
@@ -84,9 +91,9 @@ export class PrintHeadSetupComponent {
 
   getPrintPositionPickerStyle(isActive: boolean): object {
     if(this.selectedPlate) {
-      const well_diam = this.toPX(this.selectedPlate.well_size);
+      const well_diam = this.toPX(this.selectedPlate.well_sizeMM);
       const commonStyle = {
-        width: `${this.toPX(this.printPickerSize)}px`,
+        width: `${this.toPX(this.printPickerSizeMM)}px`,
         aspectRatio: '1 / 1',
         marginLeft: 'auto',
         marginRight: 'auto'
@@ -104,12 +111,12 @@ export class PrintHeadSetupComponent {
     }
   }
   _getPrintPositionButtonStyle(PrintHead: PrintHead, printPosition: number) {
+    // console.log('called from printhead-setup-component');
     if(this.selectedPlate) {
-      const pickerWell_to_plateWell_ratio = this.printPickerSize / this.selectedPlate.well_size;
-      const printPositionButtonStyleRaw = this.printHeadStateService.getPrintPositionButtonStyle(PrintHead, printPosition, this.selectedPlate.well_size);
+      const pickerWell_to_plateWell_ratio = this.selectedPlate.well_sizeMM / this.printPickerSizeMM;
+      const printPositionButtonStyleRaw = this.printHeadStateService.getPrintPositionButtonStyle(PrintHead, printPosition, this.printPickerSizeMM, 'printhead-setup', pickerWell_to_plateWell_ratio);
       return {
-        ...printPositionButtonStyleRaw,
-        width: `${this.toPX(this.printHeadStateService.PRINT_POSITION_SIZE_MM) * pickerWell_to_plateWell_ratio}px`
+        ...printPositionButtonStyleRaw
       }
     } else {
       return {}
@@ -139,18 +146,35 @@ export class PrintHeadSetupComponent {
   }
 
   repopulatePrintHeadButtons(PrintHead: PrintHead) {
-    const ratio = this.selectedPlate.well_size / this.printPickerSize;
-    this.printPositions = this.getPrintPositionCoordinates(this.printHeadStateService.PRINT_POSITIONS_COUNT - 1, this.toPX(this.printPickerSize), this.toPX(this.printHeadStateService.PRINT_POSITION_SIZE_MM));
+    const ratio = this.selectedPlate.well_sizeMM / this.printPickerSizeMM;
+    const printPositionsMM = this._getPrintPositionCoordinates(this.printHeadStateService.PRINT_POSITIONS_COUNT - 1, this.printPickerSizeMM, ratio * this.printHeadStateService.PRINT_POSITION_SIZE_MM);
+    const printPositionsPX = printPositionsMM.map(position => {
+      return {
+        x: this.toPX(position.x),
+        y: this.toPX(position.y)
+      };
+    });
+    console.log("printPositionsPX:", printPositionsPX);
+    // console.log("printPositionsMM:", printPositionsMM);
+
     PrintHead.printPositionStates = PrintHead.printPositionStates.map((state, index) => {
+
+      const buttonStyle = this._getPrintPositionButtonStyle(PrintHead, index);
+
       PrintHead.printHeadButtons[index] = {
         printHead: PrintHead.printHeadIndex,
         position: index,
-        color: PrintHead.color,
         selected: state,
-        coordinates: {x: this.printPositions[index].x, y: this.printPositions[index].y}
+        originPX: {x: printPositionsPX[index].x, y: printPositionsPX[index].y},
+        originMM: {x: printPositionsMM[index].x, y: printPositionsMM[index].y},
+        style: {
+          ...buttonStyle
+        }
       };
+      // console.log('----PrintHead.printHeadButtons: ', JSON.stringify(PrintHead.printHeadButtons));
       return state;
     });
+
   }
 
   toggleButtonElectedState(PrintHead: PrintHead, buttonIndex: number) {
@@ -165,27 +189,13 @@ export class PrintHeadSetupComponent {
     this.printHeadStateService.updateSelectedPrintHeadButtons(PrintHead.printHeadIndex, selectedButtons);
   }
 
-
-
-  getPrintPositionCoordinates(numDots: number, wellSize:number, dotSize:number, adj_x= 0, adj_y= 0) {
-    const radius = (0.8 * wellSize ) / 2;
-    const angles = Array.from({length: numDots}, (_, i) => i / numDots * 2 * Math.PI);
-
-    const x = angles.map(angle => radius * Math.cos(angle));
-    const y = angles.map(angle => radius * Math.sin(angle));
-
-    let printPositionCoordinates: Coordinates[] = [{ x: - (dotSize/2) + adj_x, y: - (dotSize/2) + adj_y, label: "0" }];
-    for (let i = 0; i < numDots; i++) {
-      printPositionCoordinates.push({'x': (x[i] - (dotSize/2) + adj_x), 'y': (y[i] - (dotSize/2) + adj_y)});
-    }
-
-    return printPositionCoordinates;
-  }
-
   toPX(size_in_mm:number) {
     return this.screenUtils.convertMMToPPI(size_in_mm);
   }
 
+  _getPrintPositionCoordinates(numDots: number, wellSize:number, dotSize:number, adj_x= 0, adj_y= 0) {
+    return this.printHeadStateService.getPrintPositionCoordinates(numDots, wellSize, dotSize, adj_x, adj_y);
+  }
   private getNextColor(): string {
     const currentColorIndex = this.printHeads.length % this.colors.length;
     return this.colors[currentColorIndex];

@@ -13,7 +13,7 @@ import { PrintHeadSetupComponent } from './printhead-setup/printhead-setup.compo
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import {MatSelectModule} from "@angular/material/select";
+import { MatSelectModule } from "@angular/material/select";
 
 @Pipe({
   name: 'range'

@@ -18,26 +18,8 @@ import {
 import {Subscription} from "rxjs";
 import {FormsModule} from "@angular/forms";
 import {ScreenUtils} from "../screen-utils";
-import {PlateFormatService} from '../plate-format.service';
-import {PlateFormat} from "../../types/PlateFormat";
+import {PlateFormatService, Well, PlateFormat} from '../plate-format.service';
 import {PrintHead, PrintHeadButton, PrintHeadStateService} from "../printhead-state.service";
-
-interface Well {
-  row: number;
-  col: number;
-  origin: {x: number, y: number};
-  selected: boolean;
-  style: {
-    height: string;
-    width: string;
-    top: string;
-    left: string;
-    borderRadius: string;
-    border: string;
-  };
-  element: HTMLElement;
-}
-
 
 @Component({
   selector: 'app-plate-map',
@@ -134,12 +116,12 @@ export class PlateMapComponent implements OnChanges, OnInit, OnDestroy, AfterVie
       const endCol = col;
 
       // Update the selection rectangle's style based on the new ending coordinates
-      const style = this.getSelectionRectangleStyle(
-        this.selectionRectangleStart.row,
-        endRow,
-        this.selectionRectangleStart.col,
-        endCol
-      );
+      // const style = this.getSelectionRectangleStyle(
+      //   this.selectionRectangleStart.row,
+      //   endRow,
+      //   this.selectionRectangleStart.col,
+      //   endCol
+      // );
 
       // Apply the new style to the selection rectangle element
       // ... your logic to update the selection rectangle element's style ...
@@ -153,21 +135,22 @@ export class PlateMapComponent implements OnChanges, OnInit, OnDestroy, AfterVie
     const rows = plate.rows;
     const cols = plate.cols;
 
-    const wellDiameterPX = this.toPX(plate.well_size); // pixels
-    const wellSpacingPX = this.toPX(plate.well_spacing - plate.well_size) // pixels
-    const a1_xPX = this.toPX(plate.a1_center.x) // pixels
-    const a1_yPX = this.toPX(plate.a1_center.y) // pixels
-    const colHeaderHeightPX = this.toPX(plate.a1_center.y - (plate.well_size/2));
-    const rowHeaderWidthPX=this.toPX(plate.a1_center.x - (plate.well_size/2));
+    const wellDiameterPX = this.toPX(plate.well_sizeMM); // pixels
+    const wellSpacingPX = this.toPX(plate.well_spacing_x_MM - plate.well_sizeMM) // pixels
+    const a1_xPX = this.toPX(plate.a1_centerMM.x) // pixels
+    const a1_yPX = this.toPX(plate.a1_centerMM.y) // pixels
+    const colHeaderHeightPX = this.toPX(plate.a1_centerMM.y - (plate.well_sizeMM/2));
+    const rowHeaderWidthPX=this.toPX(plate.a1_centerMM.x - (plate.well_sizeMM/2));
 
     const rowLabels = this.alphabet_upperCase.slice(0, cols);
+    const wellOriginsMM = this.plateFormatService.getWellOrigins(plate.a1_centerMM.x, plate.a1_centerMM.y, rows, cols, plate.well_spacing_x_MM, plate.well_spacing_y_MM);
 
     if (this.selectedPlate) {
 
       this.plateMap.wells = Array.from({length: rows}, (_, row) => {
         return Array.from({length: cols}, (_, col) => {
           const wellElement = this.renderer.createElement('div');
-          this.renderer.addClass(wellElement, 'plate-cell');
+          this.renderer.addClass(wellElement, 'plate-well');
           this.renderer.setAttribute(wellElement, 'data-row', row.toString());
           this.renderer.setAttribute(wellElement, 'data-col', col.toString());
 
@@ -175,10 +158,13 @@ export class PlateMapComponent implements OnChanges, OnInit, OnDestroy, AfterVie
             this.toggleWellSelection(row, col, event.shiftKey);
           });
 
+          const origin_xMM = wellOriginsMM[row][col].x;
+          const origin_yMM = wellOriginsMM[row][col].y;
+
           // Include the returned style in the final well object
           return {
-            row,
-            col,
+            row: row,
+            col: col,
             selected: false,
             style: {
               ...this.getCommonStyleHeaders(),
@@ -191,7 +177,8 @@ export class PlateMapComponent implements OnChanges, OnInit, OnDestroy, AfterVie
               backgroundColor: '#fefefe'
             },
             element: wellElement,
-            origin: {
+            originMM: {x: origin_xMM, y:origin_yMM},
+            originPX: {
               x: (a1_xPX - (wellDiameterPX / 2)) + (col * (wellSpacingPX + wellDiameterPX)),
               y: (a1_yPX - (wellDiameterPX / 2)) + (row * (wellSpacingPX + wellDiameterPX))
             }
@@ -256,7 +243,7 @@ export class PlateMapComponent implements OnChanges, OnInit, OnDestroy, AfterVie
       height: `${this.plateHeightPX}px`,
       width: `${this.plateWidthPX}px`,
       marginTop: '1em',
-      backgroundColor: '#eeeeee',
+      backgroundColor: '#efefef',
       borderRadius: '12px'
     };
   }
@@ -275,30 +262,31 @@ export class PlateMapComponent implements OnChanges, OnInit, OnDestroy, AfterVie
   }
 
 // Method to calculate the selection rectangle's style
-  getSelectionRectangleStyle(startRow: number, endRow: number, startCol: number, endCol: number): object {
-    // Calculate the position and dimensions of the selection rectangle based on the starting and ending coordinates
-    const wellDiameterPX = this.toPX(this.plate.well_size);
-    const wellSpacingPX = this.toPX(this.plate.a1_center.x - this.plate.well_size / 2);
-    const rowHeaderWidthPX = this.toPX(this.plate.a1_center.x - this.plate.well_size / 2);
-    const colHeaderHeightPX = this.toPX(this.plate.a1_center.y - this.plate.well_size / 2);
-
-    const startX = startCol * (wellDiameterPX + wellSpacingPX) + rowHeaderWidthPX;
-    const startY = startRow * (wellDiameterPX + wellSpacingPX) + colHeaderHeightPX;
-    const width = (endCol - startCol + 1) * (wellDiameterPX + wellSpacingPX) - wellSpacingPX;
-    const height = (endRow - startRow + 1) * (wellDiameterPX + wellSpacingPX) - wellSpacingPX;
-
-    console.log('getSelectionRectangleStyle: ', JSON.stringify(this.plate))
-    return {
-      position: 'absolute',
-      left: `${startX}px`,
-      top: `${startY}px`,
-      width: `${width}px`,
-      height: `${height}px`,
-      backgroundColor: 'rgba(0, 0, 255, 0.3)', // semi-transparent blue color
-      border: '1px solid blue',
-      zIndex: 10
-    };
-  }
+//   getSelectionRectangleStyle(startRow: number, endRow: number, startCol: number, endCol: number): object {
+//     // Calculate the position and dimensions of the selection rectangle based on the starting and ending coordinates
+//     const wellDiameterPX = this.toPX(this.plate.well_sizeMM);
+//     const wellSpacingPX = this.toPX(this.plate.a1_centerMM.x - this.plate.well_sizeMM / 2);
+//     const rowHeaderWidthPX = this.toPX(this.plate.a1_centerMM.x - this.plate.well_sizeMM / 2);
+//     const colHeaderHeightPX = this.toPX(this.plate.a1_centerMM.y - this.plate.well_sizeMM / 2);
+//
+//     const startX = startCol * (wellDiameterPX + wellSpacingPX) + rowHeaderWidthPX;
+//     const startY = startRow * (wellDiameterPX + wellSpacingPX) + colHeaderHeightPX;
+//     const width = (endCol - startCol + 1) * (wellDiameterPX + wellSpacingPX) - wellSpacingPX;
+//     const height = (endRow - startRow + 1) * (wellDiameterPX + wellSpacingPX) - wellSpacingPX;
+//
+//     )
+//     console.log('getSelectionRectangleStyle: ', JSON.stringify(this.plate))
+//     return {
+//       position: 'absolute',
+//       left: `${startX}px`,
+//       top: `${startY}px`,
+//       width: `${width}px`,
+//       height: `${height}px`,
+//       backgroundColor: 'rgba(0, 0, 255, 0.3)', // semi-transparent blue color
+//       border: '1px solid blue',
+//       zIndex: 10
+//     };
+//   }
 
   toggleWellSelection(row: number, col: number, shiftKey: boolean = false): void {
     if (shiftKey && this.lastClicked) {
@@ -396,14 +384,17 @@ export class PlateMapComponent implements OnChanges, OnInit, OnDestroy, AfterVie
   toPX(size_in_mm: number) {
     return this.screenUtils.convertMMToPPI(size_in_mm);
   }
-  _getPrintPositionButtonStyle(printHead: PrintHead, printPosition: number, well: Well) {
-    // console.log(JSON.stringify(this.printHeadStateService.getPrintPositionButtonStyle(printHead, printPosition, well_size ?? this.selectedPlate.well_size)))
+  _getPrintPositionButtonStyle(selectedPlate: PlateFormat, printHead: PrintHead, printPosition: number) {
 
-    console.log('this.selectedPlate.well_size: ', this.selectedPlate.well_size, 'this.printHeadStateService.printPickerSize: ', this.printHeadStateService.printPickerSize)
-    const printPositionButtonStyleRaw = this.printHeadStateService.getPrintPositionButtonStyle(printHead, printPosition, this.selectedPlate.well_size);
+    const ratio =  selectedPlate.well_sizeMM / this.printHeadStateService.printPickerSizeMM
+    console.log('selectedPlate: ', JSON.stringify(selectedPlate));
+    // console.log('called from plate-map-component');
+    const printPositionButtonStyleRaw = this.printHeadStateService.getPrintPositionButtonStyle(printHead, printPosition, selectedPlate.well_sizeMM, 'plate-map', ratio);
+
     return {
       ...printPositionButtonStyleRaw
     };
+
   }
   getCommonStyleHeaders() {
     return {

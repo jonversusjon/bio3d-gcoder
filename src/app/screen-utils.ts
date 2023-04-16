@@ -5,9 +5,10 @@ export class ScreenUtils {
   private ppi: number | undefined;
 
   convertMMToPPI(mm: number): number {
-    const scalar = 0.6;
+    const scalar = 1.0;
     const inches = mm / 25.4;
-    return inches * this.getPPI() * scalar;
+    const PPI = inches * this.getPPI() * scalar
+    return Math.round(PPI);
   }
 
   getPPI(): number {
