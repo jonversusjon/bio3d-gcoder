@@ -2,30 +2,14 @@ import { BehaviorSubject } from 'rxjs';
 import {Injectable} from "@angular/core";
 import { Coordinates } from "../types/Coordinates";
 import { ScreenUtils } from "./screen-utils";
-
-export interface PrintHeadButton {
-  printHead: number;
-  position: number;
-  style: {};
-  selected: boolean;
-  originMM: Coordinates;
-  originPX: Coordinates;
-}
-
-export interface PrintHead {
-  printHeadIndex: number;
-  description: string;
-  color: string;
-  active: boolean;
-  printPositionStates: boolean[];
-  printHeadButtons: PrintHeadButton[];
-  pickerWell: {sizeMM: number};
-}
+import { Well } from "../types/Well";
+import { PrintHead } from "../types/PrintHead";
+import { PrintHeadButton } from "../types/PrintHeadButton";
 
 @Injectable({
   providedIn: 'root',
 })
-export class PrintHeadStateService {
+export class PrintPositionService {
   PRINT_POSITIONS_COUNT = 9;
   PRINT_POSITION_SIZE_MM = 1.1; // size it's displayed in the plate map
   constructor(private screenUtils: ScreenUtils) {}
@@ -47,51 +31,76 @@ export class PrintHeadStateService {
     console.log('Selected printHead buttons:', this.selectedPrintHeadButtons);
   }
 
-  getPrintPositionButtonStyle(printHead: PrintHead, printPosition: number, well_size: number, called_from: string, plateWell_to_pickerWell_ratio:number) {
+  generatePrintPositionButtons() {
+    return {};
+  }
+  repopulatePrintPositionButtons(well_size: number, printHead?: PrintHead, well?: Well) {
+    if (printHead) {
+      const ratio = 1 / (well_size / printHead.pickerWell.sizeMM);
+      const printPositionsMM = this.getPrintPositionCoordinates(this.PRINT_POSITIONS_COUNT - 1, this.printPickerSizeMM, ratio * this.PRINT_POSITION_SIZE_MM);
+      const printPositionsPX = printPositionsMM.map(position => {
+        return {
+          x: this.toPX(position.x),
+          y: this.toPX(position.y)
+        };
+      });
 
-    let wellDiameterMM = well_size;
-    let buttonSizeMM = this.PRINT_POSITION_SIZE_MM;
+      printHead.printPositionButtons = printHead.printPositionButtons.map((button, index) => {
 
-    if(called_from == 'printhead-setup') {
-      // console.log('buttonSizeMM before: ', buttonSizeMM);
-      buttonSizeMM = this.scale(buttonSizeMM, (1/plateWell_to_pickerWell_ratio));
-      // console.log('buttonSizeMM after: ', buttonSizeMM);
+        const state = button.selected;
+        const buttonStyle = this.getPrintPositionButtonStyle(printHead, index, well_size, 'printhead-component',1);
+
+        return {
+          printHead: printHead.printHeadIndex,
+          position: index,
+          selected: state,
+          originPX: {x: printPositionsPX[index].x, y: printPositionsPX[index].y},
+          originMM: {x: printPositionsMM[index].x, y: printPositionsMM[index].y},
+          style: {
+            ...buttonStyle
+          }
+        };
+      });
+
+    } else if (well) {
+
     } else {
-      buttonSizeMM = this.scale(buttonSizeMM, plateWell_to_pickerWell_ratio);
+      console.error('no printHead or well object sent to repopulatePrintPositionButtons')
+
     }
 
-    const selected = printHead.printPositionStates[printPosition];
-    const button = printHead.printHeadButtons[printPosition];
-    if(called_from == "plate-map") {
-      console.log('button[', printPosition, ']: ', JSON.stringify(button));
-    }
-
+  }
+  getPrintPositionButtonStyle(printHead: PrintHead, printPosition: number, well_size: number, called_from: string, plateWell_to_pickerWell_ratio:number) {
+    const button = printHead.printPositionButtons[printPosition];
     if (!button) {
       console.warn('Button is not defined:', printHead, printPosition);
       return {};
     }
 
+    const originX = button.originPX.x;
+    const originY = button.originPX.y;
+
+    let wellDiameterMM = well_size;
+    let buttonSizeMM = this.PRINT_POSITION_SIZE_MM;
+
     const wellRadiusPX = this.toPX(wellDiameterMM / 2);
-    if(called_from == 'plate-map') {
-      console.log('button.originPX.x: ', button.originPX.x);
-      console.log('button.originPX.y: ', button.originPX.y);
-      console.log('wellRadiusPX: ', wellRadiusPX);
-    }
     const buttonWidthPX = this.toPX(buttonSizeMM);
-    const leftPX = button.originPX.x + wellRadiusPX - (buttonWidthPX/2);
-    const topPX = button.originPX.y + wellRadiusPX - (buttonWidthPX/2);
 
-    if(called_from !== 'plate-map') {
-      if (printPosition == 0) {
-        // console.log('wellRadiusPX: ', wellRadiusPX);
-        // console.log('widthPX: ', buttonWidthPX);
-        console.log('width: ', this.toPX(buttonSizeMM));
-        console.log('leftPX: ', leftPX);
-        console.log('topPX: ', topPX);
+    let leftPX = button.originPX.x + wellRadiusPX - (buttonWidthPX/2);
+    let topPX = button.originPX.y + wellRadiusPX - (buttonWidthPX/2);
 
-        // console.log('wellRadiusPX: ', wellRadiusPX);
-        // console.log('ratio: ', ratio);
-      }
+    if(called_from == 'printhead-component') {
+      buttonSizeMM = this.scale(buttonSizeMM, (1/plateWell_to_pickerWell_ratio));
+    } else if (called_from == 'plate-map') {
+
+    }
+
+    const printPositionStates = printHead.printPositionButtons.map(button => button.selected);
+    const selected = printPositionStates[printPosition];
+
+    if (called_from == 'plate-map') {
+      console.log('button.originPX after: ', button.originPX)
+      console.log('button.style after: ', button.style);
     }
 
     return {

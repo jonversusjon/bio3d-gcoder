@@ -28,11 +28,11 @@
 
         <div *ngFor="let printHead of activePrintHeads">
 
-            <div *ngFor="let button of printHead.printHeadButtons; let k = index">
-              <button *ngIf="well.selected && printHead.printPositionStates[k]" mat-flat-button
-                      [ngStyle]="_getPrintPositionButtonStyle(selectedPlate, printHead, k)"
-              ></button>
-            </div>
+<!--            <div *ngFor="let printPosition of print; let k = index">-->
+<!--              <button *ngIf="well.selected && printHead.printPositionStates[k]"-->
+<!--                      [ngStyle]="_getPrintPositionButtonStyle(selectedPlate, printHead, k)"-->
+<!--              ></button>-->
+<!--            </div>-->
 
         </div>
       </div>

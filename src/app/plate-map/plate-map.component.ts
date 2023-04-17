@@ -18,8 +18,12 @@ import {
 import {Subscription} from "rxjs";
 import {FormsModule} from "@angular/forms";
 import {ScreenUtils} from "../screen-utils";
-import {PlateFormatService, Well, PlateFormat} from '../plate-format.service';
-import {PrintHead, PrintHeadButton, PrintHeadStateService} from "../printhead-state.service";
+import {PlateFormatService} from '../plate-format.service';
+import { Well } from "../../types/Well";
+import { PlateFormat } from "../../types/PlateFormat";
+import { PrintPositionService } from "../print-position.service";
+import { PrintHead } from "../../types/PrintHead";
+import { PrintHeadButton } from "../../types/PrintHeadButton";
 
 @Component({
   selector: 'app-plate-map',
@@ -63,7 +67,7 @@ export class PlateMapComponent implements OnChanges, OnInit, OnDestroy, AfterVie
     private formsModule: FormsModule,
     private screenUtils: ScreenUtils,
     private plateFormatService: PlateFormatService,
-    private printHeadStateService: PrintHeadStateService,
+    private printHeadStateService: PrintPositionService,
     private renderer: Renderer2,
     rendererFactory: RendererFactory2
   ) {
@@ -146,7 +150,6 @@ export class PlateMapComponent implements OnChanges, OnInit, OnDestroy, AfterVie
     const wellOriginsMM = this.plateFormatService.getWellOrigins(plate.a1_centerMM.x, plate.a1_centerMM.y, rows, cols, plate.well_spacing_x_MM, plate.well_spacing_y_MM);
 
     if (this.selectedPlate) {
-
       this.plateMap.wells = Array.from({length: rows}, (_, row) => {
         return Array.from({length: cols}, (_, col) => {
           const wellElement = this.renderer.createElement('div');
@@ -166,6 +169,15 @@ export class PlateMapComponent implements OnChanges, OnInit, OnDestroy, AfterVie
             row: row,
             col: col,
             selected: false,
+            printPositionButtons: Array.from({ length: this.printHeadStateService.PRINT_POSITIONS_COUNT }, (_, index) => ({
+              printHead: -1,
+              position: index,
+              color: 'this.getNextColor()',
+              selected: false,
+              originPX: { x: 0, y: 0 },
+              originMM: { x: 0, y: 0 },
+              style: {}
+            })),
             style: {
               ...this.getCommonStyleHeaders(),
               height: `${wellDiameterPX}px`,
@@ -387,10 +399,14 @@ export class PlateMapComponent implements OnChanges, OnInit, OnDestroy, AfterVie
   _getPrintPositionButtonStyle(selectedPlate: PlateFormat, printHead: PrintHead, printPosition: number) {
 
     const ratio =  selectedPlate.well_sizeMM / this.printHeadStateService.printPickerSizeMM
-    console.log('selectedPlate: ', JSON.stringify(selectedPlate));
+    // console.log('selectedPlate: ', JSON.stringify(selectedPlate));
     // console.log('called from plate-map-component');
+    // console.log('printHead =', printHead.printHeadIndex);
+    // console.log('printPosition: ', printPosition);
+    // console.log('selectedPlate.well_sizeMM: ', selectedPlate.well_sizeMM);
+    // console.log('ratio: ', ratio);
     const printPositionButtonStyleRaw = this.printHeadStateService.getPrintPositionButtonStyle(printHead, printPosition, selectedPlate.well_sizeMM, 'plate-map', ratio);
-
+    // console.log('printPositionButtonStyleRaw: ', printPositionButtonStyleRaw);
     return {
       ...printPositionButtonStyleRaw
     };

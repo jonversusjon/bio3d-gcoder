@@ -1,0 +1,12 @@
+app-printhead-setup {
+  display: flex;
+}
+.printhead-setup-container {
+  flex: 2;
+  margin-right: 16px;
+  padding: 12px;
+}
+
+.plate-map-container {
+  flex: 3;
+}

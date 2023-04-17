@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { PrintHeadSetupComponent } from './printhead-setup.component';
+import { PrintheadComponent } from './printhead.component';
 
 describe('PrintheadSetupComponent', () => {
-  let component: PrintHeadSetupComponent;
-  let fixture: ComponentFixture<PrintHeadSetupComponent>;
+  let component: PrintheadComponent;
+  let fixture: ComponentFixture<PrintheadComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ PrintHeadSetupComponent ]
+      declarations: [ PrintheadComponent ]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(PrintHeadSetupComponent);
+    fixture = TestBed.createComponent(PrintheadComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

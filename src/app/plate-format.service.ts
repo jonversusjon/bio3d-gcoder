@@ -1,37 +1,11 @@
 // TODO: need a way to code for the coordinates of the plate map
-// TOFO: need a way to code for calibrations - well_well_x, well_well_y, a1_center_left_edge, a1_center_top_edge, plate_height, well_depth
+// TODO: need a way to code for calibrations - well_well_x, well_well_y, a1_center_left_edge, a1_center_top_edge, plate_height, well_depth
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { LocalStorageService } from './local-storage.service';
 import {Coordinates} from "../types/Coordinates";
+import { PrintHeadButton } from "../types/PrintHeadButton";
 
-export interface Well {
-  row: number;
-  col: number;
-  originPX: Coordinates;
-  originMM: Coordinates;
-  selected: boolean;
-  style: {
-    height: string;
-    width: string;
-    top: string;
-    left: string;
-    borderRadius: string;
-    border: string;
-  };
-  element: HTMLElement;
-}
-
-export interface PlateFormat {
-  name: string;
-  plateId: number;
-  rows: number;
-  cols: number;
-  well_sizeMM: number;
-  well_spacing_x_MM: number;
-  well_spacing_y_MM: number;
-  a1_centerMM: Coordinates;
-}
 @Injectable({
   providedIn: 'root',
 })
