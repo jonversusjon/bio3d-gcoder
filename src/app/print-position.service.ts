@@ -145,7 +145,7 @@ export class PrintPositionService {
     this._printHeads.next(printHeads);
   }
   toPX(size_in_mm:number) {
-    return this.screenUtils.convertMMToPPI(size_in_mm);
+    return this.screenUtils.convertMMToPX(size_in_mm);
   }
 
   scale(size: number, scalar: number) {

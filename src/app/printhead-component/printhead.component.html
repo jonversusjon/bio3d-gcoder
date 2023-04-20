@@ -7,7 +7,6 @@
 
   <div class="grid-list-container">
     <div class="flex-container">
-
       <div *ngFor="let printhead of printHeads; let i = index" class="flex-item">
         <mat-card [ngClass]="{'disabled': !printhead.active}">
           <div class="printhead-header flex-container">

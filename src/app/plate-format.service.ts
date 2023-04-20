@@ -22,7 +22,7 @@ export class PlateFormatService {
     { name: '384-well plate', 'plateId': 384, rows: 12, cols: 24, well_sizeMM: 3.3, well_spacing_x_MM: 4.5, well_spacing_y_MM: 4.5, 'a1_centerMM': {x:12.13,y:8.99} }
   ];
 
-
+  selectedPlateFormat = this.getDefaultPlateFormat();
   constructor() {
 
   }
@@ -35,6 +35,7 @@ export class PlateFormatService {
     return this.plateFormats[0];
   }
   setSelectedPlate(plate: any) {
+    this.selectedPlateFormat = plate;
     this.selectedPlateSource.next(plate);
   }
 

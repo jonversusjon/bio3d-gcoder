@@ -5,12 +5,11 @@
 // TODO: the radius of print positions needs to update to match well_size
 
 import {
-  AfterViewInit,
-  Component,
-  Input,
+  AfterViewInit, ChangeDetectorRef,
+  Component, EventEmitter,
   OnChanges,
   OnDestroy,
-  OnInit,
+  OnInit, Output,
   Renderer2,
   RendererFactory2,
   SimpleChanges
@@ -32,10 +31,11 @@ import { PrintHeadButton } from "../../types/PrintHeadButton";
   providers: [ScreenUtils]
 })
 export class PlateMapComponent implements OnChanges, OnInit, OnDestroy, AfterViewInit {
-  @Input() plate!: PlateFormat;
-  @Input() selectedPlate!: typeof PlateMapComponent.prototype.plateFormats[0];
+  @Output() plateFormatChanged = new EventEmitter<PlateFormat>();
+  plateFormat: PlateFormat = <PlateFormat>{ /*...initial data...*/ };
 
   plateFormats: any[] = [];
+  selectedPlate: any;
   wellSelectionStates: boolean[] = [];
 
   containerStyle: any = {
@@ -58,7 +58,6 @@ export class PlateMapComponent implements OnChanges, OnInit, OnDestroy, AfterVie
   selectionRectangleVisible = false;
 
   selectedPrintheadButtonsSubscription!: Subscription;
-
   private printHeadsSubscription!: Subscription;
   activePrintHeads: PrintHead[] = [];
 
@@ -69,7 +68,8 @@ export class PlateMapComponent implements OnChanges, OnInit, OnDestroy, AfterVie
     private plateFormatService: PlateFormatService,
     private printHeadStateService: PrintPositionService,
     private renderer: Renderer2,
-    rendererFactory: RendererFactory2
+    rendererFactory: RendererFactory2,
+    private changeDetectorRef: ChangeDetectorRef
   ) {
     this.renderer = rendererFactory.createRenderer(null, null);
     this.plateFormats = plateFormatService.getPlateFormats()
@@ -78,10 +78,8 @@ export class PlateMapComponent implements OnChanges, OnInit, OnDestroy, AfterVie
   }
   ngAfterViewInit(): void {
     this.updatePlateMap(this.selectedPlate);
-    console.log('plate-map-component ngAfterViewInit');
   }
   ngOnInit(): void {
-// Subscription for selected position buttons changes
     this.selectedPrintheadButtonsSubscription = this.printHeadStateService.selectedPrintHeadButtons$.subscribe(
       (selectedPrintheadButtons: PrintHeadButton[][]) => {
         console.log('Called from selectedPrintheadButtonsSubscription');
@@ -89,7 +87,6 @@ export class PlateMapComponent implements OnChanges, OnInit, OnDestroy, AfterVie
       }
     );
 
-// Subscription for active printheads changes
     this.printHeadsSubscription = this.printHeadStateService.printHeads$.subscribe(printHeads => {
       console.log('Called from printHeadsSubscription');
       this.activePrintHeads = printHeads;
@@ -103,35 +100,10 @@ export class PlateMapComponent implements OnChanges, OnInit, OnDestroy, AfterVie
   }
   ngOnChanges(changes: SimpleChanges) {
     if (changes['selectedPlate'] && changes['selectedPlate'].currentValue) {
-      console.log('changes-plate')
-      this.plateFormatService.setSelectedPlate(this.selectedPlate);
       this.updatePlateMap(this.selectedPlate);
+      this.plateFormatChanged.emit(this.selectedPlate);
     } else {
       return;
-    }
-  }
-
-
-  onMouseMove(event: MouseEvent, row: number, col: number): void {
-    if (event.shiftKey && this.selectionRectangleStart) {
-      // Update the ending coordinates of the selection rectangle and make it visible
-      this.selectionRectangleVisible = true;
-      const endRow = row;
-      const endCol = col;
-
-      // Update the selection rectangle's style based on the new ending coordinates
-      // const style = this.getSelectionRectangleStyle(
-      //   this.selectionRectangleStart.row,
-      //   endRow,
-      //   this.selectionRectangleStart.col,
-      //   endCol
-      // );
-
-      // Apply the new style to the selection rectangle element
-      // ... your logic to update the selection rectangle element's style ...
-    } else {
-      // Hide the selection rectangle when the shift key is not pressed
-      this.selectionRectangleVisible = false;
     }
   }
 
@@ -244,8 +216,10 @@ export class PlateMapComponent implements OnChanges, OnInit, OnDestroy, AfterVie
       width:`${rowHeaderWidthPX}px`,
       height:`${colHeaderHeightPX}px`
     }
+    this.plateFormat = plate;
+    this.plateFormatChanged.emit(this.selectedPlate);
 
-    this.plateFormatService.setSelectedPlate(this.selectedPlate);
+    this.changeDetectorRef.detectChanges();
   }
 
   get plateStyle() {
@@ -273,32 +247,7 @@ export class PlateMapComponent implements OnChanges, OnInit, OnDestroy, AfterVie
     }
   }
 
-// Method to calculate the selection rectangle's style
-//   getSelectionRectangleStyle(startRow: number, endRow: number, startCol: number, endCol: number): object {
-//     // Calculate the position and dimensions of the selection rectangle based on the starting and ending coordinates
-//     const wellDiameterPX = this.toPX(this.plate.well_sizeMM);
-//     const wellSpacingPX = this.toPX(this.plate.a1_centerMM.x - this.plate.well_sizeMM / 2);
-//     const rowHeaderWidthPX = this.toPX(this.plate.a1_centerMM.x - this.plate.well_sizeMM / 2);
-//     const colHeaderHeightPX = this.toPX(this.plate.a1_centerMM.y - this.plate.well_sizeMM / 2);
-//
-//     const startX = startCol * (wellDiameterPX + wellSpacingPX) + rowHeaderWidthPX;
-//     const startY = startRow * (wellDiameterPX + wellSpacingPX) + colHeaderHeightPX;
-//     const width = (endCol - startCol + 1) * (wellDiameterPX + wellSpacingPX) - wellSpacingPX;
-//     const height = (endRow - startRow + 1) * (wellDiameterPX + wellSpacingPX) - wellSpacingPX;
-//
-//     )
-//     console.log('getSelectionRectangleStyle: ', JSON.stringify(this.plate))
-//     return {
-//       position: 'absolute',
-//       left: `${startX}px`,
-//       top: `${startY}px`,
-//       width: `${width}px`,
-//       height: `${height}px`,
-//       backgroundColor: 'rgba(0, 0, 255, 0.3)', // semi-transparent blue color
-//       border: '1px solid blue',
-//       zIndex: 10
-//     };
-//   }
+
 
   toggleWellSelection(row: number, col: number, shiftKey: boolean = false): void {
     if (shiftKey && this.lastClicked) {
@@ -392,21 +341,25 @@ export class PlateMapComponent implements OnChanges, OnInit, OnDestroy, AfterVie
     }
     return true;
   }
+  onMouseMove(event: MouseEvent, row: number, col: number): void {
+    if (event.shiftKey && this.selectionRectangleStart) {
+      // Update the ending coordinates of the selection rectangle and make it visible
+      this.selectionRectangleVisible = true;
+      const endRow = row;
+      const endCol = col;
 
+    } else {
+      // Hide the selection rectangle when the shift key is not pressed
+      this.selectionRectangleVisible = false;
+    }
+  }
   toPX(size_in_mm: number) {
-    return this.screenUtils.convertMMToPPI(size_in_mm);
+    return this.screenUtils.convertMMToPX(size_in_mm);
   }
   _getPrintPositionButtonStyle(selectedPlate: PlateFormat, printHead: PrintHead, printPosition: number) {
 
     const ratio =  selectedPlate.well_sizeMM / this.printHeadStateService.printPickerSizeMM
-    // console.log('selectedPlate: ', JSON.stringify(selectedPlate));
-    // console.log('called from plate-map-component');
-    // console.log('printHead =', printHead.printHeadIndex);
-    // console.log('printPosition: ', printPosition);
-    // console.log('selectedPlate.well_sizeMM: ', selectedPlate.well_sizeMM);
-    // console.log('ratio: ', ratio);
     const printPositionButtonStyleRaw = this.printHeadStateService.getPrintPositionButtonStyle(printHead, printPosition, selectedPlate.well_sizeMM, 'plate-map', ratio);
-    // console.log('printPositionButtonStyleRaw: ', printPositionButtonStyleRaw);
     return {
       ...printPositionButtonStyleRaw
     };

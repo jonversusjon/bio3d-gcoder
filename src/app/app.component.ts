@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { isWebSqlSupported, isIndexedDbSupported } from './browser-support';
+import {PlateFormat} from "../types/PlateFormat";
 
 @Component({
   selector: 'app-root',
@@ -9,7 +10,11 @@ import { isWebSqlSupported, isIndexedDbSupported } from './browser-support';
 export class AppComponent {
   isSupported = false;
   message = '';
+  selectedPlateFormat!: PlateFormat;
 
+  handlePlateFormatChange(newPlateFormat: PlateFormat) {
+    this.selectedPlateFormat = newPlateFormat;
+  }
   ngOnInit(): void {
     if (!isWebSqlSupported() && !isIndexedDbSupported()) {
       this.isSupported = false;
