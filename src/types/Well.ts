@@ -17,5 +17,6 @@ export interface Well {
     borderRadius: string;
     border: string;
   };
+  elementType: 'Well';
   element: HTMLElement;
 }

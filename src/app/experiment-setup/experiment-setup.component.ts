@@ -20,7 +20,8 @@ export class ExperimentSetupComponent {
     well_sizeMM: 0,
     well_spacing_x_MM: 0,
     well_spacing_y_MM: 0,
-    a1_centerMM: { x: 0, y: 0 }
+    a1_centerMM: { x: 0, y: 0 },
+    elementType: 'PlateFormat'
   };
 
 // Handle the change in the number of print heads and emit an event

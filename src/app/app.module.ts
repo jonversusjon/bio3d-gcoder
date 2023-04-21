@@ -15,6 +15,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatSelectModule } from "@angular/material/select";
 import { ExperimentSetupComponent } from './experiment-setup/experiment-setup.component';
+import {MatButtonToggleModule} from "@angular/material/button-toggle";
 
 @Pipe({
   name: 'range'
@@ -43,7 +44,8 @@ export class RangePipe implements PipeTransform {
         MatFormFieldModule,
         MatInputModule,
         MatSlideToggleModule,
-        MatSelectModule
+        MatSelectModule,
+        MatButtonToggleModule
     ],
   providers: [ScreenUtils],
   bootstrap: [AppComponent]

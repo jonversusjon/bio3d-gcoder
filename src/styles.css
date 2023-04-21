@@ -7,14 +7,12 @@
   display: contents;
 }
 
-.well {
-  border: 1px solid #ccc;
-  background-color: #eee;
-  border-radius: 50%; /* Add this property to make wells circles */
+html, body { height: 100%; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+html, body { height: 100%; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+body {
+  background-color: #aaaaaa; /* set your desired background color here */
 }
-
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
-
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }

@@ -81,16 +81,16 @@ printhead-setup .mat-card-tile {
 }
 
 .print-position-picker {
-  width: 85%;
   aspect-ratio: 1 / 1;
   border: 1px solid black;
   border-radius: 50%;
   position: relative;
 }
 
-.print-position-picker button {
+.custom-button-toggle.mat-button-toggle {
   position: absolute;
   border-radius: 50%;
+  aspect-ratio: 1 / 1;
 }
 
 .mat-mdc-form-field-bottom-align::before {

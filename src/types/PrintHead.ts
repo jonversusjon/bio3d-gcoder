@@ -7,4 +7,5 @@ export interface PrintHead {
   active: boolean;
   printPositionButtons: PrintHeadButton[];
   pickerWell: {sizeMM: number};
+  elementType: 'PrintHead';
 }

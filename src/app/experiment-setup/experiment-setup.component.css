@@ -10,3 +10,9 @@ app-printhead-setup {
 .plate-map-container {
   flex: 3;
 }
+
+.well {
+  border: 1px solid #ccc;
+  background-color: #eee;
+  border-radius: 50%; /* Add this property to make wells circles */
+}

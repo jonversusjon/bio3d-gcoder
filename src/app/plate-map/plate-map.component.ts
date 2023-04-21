@@ -5,11 +5,11 @@
 // TODO: the radius of print positions needs to update to match well_size
 
 import {
-  AfterViewInit, ChangeDetectorRef,
-  Component, EventEmitter,
+  AfterViewInit,
+  Component,
   OnChanges,
   OnDestroy,
-  OnInit, Output,
+  OnInit,
   Renderer2,
   RendererFactory2,
   SimpleChanges
@@ -23,6 +23,7 @@ import { PlateFormat } from "../../types/PlateFormat";
 import { PrintPositionService } from "../print-position.service";
 import { PrintHead } from "../../types/PrintHead";
 import { PrintHeadButton } from "../../types/PrintHeadButton";
+import {MatSelectChange} from "@angular/material/select";
 
 @Component({
   selector: 'app-plate-map',
@@ -30,12 +31,11 @@ import { PrintHeadButton } from "../../types/PrintHeadButton";
   styleUrls: ['./plate-map.component.css'],
   providers: [ScreenUtils]
 })
-export class PlateMapComponent implements OnChanges, OnInit, OnDestroy, AfterViewInit {
-  @Output() plateFormatChanged = new EventEmitter<PlateFormat>();
-  plateFormat: PlateFormat = <PlateFormat>{ /*...initial data...*/ };
+export class PlateMapComponent implements OnInit, OnDestroy {
 
   plateFormats: any[] = [];
-  selectedPlate: any;
+  selectedPlate!: PlateFormat;
+  prevSelectedPlate!: PlateFormat;
   wellSelectionStates: boolean[] = [];
 
   containerStyle: any = {
@@ -66,45 +66,56 @@ export class PlateMapComponent implements OnChanges, OnInit, OnDestroy, AfterVie
     private formsModule: FormsModule,
     private screenUtils: ScreenUtils,
     private plateFormatService: PlateFormatService,
-    private printHeadStateService: PrintPositionService,
+    private printPositionService: PrintPositionService,
     private renderer: Renderer2,
     rendererFactory: RendererFactory2,
-    private changeDetectorRef: ChangeDetectorRef
   ) {
     this.renderer = rendererFactory.createRenderer(null, null);
     this.plateFormats = plateFormatService.getPlateFormats()
     this.selectedPlate = this.plateFormats[0];
+    this.prevSelectedPlate = this.selectedPlate;
+    this.initializeSelectedPlate();
+    this.updatePlateMap(this.selectedPlate);
     this.printHeadsSubscription = new Subscription();
   }
-  ngAfterViewInit(): void {
-    this.updatePlateMap(this.selectedPlate);
-  }
+
   ngOnInit(): void {
-    this.selectedPrintheadButtonsSubscription = this.printHeadStateService.selectedPrintHeadButtons$.subscribe(
+    this.selectedPrintheadButtonsSubscription = this.printPositionService.selectedPrintHeadButtons$.subscribe(
       (selectedPrintheadButtons: PrintHeadButton[][]) => {
         console.log('Called from selectedPrintheadButtonsSubscription');
         // this.updateExperiment(this.activePrintHeads, selectedPrintheadButtons);
       }
     );
 
-    this.printHeadsSubscription = this.printHeadStateService.printHeads$.subscribe(printHeads => {
+    this.printHeadsSubscription = this.printPositionService.printHeads$.subscribe(printHeads => {
       console.log('Called from printHeadsSubscription');
       this.activePrintHeads = printHeads;
       // Call your updateExperiment() method here if needed, with this.printHeads and the latest selectedPrintheadButtons.
     });
   }
 
+  initializeSelectedPlate() {
+    // Place the logic you want to run when the selectedPlate changes here
+    this.updatePlateMap(this.selectedPlate);
+    // this.plateFormatChanged.emit(this.selectedPlate);
+    this.printPositionService.setSelectedPlate(this.selectedPlate);
+  }
+
+  onSelectedPlateChanged(event: MatSelectChange): void {
+    const newSelectedPlate = event.value;
+
+    if (newSelectedPlate !== this.prevSelectedPlate) {
+      this.updatePlateMap(newSelectedPlate);
+      this.prevSelectedPlate = newSelectedPlate;
+      this.selectedPlate = newSelectedPlate;
+      console.log('newSelectedPlate: ', newSelectedPlate);
+      this.printPositionService.setSelectedPlate(newSelectedPlate);
+    }
+  }
+
   ngOnDestroy(): void {
     this.selectedPrintheadButtonsSubscription.unsubscribe();
     this.printHeadsSubscription.unsubscribe();
-  }
-  ngOnChanges(changes: SimpleChanges) {
-    if (changes['selectedPlate'] && changes['selectedPlate'].currentValue) {
-      this.updatePlateMap(this.selectedPlate);
-      this.plateFormatChanged.emit(this.selectedPlate);
-    } else {
-      return;
-    }
   }
 
   updatePlateMap(plate: PlateFormat, event?: MouseEvent) {
@@ -141,14 +152,15 @@ export class PlateMapComponent implements OnChanges, OnInit, OnDestroy, AfterVie
             row: row,
             col: col,
             selected: false,
-            printPositionButtons: Array.from({ length: this.printHeadStateService.PRINT_POSITIONS_COUNT }, (_, index) => ({
+            printPositionButtons: Array.from({ length: this.printPositionService.PRINT_POSITIONS_COUNT }, (_, index) => ({
               printHead: -1,
               position: index,
               color: 'this.getNextColor()',
               selected: false,
               originPX: { x: 0, y: 0 },
               originMM: { x: 0, y: 0 },
-              style: {}
+              style: {},
+              elementType: 'PrintHeadButton'
             })),
             style: {
               ...this.getCommonStyleHeaders(),
@@ -165,7 +177,8 @@ export class PlateMapComponent implements OnChanges, OnInit, OnDestroy, AfterVie
             originPX: {
               x: (a1_xPX - (wellDiameterPX / 2)) + (col * (wellSpacingPX + wellDiameterPX)),
               y: (a1_yPX - (wellDiameterPX / 2)) + (row * (wellSpacingPX + wellDiameterPX))
-            }
+            },
+            elementType: 'Well'
           } as Well;
 
         });
@@ -210,16 +223,7 @@ export class PlateMapComponent implements OnChanges, OnInit, OnDestroy, AfterVie
         };
       });
     }
-    const blankTile= {
-      ...this.getCommonStyleHeaders(),
-      backgroundColor: 'blue',
-      width:`${rowHeaderWidthPX}px`,
-      height:`${colHeaderHeightPX}px`
-    }
-    this.plateFormat = plate;
-    this.plateFormatChanged.emit(this.selectedPlate);
 
-    this.changeDetectorRef.detectChanges();
   }
 
   get plateStyle() {
@@ -356,15 +360,7 @@ export class PlateMapComponent implements OnChanges, OnInit, OnDestroy, AfterVie
   toPX(size_in_mm: number) {
     return this.screenUtils.convertMMToPX(size_in_mm);
   }
-  _getPrintPositionButtonStyle(selectedPlate: PlateFormat, printHead: PrintHead, printPosition: number) {
 
-    const ratio =  selectedPlate.well_sizeMM / this.printHeadStateService.printPickerSizeMM
-    const printPositionButtonStyleRaw = this.printHeadStateService.getPrintPositionButtonStyle(printHead, printPosition, selectedPlate.well_sizeMM, 'plate-map', ratio);
-    return {
-      ...printPositionButtonStyleRaw
-    };
-
-  }
   getCommonStyleHeaders() {
     return {
       display: 'block',

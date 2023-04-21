@@ -3,7 +3,7 @@
   <div style="top: 2em; left: 2em;">
     <mat-form-field appearance="fill">
       <mat-label for="plateFormat">Select a plate format</mat-label>
-      <mat-select id="plateFormat" [(ngModel)]="selectedPlate" (ngModelChange)="updatePlateMap(selectedPlate)">
+      <mat-select id="plateFormat" [value]="selectedPlate" (selectionChange)="onSelectedPlateChanged($event)">
         <mat-option *ngFor="let plate of plateFormats" [value]="plate">
           {{ plate.name }}
         </mat-option>

@@ -3,30 +3,28 @@ import {
   Component,
   EventEmitter,
   Input,
-  OnChanges,
   OnDestroy,
-  OnInit,
-  SimpleChanges
+  OnInit
 } from '@angular/core';
 import { PlateFormat } from "../../types/PlateFormat";
 import { ScreenUtils } from "../screen-utils";
 import { PrintPositionService } from "../print-position.service"
 import { PrintHead } from "../../types/PrintHead";
 import { PrintHeadButton } from "../../types/PrintHeadButton";
-import {Subscription} from "rxjs";
+import {Observable, Subscription} from "rxjs";
+import {Well} from "../../types/Well";
+import {Coordinates} from "../../types/Coordinates";
 
 @Component({
   selector: 'app-printhead-component',
   templateUrl: './printhead.component.html',
   styleUrls: ['./printhead.component.css']
 })
-export class PrintheadComponent implements OnInit, OnDestroy, OnChanges {
+export class PrintheadComponent implements OnInit, OnDestroy {
   @Input() printHeadChanged!: PrintHead;
-  @Input() selectedPlate!: PlateFormat;
-
-  private printHeadChangedSubscription: Subscription = new Subscription();
   private plateFormatChangedSubscription: Subscription = new Subscription();
-
+  private selectedPlate!: PlateFormat;
+  printPositionCoordinates$!: Observable<Coordinates[]>;
   private colors: string[] = [
     '#009ADE',
     '#00CD6C',
@@ -47,6 +45,13 @@ export class PrintheadComponent implements OnInit, OnDestroy, OnChanges {
     private screenUtils: ScreenUtils,
     private printPositionService: PrintPositionService,
     private changeDetectorRef: ChangeDetectorRef) {
+    this.printPositionCoordinates$ = printPositionService.printPositionCoordinates$;
+    this.plateFormatChangedSubscription = this.printPositionService.selectedPlate$.subscribe(plate => {
+      if (plate) {
+        this.selectedPlate = plate;
+        this.updatePrintHeads();
+      }
+    });
   }
 
   ngOnInit() {
@@ -54,16 +59,8 @@ export class PrintheadComponent implements OnInit, OnDestroy, OnChanges {
     this.changeDetectorRef.detectChanges();
   }
 
-  ngOnChanges(changes: SimpleChanges) {
-
-    if (changes["plateFormat"]) { // Change this line
-      this.selectedPlate = changes["plateFormat"].currentValue; // Change this line
-      this.updatePrintHeads();
-      this.changeDetectorRef.detectChanges();
-    }
-  }
   ngOnDestroy() {
-    this.printHeadChangedSubscription.unsubscribe();
+    // this.printHeadChangedSubscription.unsubscribe();
     this.plateFormatChangedSubscription.unsubscribe();
   }
 
@@ -82,7 +79,8 @@ export class PrintheadComponent implements OnInit, OnDestroy, OnChanges {
         originMM: { x: 0, y: 0 },
         style: {}
       })),
-      pickerWell: { sizeMM: this.printPickerSizeMM }
+      pickerWell: { sizeMM: this.printPickerSizeMM },
+      elementType: 'PrintHead'
     };
 
     if (this.numberOfPrintHeads > this.printHeads.length) {
@@ -101,61 +99,41 @@ export class PrintheadComponent implements OnInit, OnDestroy, OnChanges {
 
   }
 
-  getPrintPositionPickerStyle(isActive: boolean): object {
-    if(this.selectedPlate) {
-
-      const commonStyle = {
-        width: `${this.toPX(this.printPickerSizeMM)}px`,
-        aspectRatio: '1 / 1',
-        marginLeft: 'auto',
-        marginRight: 'auto'
-      }
-      if(isActive) {
-        return {...commonStyle}
-      } else {
-        return {
-          ...commonStyle,
-          backgroundColor: '#f8f8f8'
-        }
-      }
-    }else {
-      return {}
-    }
+  getButtonWidthPX() {
+    return this.toPX(this.printPositionService.getButtonWidthMM());
   }
-  _getPrintPositionButtonStyle(printHead: PrintHead, printPosition: number) {
+  getButtonLeftPX(parentElement: PrintHead, printHeadButtonPosition: number) {
+    return this.toPX(this.printPositionService.getButtonLeftMM(parentElement, printHeadButtonPosition));
+  }
 
-    if (this.selectedPlate) {
-      const pickerWell_to_plateWell_ratio = this.selectedPlate.well_sizeMM / this.printPickerSizeMM;
-      const radius = this.toPX(this.printPickerSizeMM) / 2;
-      const buttonSize = this.toPX(this.printPickerSizeMM / 4);
+  getButtonTopPX(parentElement: PrintHead, printHeadButtonPosition: number) {
+    return this.toPX(this.printPositionService.getButtonTopMM(parentElement, printHeadButtonPosition));
+  }
+  // getPrintPositionPickerStyle(isActive: boolean): object {
+  //   if(this.selectedPlate) {
+  //
+  //     const commonStyle = {
+  //       width: `${this.toPX(this.printPickerSizeMM)}px`,
+  //       aspectRatio: '1 / 1',
+  //       marginLeft: 'auto',
+  //       marginRight: 'auto'
+  //     }
+  //     if(isActive) {
+  //       return {...commonStyle}
+  //     } else {
+  //       return {
+  //         ...commonStyle,
+  //         backgroundColor: '#f8f8f8'
+  //       }
+  //     }
+  //   }else {
+  //     return {}
+  //   }
+  // }
 
-      // Calculate the angle and position for each button
-      const angle = (360 / this.printPositionService.PRINT_POSITIONS_COUNT) * printPosition;
-      const angleInRadians = (angle * Math.PI) / 180;
-      const centerX = radius - buttonSize / 2;
-      const centerY = radius - buttonSize / 2;
-      const left = centerX + radius * Math.cos(angleInRadians) - buttonSize / 2;
-      const top = centerY + radius * Math.sin(angleInRadians) - buttonSize / 2;
-
-      const printPositionButtonStyleRaw = {
-        ...this.printPositionService.getPrintPositionButtonStyle(
-          printHead,
-          printPosition,
-          this.printPickerSizeMM,
-          'printhead-component',
-          pickerWell_to_plateWell_ratio
-        ),
-        left: `${left}px`,
-        top: `${top}px`,
-        width: `${buttonSize}px`,
-        height: `${buttonSize}px`,
-      };
-      console.log('printPositionButtonStyleRaw: ', printPositionButtonStyleRaw);
-      return printPositionButtonStyleRaw;
-    } else {
-      console.log('_getPrintPositionButtonStyle says no plate selected');
-      return {};
-    }
+  private getNextColor(): string {
+    const currentColorIndex = this.printHeads.length % this.colors.length;
+    return this.colors[currentColorIndex];
   }
 
   updatePrintHeadButtons(PrintHead: PrintHead, buttonIndex?: number, updateAll: boolean = false) {
@@ -171,9 +149,9 @@ export class PrintheadComponent implements OnInit, OnDestroy, OnChanges {
     if (!printHead.active) {
       this.setAllButtonsInactive(printHead);
     } else {
-      if (this.selectedPlate) { // Add this check
-        this.printPositionService.repopulatePrintPositionButtons(this.selectedPlate.well_sizeMM, printHead, undefined);
-      }
+      // if (this.selectedPlate) { // Add this check
+        // this.printPositionService.repopulatePrintPositionButtons(this.selectedPlate.well_sizeMM, printHead, undefined);
+      // }
     }
   }
 
@@ -199,9 +177,9 @@ export class PrintheadComponent implements OnInit, OnDestroy, OnChanges {
     return this.screenUtils.convertMMToPX(size_in_mm);
   }
 
-  private getNextColor(): string {
-    const currentColorIndex = this.printHeads.length % this.colors.length;
-    return this.colors[currentColorIndex];
+  getPrintPickerWidthPX() {
+    return this.toPX(this.printPickerSizeMM);
   }
+
 }
 

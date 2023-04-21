@@ -9,4 +9,5 @@ export interface PlateFormat {
   well_spacing_x_MM: number;
   well_spacing_y_MM: number;
   a1_centerMM: Coordinates;
+  elementType: 'PlateFormat';
 }
