@@ -22,19 +22,15 @@
           </mat-form-field>
         </div>
 
-        <mat-card-content style="display: flex; justify-content: center;">
-          <div class="print-position-picker" [ngStyle]="{ 'width': (getPrintPickerWidthPX()) + 'px' }">
+        <mat-card-content style="display: flex; justify-content: center;" [ngStyle]="{'height': (getPrintPickerWidthPX()) + 'px'}">
+          <div class="print-position-picker"
+               [ngStyle]="getPrintPositionPickerStyle(printhead)">
             <ng-container *ngFor="let printHeadButton of printhead.printPositionButtons; let j = index">
               <mat-button-toggle
                 (click)="toggleButton(printhead, printHeadButton)"
                 [checked]="printHeadButton.selected"
                 class="print-position-picker-position-button custom-button-toggle"
-                [ngStyle]="{
-                  'width': (getButtonWidthPX(printhead)) + 'px',
-                  'top': (getButtonTopPX(printhead, j)) + 'px',
-                  'left': (getButtonLeftPX(printhead, j)) + 'px',
-                  'background-color': printHeadButton.selected ? printhead.color : 'white'
-                }"
+                [ngStyle]="getMergedStyles(printhead, printHeadButton)"
               ></mat-button-toggle>
             </ng-container>
           </div>

@@ -15,6 +15,7 @@ import {Observable, Subscription} from "rxjs";
 import {Well} from "../../types/Well";
 import {Coordinates} from "../../types/Coordinates";
 import {Needle} from "../../types/Needle";
+import {StyleService} from "../style.service";
 
 @Component({
   selector: 'app-printhead-component',
@@ -23,6 +24,9 @@ import {Needle} from "../../types/Needle";
 })
 export class PrintheadComponent implements OnInit, OnDestroy {
   @Input() printHeadChanged!: PrintHead;
+
+  public customButtonToggleStyle: any;
+
   private plateFormatChangedSubscription: Subscription = new Subscription();
   private selectedPlate!: PlateFormat;
   printPositionCoordinates$!: Observable<Coordinates[]>;
@@ -47,7 +51,8 @@ export class PrintheadComponent implements OnInit, OnDestroy {
   constructor(
     private screenUtils: ScreenUtils,
     private printPositionService: PrintPositionService,
-    private changeDetectorRef: ChangeDetectorRef) {
+    private changeDetectorRef: ChangeDetectorRef,
+    private styleService: StyleService) {
     this.printPositionCoordinates$ = printPositionService.printPositionCoordinates$;
     this.plateFormatChangedSubscription = this.printPositionService.selectedPlate$.subscribe(plate => {
       if (plate) {
@@ -61,6 +66,7 @@ export class PrintheadComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.updatePrintHeads();
     this.changeDetectorRef.detectChanges();
+    this.customButtonToggleStyle = this.styleService.getBaseStyle('custom-button-toggle');
   }
 
   ngOnDestroy() {
@@ -129,27 +135,6 @@ export class PrintheadComponent implements OnInit, OnDestroy {
     // Implement your logic to check if the button is selected
     // For example, you can check if the printHeadButton is in the selectedPrintHeadButtons array
   }
-  // getPrintPositionPickerStyle(isActive: boolean): object {
-  //   if(this.selectedPlate) {
-  //
-  //     const commonStyle = {
-  //       width: `${this.toPX(this.printPickerSizeMM)}px`,
-  //       aspectRatio: '1 / 1',
-  //       marginLeft: 'auto',
-  //       marginRight: 'auto'
-  //     }
-  //     if(isActive) {
-  //       return {...commonStyle}
-  //     } else {
-  //       return {
-  //         ...commonStyle,
-  //         backgroundColor: '#f8f8f8'
-  //       }
-  //     }
-  //   }else {
-  //     return {}
-  //   }
-  // }
 
   private getNextColor(): string {
     const currentColorIndex = this.printHeads.length % this.colors.length;
@@ -212,5 +197,28 @@ export class PrintheadComponent implements OnInit, OnDestroy {
   // updateNeedleOD(printhead: PrintHead, printheadIndex: number): void {
   //   this.printPositionService.updatePrintPositionBaseSize(printhead.needle);
   // }
+
+  getMergedStyles(printHead: PrintHead, button: PrintHeadButton) {
+    const mergedStyle =
+     {
+      ...this.customButtonToggleStyle,
+      'width': (this.getButtonWidthPX(printHead)) + 'px',
+      'top': (this.getButtonTopPX(printHead, button.position)) + 'px',
+      'left': (this.getButtonLeftPX(printHead, button.position)) + 'px',
+       'background-color': button.selected ? printHead.color : 'white'
+    };
+    console.log('mergedStyle: ', mergedStyle);
+    return mergedStyle;
+  }
+
+  getPrintPositionPickerStyle(printHead: PrintHead) {
+    const mergedStyle =
+      {
+        ...this.customButtonToggleStyle,
+        'width': (this.getPrintPickerWidthPX()) + 'px'
+      }
+    return mergedStyle;
+  }
+
 }
 

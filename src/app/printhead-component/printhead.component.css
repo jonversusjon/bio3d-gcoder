@@ -97,20 +97,6 @@ printhead-setup .mat-card-tile {
   margin-left: auto;
 }
 
-.print-position-picker {
-  aspect-ratio: 1 / 1;
-  border: 1px solid black;
-  border-radius: 50%;
-  position: relative;
-}
-
-.custom-button-toggle.mat-button-toggle {
-  position: absolute;
-  border-radius: 50%;
-  border: 1px solid black;
-  aspect-ratio: 1 / 1;
-}
-
 .mat-mdc-form-field-bottom-align::before {
   height: 5px;
 }
@@ -179,18 +165,4 @@ printhead-setup .mat-card-tile {
 
 .selected-button-glow {
   box-shadow: 0 0 5px 5px rgba(255, 255, 0, 0.5) !important;
-}
-
-.x-overlay {
-  content: "X";
-  font-size: 12px;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  display: none;
-}
-
-.small-button .x-overlay {
-  display: block;
 }

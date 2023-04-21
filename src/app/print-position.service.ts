@@ -23,7 +23,6 @@ export class PrintPositionService {
     this.selectedPlate$.subscribe((plate) => {
       this.onSelectedPlateChange(plate);
     });
-
   }
 
   private _printHeads = new BehaviorSubject<PrintHead[]>([]);
@@ -46,7 +45,6 @@ export class PrintPositionService {
     {name: '14ga', odMM: 1.83, color: 'olive'}
   ];
 
-
   onSelectedPlateChange(plate: PlateFormat | null) {
     if (plate) {
       this.printPositionCoordinates = this.getPrintPositionCoordinates('Well', plate.printPositionSizeMM);
@@ -57,9 +55,12 @@ export class PrintPositionService {
     }
   }
 
-  getButtonWidthMM(printhead: PrintHead) {
+  onPrintHeadsUpdate(printHeads: PrintHead[] | null) {
+
+  }
+  getButtonWidthMM(printHead: PrintHead) {
     if(this.selectedPlate) {
-      const buttonWidthMM = printhead.needle.odMM / (this.selectedPlate?.well_sizeMM / this.printPickerSizeMM);
+      const buttonWidthMM = printHead.needle.odMM / (this.selectedPlate?.well_sizeMM / this.printPickerSizeMM);
       return buttonWidthMM;
     } else {
       return 0;
@@ -113,6 +114,7 @@ export class PrintPositionService {
 
   updatePrintHeads(printHeads: PrintHead[]): void {
     this._printHeads.next(printHeads);
+    console.log('_printHeads: ', this._printHeads);
   }
   private updatePrintHead(updatedPrintHead: PrintHead): void {
     const printHeads = this._printHeads.getValue();
@@ -124,13 +126,13 @@ export class PrintPositionService {
     } else {
       console.warn(`Warning(updatePrintHead): printHead with id ${updatedPrintHead.printHeadIndex} not found.`);
     }
+    console.log('updatePrintHead: ', this._printHeads);
   }
 
   togglePrintHeadButton(printHead: PrintHead, buttonIndex: number, isSelected: boolean): void {
     if (printHead) {
       printHead.printPositionButtons[buttonIndex].selected = isSelected;
       this.updatePrintHead(printHead);
-      console.log('printHead: ', printHead);
     } else {
       console.warn(`Warning(togglePrintHeadButton): printHead is undefined.`);
     }

@@ -5,14 +5,11 @@
 // TODO: the radius of print positions needs to update to match well_size
 
 import {
-  AfterViewInit,
   Component,
-  OnChanges,
   OnDestroy,
   OnInit,
   Renderer2,
-  RendererFactory2,
-  SimpleChanges
+  RendererFactory2
 } from '@angular/core';
 import {Subscription} from "rxjs";
 import {FormsModule} from "@angular/forms";
@@ -24,6 +21,7 @@ import { PrintPositionService } from "../print-position.service";
 import { PrintHead } from "../../types/PrintHead";
 import { PrintHeadButton } from "../../types/PrintHeadButton";
 import {MatSelectChange} from "@angular/material/select";
+import {StyleService} from "../style.service";
 
 @Component({
   selector: 'app-plate-map',
@@ -37,6 +35,9 @@ export class PlateMapComponent implements OnInit, OnDestroy {
   selectedPlate!: PlateFormat;
   prevSelectedPlate!: PlateFormat;
   wellSelectionStates: boolean[] = [];
+
+  private printHeadsSubscription: Subscription;
+  public printHeads: PrintHead[] = [];
 
   containerStyle: any = {
     width: '100%',
@@ -57,9 +58,7 @@ export class PlateMapComponent implements OnInit, OnDestroy {
   selectionRectangleStart: {row: number, col: number} | null = null;
   selectionRectangleVisible = false;
 
-  selectedPrintheadButtonsSubscription!: Subscription;
-  private printHeadsSubscription!: Subscription;
-  activePrintHeads: PrintHead[] = [];
+  public customButtonToggleStyle: any;
 
   private alphabet_upperCase = [...Array(26)].map((_, i) => String.fromCharCode('a'.charCodeAt(0) + i).toUpperCase());
   constructor(
@@ -69,6 +68,7 @@ export class PlateMapComponent implements OnInit, OnDestroy {
     private printPositionService: PrintPositionService,
     private renderer: Renderer2,
     rendererFactory: RendererFactory2,
+    private styleService: StyleService
   ) {
     this.renderer = rendererFactory.createRenderer(null, null);
     this.plateFormats = plateFormatService.getPlateFormats()
@@ -80,17 +80,14 @@ export class PlateMapComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    // this.printPositionService.selectedPrintHeadButtons$.subscribe((selectedPrintHeadButtons: PrintHead[]) => {
-    //   console.log('selectedPrintHeadButtons: ', selectedPrintHeadButtons);
-    //   //this.updateWellPrintPositionButtons(selectedPrintHeadButtons);
-    // });
 
-    this.printHeadsSubscription = this.printPositionService.printHeads$.subscribe(printHeads => {
-      console.log('Called from printHeadsSubscription');
-      this.activePrintHeads = printHeads;
-      // Call your updateExperiment() method here if needed, with this.printHeads and the latest selectedPrintheadButtons.
-    });
-
+    this.printHeadsSubscription = this.printPositionService.printHeads$.subscribe(
+      (printHeads: PrintHead[]) => {
+        this.printHeads = printHeads;
+        console.log('plate-map-component')
+      }
+    );
+    this.customButtonToggleStyle = this.styleService.getBaseStyle('custom-button-toggle');
   }
 
   initializeSelectedPlate() {
@@ -113,8 +110,9 @@ export class PlateMapComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.selectedPrintheadButtonsSubscription.unsubscribe();
-    this.printHeadsSubscription.unsubscribe();
+    if (this.printHeadsSubscription) {
+      this.printHeadsSubscription.unsubscribe();
+    }
   }
 
   updatePlateMap(plate: PlateFormat, event?: MouseEvent) {
@@ -224,32 +222,6 @@ export class PlateMapComponent implements OnInit, OnDestroy {
     }
 
   }
-
-  // updateWellPrintPositionButtons(printHeads: PrintHead[], public selectedPrintHeadButtons: PrintHeadButton[][]): void {
-  //   this.plateMap.wells.forEach((wellRow) => {
-  //     wellRow.forEach((well) => {
-  //       if (well.selected) {
-  //         well.printPositionButtons = [];
-  //
-  //         selectedPrintHeadButtons.forEach((printHeadButtons) => {
-  //           printHeadButtons.forEach((printHeadButton) => {
-  //             if (printHeadButton.selected) {
-  //               const updatedButton = {
-  //                 ...printHeadButton,
-  //                 printHead: printHeadButton.printHead,
-  //                 position: printHeadButton.position,
-  //                 color: printHeadButton.color,
-  //                 selected: false,
-  //               };
-  //               well.printPositionButtons.push(updatedButton);
-  //             }
-  //           });
-  //         });
-  //       }
-  //     });
-  //   });
-  // }
-
 
   get plateStyle() {
     return {
@@ -380,6 +352,26 @@ export class PlateMapComponent implements OnInit, OnDestroy {
     return this.screenUtils.convertMMToPX(size_in_mm);
   }
 
+  getButtonWidthPX(printHead: PrintHead) {
+    const buttonWidthMM = this.printPositionService.getButtonWidthMM(printHead);
+    // adjust the width to fit the platemap, turn it to pixels and return it
+    const printPickerSizeMM = printHead.pickerWell.sizeMM;
+    const printPickerButtonSizeMM = printHead.buttonWidthMM;
+    const wellSizeMM = this.selectedPlate.well_sizeMM;
+    const ratio = wellSizeMM / printPickerSizeMM;
+
+    return this.toPX(printPickerButtonSizeMM * ratio);
+  }
+
+  getButtonTopPX(printHead: PrintHead, buttonIndex: number) {
+    const buttonTopMM = this.printPositionService.getButtonTopMM(printHead, buttonIndex);
+    return this.toPX(buttonTopMM);
+  }
+
+  getButtonLeftPX(printHead: PrintHead, buttonIndex: number) {
+    const buttonLeftMM = this.printPositionService.getButtonLeftMM(printHead, buttonIndex);
+    return this.toPX(buttonLeftMM);
+  }
   getCommonStyleHeaders() {
     return {
       display: 'block',
@@ -392,4 +384,17 @@ export class PlateMapComponent implements OnInit, OnDestroy {
     }
   };
 
+  getMergedStyles(printHead: PrintHead, button: PrintHeadButton) {
+
+    const mergedStyle =
+      {
+        ...this.customButtonToggleStyle,
+        'width': (this.getButtonWidthPX(printHead)) + 'px',
+        'top': (this.getButtonTopPX(printHead, button.position)) + 'px',
+        'left': (this.getButtonLeftPX(printHead, button.position)) + 'px',
+        'background-color': button.selected ? printHead.color : 'white'
+      };
+    console.log('mergedStyle: ', mergedStyle);
+    return mergedStyle;
+  }
 }
