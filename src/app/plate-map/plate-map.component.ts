@@ -80,18 +80,17 @@ export class PlateMapComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.selectedPrintheadButtonsSubscription = this.printPositionService.selectedPrintHeadButtons$.subscribe(
-      (selectedPrintheadButtons: PrintHeadButton[][]) => {
-        console.log('Called from selectedPrintheadButtonsSubscription');
-        // this.updateExperiment(this.activePrintHeads, selectedPrintheadButtons);
-      }
-    );
+    // this.printPositionService.selectedPrintHeadButtons$.subscribe((selectedPrintHeadButtons: PrintHead[]) => {
+    //   console.log('selectedPrintHeadButtons: ', selectedPrintHeadButtons);
+    //   //this.updateWellPrintPositionButtons(selectedPrintHeadButtons);
+    // });
 
     this.printHeadsSubscription = this.printPositionService.printHeads$.subscribe(printHeads => {
       console.log('Called from printHeadsSubscription');
       this.activePrintHeads = printHeads;
       // Call your updateExperiment() method here if needed, with this.printHeads and the latest selectedPrintheadButtons.
     });
+
   }
 
   initializeSelectedPlate() {
@@ -226,6 +225,32 @@ export class PlateMapComponent implements OnInit, OnDestroy {
 
   }
 
+  // updateWellPrintPositionButtons(printHeads: PrintHead[], public selectedPrintHeadButtons: PrintHeadButton[][]): void {
+  //   this.plateMap.wells.forEach((wellRow) => {
+  //     wellRow.forEach((well) => {
+  //       if (well.selected) {
+  //         well.printPositionButtons = [];
+  //
+  //         selectedPrintHeadButtons.forEach((printHeadButtons) => {
+  //           printHeadButtons.forEach((printHeadButton) => {
+  //             if (printHeadButton.selected) {
+  //               const updatedButton = {
+  //                 ...printHeadButton,
+  //                 printHead: printHeadButton.printHead,
+  //                 position: printHeadButton.position,
+  //                 color: printHeadButton.color,
+  //                 selected: false,
+  //               };
+  //               well.printPositionButtons.push(updatedButton);
+  //             }
+  //           });
+  //         });
+  //       }
+  //     });
+  //   });
+  // }
+
+
   get plateStyle() {
     return {
       position: 'absolute',
@@ -251,8 +276,6 @@ export class PlateMapComponent implements OnInit, OnDestroy {
     }
   }
 
-
-
   toggleWellSelection(row: number, col: number, shiftKey: boolean = false): void {
     if (shiftKey && this.lastClicked) {
       this.selectionRectangleStart = {row, col};
@@ -267,9 +290,7 @@ export class PlateMapComponent implements OnInit, OnDestroy {
     // this.updateExperiment(this.activePrintHeads, this.printHeadStateService.selectedPrintHeadButtons);
   }
 
-
   toggleRowSelection(rowIndex: number, event?: MouseEvent): void {
-
     if(event) {
       const shiftKeyPressed = event.shiftKey;
 
@@ -303,7 +324,6 @@ export class PlateMapComponent implements OnInit, OnDestroy {
   }
 
   toggleColumnSelection(colIndex: number, event?: MouseEvent): void {
-
     if(event) {
       const shiftKeyPressed = event.shiftKey;
       if (shiftKeyPressed && this.lastClickedCol !== null) {
@@ -332,7 +352,6 @@ export class PlateMapComponent implements OnInit, OnDestroy {
       }
     }
     this.lastClickedCol = colIndex;
-
   }
 
   areAllWellsSelected(startRow: number, endRow: number, startCol: number, endCol: number, wells: any[][]): boolean {

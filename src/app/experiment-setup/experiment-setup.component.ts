@@ -21,7 +21,8 @@ export class ExperimentSetupComponent {
     well_spacing_x_MM: 0,
     well_spacing_y_MM: 0,
     a1_centerMM: { x: 0, y: 0 },
-    elementType: 'PlateFormat'
+    elementType: 'PlateFormat',
+    printPositionSizeMM: 0
   };
 
 // Handle the change in the number of print heads and emit an event

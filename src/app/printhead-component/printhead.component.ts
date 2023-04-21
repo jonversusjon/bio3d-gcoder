@@ -14,6 +14,7 @@ import { PrintHeadButton } from "../../types/PrintHeadButton";
 import {Observable, Subscription} from "rxjs";
 import {Well} from "../../types/Well";
 import {Coordinates} from "../../types/Coordinates";
+import {Needle} from "../../types/Needle";
 
 @Component({
   selector: 'app-printhead-component',
@@ -41,6 +42,8 @@ export class PrintheadComponent implements OnInit, OnDestroy {
   printPickerSizeMM: number = 34.8;
   inactiveColor = '#808080';
 
+  needles:Needle[] = []
+
   constructor(
     private screenUtils: ScreenUtils,
     private printPositionService: PrintPositionService,
@@ -52,6 +55,7 @@ export class PrintheadComponent implements OnInit, OnDestroy {
         this.updatePrintHeads();
       }
     });
+    this.needles = this.printPositionService.needles;
   }
 
   ngOnInit() {
@@ -79,6 +83,9 @@ export class PrintheadComponent implements OnInit, OnDestroy {
         originMM: { x: 0, y: 0 },
         style: {}
       })),
+      needle: this.needles[0],
+      printPositionSizeMM: this.needles[0].odMM,
+      buttonWidthMM: 0,
       pickerWell: { sizeMM: this.printPickerSizeMM },
       elementType: 'PrintHead'
     };
@@ -91,23 +98,36 @@ export class PrintheadComponent implements OnInit, OnDestroy {
       this.printHeads = this.printHeads.slice(0, this.numberOfPrintHeads);
     }
 
-    this.printHeads.forEach((PrintHead) => {
-      this.updatePrintHeadButtons(PrintHead, undefined, true);
+    this.printHeads.forEach((printHead) => {
+      this.updatePrintHeadButtons(printHead, undefined, true);
     });
 
     this.printPositionService.updatePrintHeads(this.printHeads);
 
   }
 
-  getButtonWidthPX() {
-    return this.toPX(this.printPositionService.getButtonWidthMM());
+  getButtonWidthPX(printhead: PrintHead) {
+    const buttonWidthMM = this.printPositionService.getButtonWidthMM(printhead);
+    printhead.buttonWidthMM = buttonWidthMM;
+    return this.toPX(buttonWidthMM);
   }
-  getButtonLeftPX(parentElement: PrintHead, printHeadButtonPosition: number) {
-    return this.toPX(this.printPositionService.getButtonLeftMM(parentElement, printHeadButtonPosition));
+  getButtonLeftPX(printHead: PrintHead, printHeadButtonPosition: number) {
+    return this.toPX(this.printPositionService.getButtonLeftMM(printHead, printHeadButtonPosition));
   }
 
-  getButtonTopPX(parentElement: PrintHead, printHeadButtonPosition: number) {
-    return this.toPX(this.printPositionService.getButtonTopMM(parentElement, printHeadButtonPosition));
+  getButtonTopPX(printHead: PrintHead, printHeadButtonPosition: number) {
+    return this.toPX(this.printPositionService.getButtonTopMM(printHead, printHeadButtonPosition));
+  }
+
+  isButtonSmall(printhead: PrintHead): boolean {
+    const buttonWidth = this.printPositionService.getButtonWidthMM(printhead);
+    return this.toPX(buttonWidth) < 6;
+  }
+
+  isSelectedButton(printHeadButton: PrintHeadButton): boolean {
+    return printHeadButton.selected;
+    // Implement your logic to check if the button is selected
+    // For example, you can check if the printHeadButton is in the selectedPrintHeadButtons array
   }
   // getPrintPositionPickerStyle(isActive: boolean): object {
   //   if(this.selectedPlate) {
@@ -136,13 +156,13 @@ export class PrintheadComponent implements OnInit, OnDestroy {
     return this.colors[currentColorIndex];
   }
 
-  updatePrintHeadButtons(PrintHead: PrintHead, buttonIndex?: number, updateAll: boolean = false) {
+  updatePrintHeadButtons(printHead: PrintHead, buttonIndex?: number, updateAll: boolean = false) {
     if (updateAll) {
-      this.updateAllPrintHeadButtons(PrintHead);
+      this.updateAllPrintHeadButtons(printHead);
     } else if (buttonIndex !== undefined) {
-      this.toggleButtonElectedState(PrintHead, buttonIndex);
+      this.toggleButton(printHead, printHead.printPositionButtons[buttonIndex]);
     }
-    this.updatePrintHeadStateService(PrintHead);
+    this.updatePrintHeadStateService(printHead);
   }
 
   updateAllPrintHeadButtons(printHead: PrintHead) {
@@ -161,16 +181,25 @@ export class PrintheadComponent implements OnInit, OnDestroy {
     });
   }
 
-  toggleButtonElectedState(PrintHead: PrintHead, buttonIndex: number) {
-    PrintHead.printPositionButtons[buttonIndex].selected = !PrintHead.printPositionButtons[buttonIndex].selected
+  // toggleButtonElectedState(PrintHead: PrintHead, buttonIndex: number) {
+  //   PrintHead.printPositionButtons[buttonIndex].selected = !PrintHead.printPositionButtons[buttonIndex].selected
+  // }
+
+  toggleButton(printHead: PrintHead, printHeadButton: PrintHeadButton) {
+    printHeadButton.selected = !printHeadButton.selected;
+    this.printPositionService.togglePrintHeadButton(printHead, printHeadButton.position, printHeadButton.selected);
   }
 
-  updatePrintHeadStateService(PrintHead: PrintHead) {
-    const selectedButtons = PrintHead.printPositionButtons.filter((button: PrintHeadButton, index: number) => {
-      return PrintHead.printPositionButtons[index].selected == true;
-    }).map((button: any) => ({ ...button, color: PrintHead.color }));
 
-    this.printPositionService.updateSelectedPrintHeadButtons(PrintHead.printHeadIndex, selectedButtons);
+  updatePrintHeadStateService(printHead: PrintHead) {
+    const selectedButtons = printHead.printPositionButtons.filter((button: PrintHeadButton, index: number) => {
+      return printHead.printPositionButtons[index].selected == true;
+    }).map((button: any) => ({ ...button, color: printHead.color }));
+
+    //this.printPositionService.updateSelectedPrintHeadButtons(printHead, selectedButtons);
+  }
+  updatePrintHeadNeedle(printHead: PrintHead, needle: Needle) {
+    this.printPositionService.updatePrintHeadNeedle(printHead, needle);
   }
 
   toPX(size_in_mm:number) {
@@ -180,6 +209,8 @@ export class PrintheadComponent implements OnInit, OnDestroy {
   getPrintPickerWidthPX() {
     return this.toPX(this.printPickerSizeMM);
   }
-
+  // updateNeedleOD(printhead: PrintHead, printheadIndex: number): void {
+  //   this.printPositionService.updatePrintPositionBaseSize(printhead.needle);
+  // }
 }
 

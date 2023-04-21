@@ -1,4 +1,4 @@
-import { BehaviorSubject } from 'rxjs';
+import {BehaviorSubject, Observable} from 'rxjs';
 import {Injectable} from "@angular/core";
 import { Coordinates } from "../types/Coordinates";
 import { ScreenUtils } from "./screen-utils";
@@ -6,6 +6,7 @@ import { PrintHead } from "../types/PrintHead";
 import { PrintHeadButton } from "../types/PrintHeadButton";
 import {PlateFormat} from "../types/PlateFormat";
 import {Well} from "../types/Well";
+import {Needle} from "../types/Needle";
 
 @Injectable({
   providedIn: 'root',
@@ -13,20 +14,17 @@ import {Well} from "../types/Well";
 
 export class PrintPositionService {
   PRINT_POSITIONS_COUNT = 9;
-  PRINT_POSITION_SIZE_MM = 4; // size it's displayed in the plate map
   private printPositionAngles = Array.from({length: this.PRINT_POSITIONS_COUNT - 1}, (_, i) => i / (this.PRINT_POSITIONS_COUNT - 1) * 2 * Math.PI);
   private printPositionCoordinates: Coordinates[] = [];
   private _printPositionCoordinates = new BehaviorSubject<Coordinates[]>([]);
   public printPositionCoordinates$ = this._printPositionCoordinates.asObservable();
+
   constructor(private screenUtils: ScreenUtils) {
     this.selectedPlate$.subscribe((plate) => {
       this.onSelectedPlateChange(plate);
     });
-  }
 
-  private selectedPrintHeadButtonsSubject = new BehaviorSubject<PrintHeadButton[][]>([]);
-  selectedPrintHeadButtons: PrintHeadButton[][] = [];
-  selectedPrintHeadButtons$ = this.selectedPrintHeadButtonsSubject.asObservable();
+  }
 
   private _printHeads = new BehaviorSubject<PrintHead[]>([]);
   public printHeads$ = this._printHeads.asObservable();
@@ -35,40 +33,50 @@ export class PrintPositionService {
   private _selectedPlate = new BehaviorSubject<PlateFormat | null>(null);
   selectedPlate$ = this._selectedPlate.asObservable();
 
+  public needles:Needle[] = [
+    {name: '27ga', odMM: 0.42, color: 'white'},
+    {name: '25ga', odMM: 0.53, color: 'red'},
+    {name: '23ga', odMM: 0.63, color: 'orange'},
+    {name: '22ga', odMM: 0.70, color: 'blue'},
+    {name: '21ga', odMM: 0.83, color: 'purple'},
+    {name: '20ga', odMM: 0.91, color: 'pink'},
+    {name: '18ga', odMM: 1.27, color: 'green'},
+    {name: '16ga', odMM: 1.63, color: 'grey'},
+    {name: '15ga', odMM: 1.65, color: 'amber'},
+    {name: '14ga', odMM: 1.83, color: 'olive'}
+  ];
+
+
   onSelectedPlateChange(plate: PlateFormat | null) {
     if (plate) {
-      this.printPositionCoordinates = this.getPrintPositionCoordinates('Well', this.PRINT_POSITION_SIZE_MM);
+      this.printPositionCoordinates = this.getPrintPositionCoordinates('Well', plate.printPositionSizeMM);
       this._printPositionCoordinates.next(this.printPositionCoordinates);
+      // this.recalculatePrintPositionSize();
     } else {
       this.printPositionCoordinates = [];
     }
   }
 
-  updateSelectedPrintHeadButtons(printHeadID: number, buttons: PrintHeadButton[]): void {
-    this.selectedPrintHeadButtons[printHeadID] = buttons;
-    console.log('Emitting event to selectedPrintHeadButtons$');
-    this.selectedPrintHeadButtonsSubject.next(this.selectedPrintHeadButtons);
-    console.log('Selected printHead buttons:', this.selectedPrintHeadButtons);
+  getButtonWidthMM(printhead: PrintHead) {
+    if(this.selectedPlate) {
+      const buttonWidthMM = printhead.needle.odMM / (this.selectedPlate?.well_sizeMM / this.printPickerSizeMM);
+      return buttonWidthMM;
+    } else {
+      return 0;
+    }
   }
 
-  getButtonWidthMM() {
-    const buttonWidth = this.PRINT_POSITION_SIZE_MM / ((this.selectedPlate?.well_sizeMM ? this.selectedPlate.well_sizeMM : 1) / this.printPickerSizeMM);
-    return buttonWidth;
-  }
-
-  getButtonLeftMM(parentElement: PrintHead | Well, buttonPosition: number) {
-    const parentType = parentElement.elementType;
-    const coordinates = this.getPrintPositionCoordinates(parentType, this.PRINT_POSITION_SIZE_MM);
-    if(coordinates[buttonPosition]) {
+  getButtonLeftMM(printHead: PrintHead, buttonPosition: number) {
+    const coordinates = this.getPrintPositionCoordinates(printHead.elementType, printHead.buttonWidthMM);
+    if (coordinates[buttonPosition]) {
       return coordinates[buttonPosition].x;
     } else {
       return 0;
     }
   }
 
-  getButtonTopMM(parentElement: PrintHead | Well, buttonPosition: number) {
-    const parentType = parentElement.elementType;
-    const coordinates = this.getPrintPositionCoordinates(parentType, this.PRINT_POSITION_SIZE_MM);
+  getButtonTopMM(printHead: PrintHead, buttonPosition: number) {
+    const coordinates = this.getPrintPositionCoordinates(printHead.elementType, printHead.buttonWidthMM);
     if(coordinates[buttonPosition]) {
       return coordinates[buttonPosition].y;
     } else {
@@ -78,7 +86,7 @@ export class PrintPositionService {
 
   getPrintPositionCoordinates(parentType: 'PrintHead' | 'Well', dotSizeMM:number, adj_x= 0, adj_y= 0) {
     const wellSizeMM = parentType === 'PrintHead' ? this._printPickerSizeMM : this.selectedPlate?.well_sizeMM || 1;
-    const radiusMM = (0.8 * wellSizeMM ) / 2;
+    const radiusMM = (0.7 * wellSizeMM ) / 2;
     const centerX_MM = wellSizeMM / 2;
     const centerY_MM = wellSizeMM / 2;
 
@@ -106,6 +114,47 @@ export class PrintPositionService {
   updatePrintHeads(printHeads: PrintHead[]): void {
     this._printHeads.next(printHeads);
   }
+  private updatePrintHead(updatedPrintHead: PrintHead): void {
+    const printHeads = this._printHeads.getValue();
+    const printHeadIndex = printHeads.findIndex(printHead => printHead.printHeadIndex === updatedPrintHead.printHeadIndex);
+
+    if (printHeadIndex > -1) {
+      printHeads[printHeadIndex] = updatedPrintHead;
+      this._printHeads.next(printHeads);
+    } else {
+      console.warn(`Warning(updatePrintHead): printHead with id ${updatedPrintHead.printHeadIndex} not found.`);
+    }
+  }
+
+  togglePrintHeadButton(printHead: PrintHead, buttonIndex: number, isSelected: boolean): void {
+    if (printHead) {
+      printHead.printPositionButtons[buttonIndex].selected = isSelected;
+      this.updatePrintHead(printHead);
+      console.log('printHead: ', printHead);
+    } else {
+      console.warn(`Warning(togglePrintHeadButton): printHead is undefined.`);
+    }
+  }
+
+  updatePrintHeadNeedle(printHead: PrintHead, needle: Needle): void {
+    const updatedPrintHead = {
+      ...printHead,
+      needle: needle
+    };
+
+    // Update the PrintHead in the _printHeads BehaviorSubject
+    this.updatePrintHead(updatedPrintHead);
+  }
+  updatePrintHeadButtonSelection(printHead: PrintHead, isActive: boolean): void {
+    if (printHead) {
+      printHead.printPositionButtons.forEach(button => {
+        button.selected = isActive;
+      });
+      this.updatePrintHead(printHead);
+    } else {
+      console.warn(`Warning(updatePrintHeadButtonSelection): printHead is undefined.`);
+    }
+  }
   toPX(size_in_mm:number) {
     return this.screenUtils.convertMMToPX(size_in_mm);
   }
@@ -122,4 +171,5 @@ export class PrintPositionService {
   get selectedPlate(): PlateFormat | null {
     return this._selectedPlate.getValue();
   }
+
 }

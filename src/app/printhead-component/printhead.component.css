@@ -16,8 +16,25 @@
   gap: 0px;
 }
 .printhead-description-field.flex-item {
-  flex: 4;
+  flex: 3;
 }
+.needle-od-field.flex-item {
+  flex: 2;
+}
+
+.color-field.flex-item {
+  flex: 3;
+}
+
+.active-toggle.flex-item {
+  flex: 1;
+  margin-top: auto;
+}
+
+.footer-wrapper {
+  margin-bottom: 0;
+}
+
 
 /* Reduce the padding of the mat-card */
 mat-mdc-card {
@@ -90,6 +107,7 @@ printhead-setup .mat-card-tile {
 .custom-button-toggle.mat-button-toggle {
   position: absolute;
   border-radius: 50%;
+  border: 1px solid black;
   aspect-ratio: 1 / 1;
 }
 
@@ -128,7 +146,7 @@ printhead-setup .mat-card-tile {
 
 /* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
-  background: #b30000;
+  background: #ffb94f;
 }
 
 .grid-list-container {
@@ -142,8 +160,37 @@ printhead-setup .mat-card-tile {
   padding: 8px;
 }
 
+
 .flex-item {
   flex: 1;
   max-width: calc(100% - 16px);
   margin-bottom: 8px;
+}
+
+.mat-button-toggle:focus {
+  outline: none;
+}
+
+.mat-button-toggle:focus .mat-button-toggle-label-content {
+  outline: 2px solid #007bff;
+  outline-offset: 2px;
+  border-radius: 50%;
+}
+
+.selected-button-glow {
+  box-shadow: 0 0 5px 5px rgba(255, 255, 0, 0.5) !important;
+}
+
+.x-overlay {
+  content: "X";
+  font-size: 12px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: none;
+}
+
+.small-button .x-overlay {
+  display: block;
 }

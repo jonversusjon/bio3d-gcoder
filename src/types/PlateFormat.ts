@@ -10,4 +10,5 @@ export interface PlateFormat {
   well_spacing_y_MM: number;
   a1_centerMM: Coordinates;
   elementType: 'PlateFormat';
+  printPositionSizeMM: number;
 }

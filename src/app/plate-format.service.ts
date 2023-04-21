@@ -2,9 +2,6 @@
 // TODO: need a way to code for calibrations - well_well_x, well_well_y, a1_center_left_edge, a1_center_top_edge, plate_height, well_depth
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
-import { LocalStorageService } from './local-storage.service';
-import {Coordinates} from "../types/Coordinates";
-import { PrintHeadButton } from "../types/PrintHeadButton";
 
 @Injectable({
   providedIn: 'root',
