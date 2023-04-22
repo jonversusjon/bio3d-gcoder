@@ -1,8 +1,38 @@
-# Real-World Print Test Calibration
+### :warning: Notice
+This app is currently under development and is not yet complete. Some features may not work as expected, and the app may contain bugs.
+
+### Version
+The current version of the app is 0.1.
+
+# Getting Started
+
+Follow these steps to set up and run the project on your local machine:
+
+1. **Clone the repository** - Clone this repository to your local machine using the command:
+   
+>`git clone https://github.com/jonversusjon/bio3d-gcoder.git`
+
+2. **Install Node.js** - If you don't have Node.js installed, download and install it from the official [Node.js website](https://nodejs.org/).
+
+3. **Navigate to the project folder** - Change your current working directory to the project folder using the command:
+
+>`cd your-repo-name`
+
+4. **Install dependencies** - Run the following command to install all required dependencies:This command will install `jspdf`, `html2canvas`, and other dependencies listed in the `package.json` file.
+
+
+>`npm install`
+    
+
+5. **Run the application** - Start the development server using the command:
+
+>`ng serve`
+
+## Real-World Print Test Calibration
 
 To ensure the accuracy of the 3D bioprinter movements in the application, it is crucial to perform a real-world print test and calibrate the modeled plate dimensions. This section provides step-by-step instructions on how to perform a real-world print test and enter the calibration values into the program.
 
-## Performing the Real-World Print Test
+### Performing the Real-World Print Test
 
 1. **Select a test plate**: Choose a well-plate that you want to use for the calibration test. Make sure the plate is clean and free of any obstructions or contaminants.
 
@@ -12,7 +42,9 @@ To ensure the accuracy of the 3D bioprinter movements in the application, it is 
 
 4. **Measure the printed pattern**: After the test print is completed, carefully measure the dimensions of the printed pattern on the well-plate. Take measurements in the X, Y, and Z axes, and compare them to the expected dimensions based on the application's settings.
 
-## Entering the Calibration Values into the Program
+
+
+### Entering the Calibration Values into the Program
 
 1. **Calculate the calibration values**: For each axis (X, Y, Z), divide the measured dimension by the expected dimension to obtain the calibration value.
 
