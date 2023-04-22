@@ -352,25 +352,41 @@ export class PlateMapComponent implements OnInit, OnDestroy {
     return this.screenUtils.convertMMToPX(size_in_mm);
   }
 
-  getButtonWidthPX(printHead: PrintHead) {
-    const buttonWidthMM = this.printPositionService.getButtonWidthMM(printHead);
-    // adjust the width to fit the platemap, turn it to pixels and return it
-    const printPickerSizeMM = printHead.pickerWell.sizeMM;
-    const printPickerButtonSizeMM = printHead.buttonWidthMM;
+  scale(valueToScale: number) {
+    const printPickerSizeMM = this.printHeads[0].pickerWell.sizeMM;
     const wellSizeMM = this.selectedPlate.well_sizeMM;
     const ratio = wellSizeMM / printPickerSizeMM;
-
-    return this.toPX(printPickerButtonSizeMM * ratio);
+    console.log('wellSizeMM: ', wellSizeMM, ', printPickerSizeMM: ', printPickerSizeMM, ', ratio: ', ratio);
+    return valueToScale * ratio;
+  }
+  getButtonWidthPX(printHead: PrintHead) {
+    const buttonWidthMM = printHead.buttonWidthMM;
+    const plateMapButtonSizeMM = this.scale(buttonWidthMM);
+    console.log('buttonWidthMM: ', buttonWidthMM, ', plateMapButtonSize: ', plateMapButtonSizeMM);
+    console.log('buttonWidthPX: ', this.toPX(buttonWidthMM), ', plateMapButtonSizePX: ', this.toPX(plateMapButtonSizeMM))
+    return this.toPX(plateMapButtonSizeMM);
   }
 
   getButtonTopPX(printHead: PrintHead, buttonIndex: number) {
+    const buttonWidthMM = printHead.buttonWidthMM;
+    const scaledButtonWidthMM = this.scale(buttonWidthMM);
+
     const buttonTopMM = this.printPositionService.getButtonTopMM(printHead, buttonIndex);
-    return this.toPX(buttonTopMM);
+    const scaledButtonTopMM = this.scale(buttonTopMM);
+    const adjustedScaledButtonTopMM = scaledButtonTopMM - (scaledButtonWidthMM/2);
+
+    return this.toPX(adjustedScaledButtonTopMM);
   }
 
   getButtonLeftPX(printHead: PrintHead, buttonIndex: number) {
+    const buttonWidthMM = printHead.buttonWidthMM;
+    const scaledButtonWidthMM = this.scale(buttonWidthMM);
+
     const buttonLeftMM = this.printPositionService.getButtonLeftMM(printHead, buttonIndex);
-    return this.toPX(buttonLeftMM);
+    const scaledButtonLeftMM = this.scale(buttonLeftMM);
+    const adjustedScaledButtonLeftMMv= scaledButtonLeftMM - (scaledButtonWidthMM/2);
+
+    return this.toPX(adjustedScaledButtonLeftMMv);
   }
   getCommonStyleHeaders() {
     return {
@@ -392,9 +408,9 @@ export class PlateMapComponent implements OnInit, OnDestroy {
         'width': (this.getButtonWidthPX(printHead)) + 'px',
         'top': (this.getButtonTopPX(printHead, button.position)) + 'px',
         'left': (this.getButtonLeftPX(printHead, button.position)) + 'px',
-        'background-color': button.selected ? printHead.color : 'white'
+        'background-color': button.selected ? printHead.color : 'white',
+        'border': 'none'
       };
-    console.log('mergedStyle: ', mergedStyle);
     return mergedStyle;
   }
 }
