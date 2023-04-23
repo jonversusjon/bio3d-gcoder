@@ -1,31 +1,44 @@
 import { Component, ElementRef, HostListener } from '@angular/core';
 
 @Component({
-  selector: 'app-custom-slider',
-  templateUrl: './custom-slider.component.html',
-  styleUrls: ['./custom-slider.component.css'],
+  selector: 'app-vertical-slider',
+  templateUrl: './vertical-slider.component.html',
+  styleUrls: ['./vertical-slider.component.css'],
 })
-export class CustomSliderComponent {
+export class VerticalSliderComponent {
   startThumbPosition = 30;
   endThumbPosition = 60;
+  startValue: number;
+  endValue: number;
   max = 15;
   min = 0;
-  tickSpacing = 100 / (this.max - this.min);
-  ticks = Array.from({ length: this.max - this.min }, (_, i) => i + 1);
-  labels = [
-    { value: 0, label: '0' },
-    { value: 5, label: '5' },
-    { value: 10, label: '10' },
-    { value: 15, label: '15' },
-  ];
+  tickSpacing = 100 / (this.max - this.min + 1);
+  ticks = Array.from({ length: this.max - this.min }, (_, i) => {
+    const value = i + 1;
+    return {
+      value,
+      major: value % 5 === 0,
+      label: value.toString(),
+      bottom: (i * (1 / 15)) * 100 + '%'
+    };
+  });
+
   private draggingThumb: 'start' | 'end' | null = null;
 
-  constructor(private el: ElementRef) {}
+  constructor(private el: ElementRef) {
+    this.startValue = this.calculateValue(this.startThumbPosition);
+    this.endValue = this.calculateValue(this.endThumbPosition);
+    console.log('ticks: ', this.ticks);
+  }
+
+  calculateValue(thumbPosition: number): number {
+    return Math.round(((thumbPosition / 100) * (this.max - this.min)) + this.min);
+  }
 
   @HostListener('document:mousemove', ['$event'])
   onMouseMove(event: MouseEvent) {
     if (this.draggingThumb) {
-      const sliderRect = this.el.nativeElement.querySelector('.slider').getBoundingClientRect();
+      const sliderRect = this.el.nativeElement.querySelector('.vertical-slider').getBoundingClientRect();
       const sliderHeight = sliderRect.height;
       const mouseY = event.clientY;
       let thumbPosition = ((sliderRect.bottom - mouseY) / sliderHeight) * 100;
@@ -42,8 +55,10 @@ export class CustomSliderComponent {
 
       if (this.draggingThumb === 'start') {
         this.startThumbPosition = thumbPosition;
+        this.startValue = this.calculateValue(this.startThumbPosition);
       } else if (this.draggingThumb === 'end') {
         this.endThumbPosition = thumbPosition;
+        this.endValue = this.calculateValue(this.endThumbPosition);
       }
     }
   }
@@ -57,5 +72,6 @@ export class CustomSliderComponent {
     this.draggingThumb = thumb;
     event.preventDefault();
   }
+
 }
 

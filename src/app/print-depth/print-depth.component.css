@@ -1,24 +1,17 @@
-.print-depth-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100%;
+.print-depth-slider {
+  display: block;
+  height: 140px;
+  padding-top: 12px;
 }
 
-.vertical-slider {
-  width: 50px;
-  height: 300px;
-  position: relative;
-}
-
-.mat-slider-vertical {
-  position: absolute;
-  left: 50%;
-  top: 0;
-  transform-origin: center;
-  transform: rotate(-90deg) translateY(-100%);
-}
-
-.mat-slider-thumb-label {
-  background-color: red !important;
+.image-container {
+  background-image: url('../../assets/single_well_web.png');
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+  position: relative; /* Make sure the container is positioned */
+  z-index: 1; /* Set a z-index to make it appear above other elements */
+  width: 90%;
+  height: 90%;
+  overflow: visible;
 }

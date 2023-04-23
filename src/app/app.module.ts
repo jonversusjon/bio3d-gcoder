@@ -17,9 +17,9 @@ import { MatSelectModule } from "@angular/material/select";
 import { ExperimentSetupComponent } from './experiment-setup/experiment-setup.component';
 import {MatButtonToggleModule} from "@angular/material/button-toggle";
 import { PrintDepthComponent } from './print-depth/print-depth.component';
-import { MatSliderModule } from '@angular/material/slider';
 import { MatTooltipModule } from "@angular/material/tooltip";
-import { CustomSliderComponent } from './custom-slider/custom-slider.component';
+import { VerticalSliderComponent } from './vertical-slider/vertical-slider.component';
+import {NgOptimizedImage} from "@angular/common";
 
 @Pipe({
   name: 'range'
@@ -39,22 +39,22 @@ export class RangePipe implements PipeTransform {
         PrintheadComponent,
         ExperimentSetupComponent,
         PrintDepthComponent,
-        CustomSliderComponent
+        VerticalSliderComponent
     ],
-    imports: [
-        BrowserModule,
-        FormsModule,
-        BrowserAnimationsModule,
-        MatGridListModule,
-        MatCardModule,
-        MatFormFieldModule,
-        MatInputModule,
-        MatSlideToggleModule,
-        MatSelectModule,
-        MatButtonToggleModule,
-        MatSliderModule,
-        MatTooltipModule
-    ],
+  imports: [
+    BrowserModule,
+    FormsModule,
+    BrowserAnimationsModule,
+    MatGridListModule,
+    MatCardModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSlideToggleModule,
+    MatSelectModule,
+    MatButtonToggleModule,
+    MatTooltipModule,
+    NgOptimizedImage
+  ],
   providers: [ScreenUtils],
   bootstrap: [AppComponent]
 })

@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { CustomSliderComponent } from './custom-slider.component';
+import { VerticalSliderComponent } from './vertical-slider.component';
 
 describe('CustomSliderComponent', () => {
-  let component: CustomSliderComponent;
-  let fixture: ComponentFixture<CustomSliderComponent>;
+  let component: VerticalSliderComponent;
+  let fixture: ComponentFixture<VerticalSliderComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ CustomSliderComponent ]
+      declarations: [ VerticalSliderComponent ]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(CustomSliderComponent);
+    fixture = TestBed.createComponent(VerticalSliderComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
