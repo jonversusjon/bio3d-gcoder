@@ -6,44 +6,48 @@
 .mat-mdc-floating-label {
   font-size: 10px;
 }
+
 .printhead-number-input-wrapper {
   flex: 1;
-  width:150px;
+  width: 150px;
 }
 
 .printhead-header.flex-container {
   padding: 0px;
   gap: 0px;
+  height: 62px;
 }
+
 .printhead-description-field.flex-item {
   flex: 3;
 }
+
 .needle-od-field.flex-item {
   flex: 2;
 }
 
-.color-field.flex-item {
+.color-field-container.flex-item {
   flex: 3;
+
 }
 
-.active-toggle.flex-item {
+.active-toggle-container.flex-item {
   flex: 1;
-  margin-top: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: inherit;
+  height: 100%;
 }
 
 .footer-wrapper {
   margin-bottom: 0;
 }
 
-
-/* Reduce the padding of the mat-card */
 mat-mdc-card {
   padding: 16px;
 }
-.printhead-header.flex-container {
-  height: 62px;
-}
-/* Reduce the font size of the title */
+
 printhead-setup .mat-card-title {
   font-size: 9px; /* Adjust this value as needed */
 }
@@ -59,38 +63,28 @@ printhead-setup .mat-card-tile {
   padding-bottom: 8px;
 }
 
-/* Add a maximum height and vertical scrollbar */
 .grid-list-container {
   max-height: 650px; /* Adjust this value as needed */
   overflow-y: auto;
+  direction: rtl;
+  padding-left: 8px;
+  overflow-x: hidden; /* Hide horizontal scrollbar */
   min-width: 300px;
   flex: 5;
+  margin: 0;
 }
 
-/* Add this to your component's CSS file */
+.grid-list-container > * {
+  direction: ltr;
+}
 .mat-mdc-form-field-subscript-wrapper {
   margin: 0;
   padding: 0;
-}
-
-/* Add this to your component's CSS file */
-.mat-mdc-form-field-subscript-wrapper {
-  margin: 0;
-  padding: 0;
-}
-
-.mat-mdc-form-field-hint-wrapper {
   display: none;
 }
 
 .mat-mdc-form-field-hint-wrapper {
   display: none;
-}
-
-
-.active-toggle-wrapper {
-  display: flex;
-  vertical-align: top; /* Align the toggle to the top */
 }
 
 .active-toggle {
@@ -109,49 +103,53 @@ printhead-setup .mat-card-tile {
   transform: scale(1.0);
 }
 
-.mat-mdc-form-field-subscript-wrapper {
-  display: none;
-}
+/*!* width *!*/
+/*::-webkit-scrollbar {*/
+/*  width: 20px;*/
+/*}*/
+
+/*!* Track *!*/
+/*::-webkit-scrollbar-track {*/
+/*  box-shadow: inset 0 0 5px grey;*/
+/*  border-radius: 10px;*/
+/*}*/
+
+/*!* Handle *!*/
+/*::-webkit-scrollbar-thumb {*/
+/*  background: #ffd54f;*/
+/*  border-radius: 10px;*/
+/*}*/
+
+/*!* Handle on hover *!*/
+/*::-webkit-scrollbar-thumb:hover {*/
+/*  background: #ffb94f;*/
+/*}*/
 
 /* width */
 ::-webkit-scrollbar {
-  width: 20px;
+  width: 12px; /* Make the scrollbar thinner */
 }
 
 /* Track */
 ::-webkit-scrollbar-track {
-  box-shadow: inset 0 0 5px grey;
-  border-radius: 10px;
+  background: transparent; /* Remove background color */
+  box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3); /* Add an inset box-shadow */
+  border-radius: 10px; /* Add border-radius for a smoother look */
 }
+
 
 /* Handle */
 ::-webkit-scrollbar-thumb {
-  background: #ffd54f   ;
+  background: rgb(64,64,64,0.2); /* Use a semi-transparent gray color */
+  border: 1px solid rgb(64,64,64,0.2);
   border-radius: 10px;
 }
 
 /* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
-  background: #ffb94f;
+  background: rgba(128, 128, 128, 0.5); /* Slightly increase opacity on hover */
 }
 
-.grid-list-container {
-  /* Add any container-specific styles here */
-}
-
-.flex-container {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px; /* You can adjust the gap between flex items */
-  padding: 8px;
-}
-
-
-.flex-item {
-  flex: 1;
-  max-width: calc(100% - 16px);
-  margin-bottom: 8px;
-}
 
 .mat-button-toggle:focus {
   outline: none;
@@ -165,4 +163,22 @@ printhead-setup .mat-card-tile {
 
 .selected-button-glow {
   box-shadow: 0 0 5px 5px rgba(255, 255, 0, 0.5) !important;
+}
+
+.color-field-container,
+.active-toggle-container {
+  display: flex;
+  align-items: center;
+  background-color: inherit;
+  height: 100%;
+}
+
+.grid-container {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  margin-bottom: 8px;
+}
+
+.grid-item {
+  /* Add any other styles you want to apply to the grid items */
 }

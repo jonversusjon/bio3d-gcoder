@@ -1,14 +1,35 @@
-<div class="container" [ngStyle]="containerStyle">
-  <h1>Cell Culture Plate Map</h1>
-  <div style="top: 2em; left: 2em;">
-    <mat-form-field appearance="fill">
-      <mat-label for="plateFormat">Select a plate format</mat-label>
-      <mat-select id="plateFormat" [value]="selectedPlate" (selectionChange)="onSelectedPlateChanged($event)">
-        <mat-option *ngFor="let plate of plateFormats" [value]="plate">
-          {{ plate.name }}
-        </mat-option>
-      </mat-select>
-    </mat-form-field>
+<div class="culture-plate flex-container">
+  <div class="plate-input flex-item">
+    <h1>Cell Culture Plate Map</h1>
+    <div style="top: 2em; left: 2em;">
+      <mat-form-field appearance="fill">
+        <mat-label for="plateFormat">Select a plate format</mat-label>
+        <mat-select id="plateFormat" [value]="selectedPlate" (selectionChange)="onSelectedPlateChanged($event)">
+          <mat-option *ngFor="let plate of plateFormats" [value]="plate">
+            {{ plate.name }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+  </div>
+  <div class="calibration-form flex-item">
+    <div class="calibration-controls">
+      <mat-card>
+        <mat-form-field appearance="fill" class="calibration-control no-subscript-wrapper">
+          <mat-label>X Calibration</mat-label>
+          <input matInput type="number" [(ngModel)]="xCalibration" step="0.0005">
+        </mat-form-field>
+        <mat-form-field appearance="fill" class="calibration-control no-subscript-wrapper">
+          <mat-label>Y Calibration</mat-label>
+          <input matInput type="number" [(ngModel)]="yCalibration" step="0.0005">
+        </mat-form-field>
+        <mat-form-field appearance="fill" class="calibration-control no-subscript-wrapper">
+          <mat-label>Z Calibration</mat-label>
+          <input matInput type="number" [(ngModel)]="zCalibration" step="0.0005">
+        </mat-form-field>
+        <button mat-raised-button (click)="updateCalibrationValues()">Apply</button>
+      </mat-card>
+    </div>
   </div>
   <div class="plate" [ngStyle]="plateStyle">
     <div class="blankTitle"></div>
@@ -20,7 +41,6 @@
          (click)="toggleRowSelection(rowIndex, $event)">
       {{rowHeader.label}}
     </div>
-
     <div class="plate-row" *ngFor="let plateRow of plateMap.wells; let i = index">
       <div *ngFor="let well of plateRow; let rw = index"
            class="print-position-picker"
@@ -39,3 +59,6 @@
     </div>
   </div>
 </div>
+
+
+

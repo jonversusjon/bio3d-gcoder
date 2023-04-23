@@ -47,7 +47,7 @@ export class PrintheadComponent implements OnInit, OnDestroy {
   inactiveColor = '#808080';
 
   needles:Needle[] = []
-
+  scale:number = 2; //factor to scale elements by if the smallest element falls below 6px
   constructor(
     private screenUtils: ScreenUtils,
     private printPositionService: PrintPositionService,
@@ -113,27 +113,19 @@ export class PrintheadComponent implements OnInit, OnDestroy {
   }
 
   getButtonWidthPX(printhead: PrintHead) {
-    const buttonWidthMM = this.printPositionService.getButtonWidthMM(printhead);
+    const scalar = this.getScalar(this.printPositionService.getButtonWidthMM(printhead))
+    const buttonWidthMM = this.printPositionService.getButtonWidthMM(printhead)*scalar;
     printhead.buttonWidthMM = buttonWidthMM;
     return this.toPX(buttonWidthMM);
   }
   getButtonLeftPX(printHead: PrintHead, printHeadButtonPosition: number) {
-    return this.toPX(this.printPositionService.getButtonLeftMM(printHead, printHeadButtonPosition));
+    const scalar = this.getScalar(this.printPositionService.getButtonWidthMM(printHead))
+    return this.toPX(this.printPositionService.getButtonLeftMM(printHead, printHeadButtonPosition)*scalar);
   }
 
   getButtonTopPX(printHead: PrintHead, printHeadButtonPosition: number) {
-    return this.toPX(this.printPositionService.getButtonTopMM(printHead, printHeadButtonPosition));
-  }
-
-  isButtonSmall(printHead: PrintHead): boolean {
-    const buttonWidth = this.printPositionService.getButtonWidthMM(printHead);
-    return this.toPX(buttonWidth) < 6;
-  }
-
-  isSelectedButton(printHeadButton: PrintHeadButton): boolean {
-    return printHeadButton.selected;
-    // Implement your logic to check if the button is selected
-    // For example, you can check if the printHeadButton is in the selectedPrintHeadButtons array
+    const scalar = this.getScalar(this.printPositionService.getButtonWidthMM(printHead))
+    return this.toPX(this.printPositionService.getButtonTopMM(printHead, printHeadButtonPosition)*scalar);
   }
 
   private getNextColor(): string {
@@ -189,12 +181,19 @@ export class PrintheadComponent implements OnInit, OnDestroy {
     this.cd.markForCheck();
   }
 
-  toPX(size_in_mm:number) {
+  getScalar(size_in_mm: number) {
+    return 1;
+  }
+  toPX(size_in_mm:number, scale=1) {
+    if(scale && scale != 1) {
+      size_in_mm = size_in_mm * scale;
+    }
     return this.screenUtils.convertMMToPX(size_in_mm);
   }
 
-  getPrintPickerWidthPX() {
-    return this.toPX(this.printPickerSizeMM);
+  getPrintPickerWidthPX(printHead: PrintHead) {
+    const scalar = this.getScalar(this.printPositionService.getButtonWidthMM(printHead))
+    return (this.toPX(this.printPickerSizeMM)*scalar);
   }
   // updateNeedleOD(printhead: PrintHead, printheadIndex: number): void {
   //   this.printPositionService.updatePrintPositionBaseSize(printhead.needle);
@@ -216,7 +215,8 @@ export class PrintheadComponent implements OnInit, OnDestroy {
     const mergedStyle =
       {
         ...this.customButtonToggleStyle,
-        'width': (this.getPrintPickerWidthPX()) + 'px'
+        'width': (this.getPrintPickerWidthPX(printHead)) + 'px',
+        'bottom-margin': '8px'
       }
     return mergedStyle;
   }

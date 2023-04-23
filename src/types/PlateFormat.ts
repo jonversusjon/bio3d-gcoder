@@ -11,4 +11,6 @@ export interface PlateFormat {
   a1_centerMM: Coordinates;
   elementType: 'PlateFormat';
   printPositionSizeMM: number;
+  well_bottom_thicknessMM: number;
+  well_depth_MM: number;
 }

@@ -16,7 +16,7 @@ Follow these steps to set up and run the project on your local machine:
 
 3. **Navigate to the project folder** - Change your current working directory to the project folder using the command:
 
->`cd your-repo-name`
+>`cd bio3d-gcoder`
 
 4. **Install dependencies** - Run the following command to install all required dependencies:This command will install `jspdf`, `html2canvas`, and other dependencies listed in the `package.json` file.
 

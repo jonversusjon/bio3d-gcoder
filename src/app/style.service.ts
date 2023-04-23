@@ -9,7 +9,8 @@ export class StyleService {
       'position': 'absolute',
       'border-radius': '50%',
       'border': '1px solid black',
-      'aspect-ratio': '1 / 1'
+      'aspect-ratio': '1 / 1',
+      'box-sizing': 'content-box'
     },
     // Add more base styles here
   };

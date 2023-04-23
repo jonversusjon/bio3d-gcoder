@@ -8,3 +8,31 @@
   -moz-box-shadow: 0px 0px 2px 3px rgba(39,204,6,0.39);
   box-shadow: 0px 0px 2px 3px rgba(39,204,6,0.39);
 }
+
+.flex-container {
+  padding: 0px;
+  gap: 0px;
+}
+.plate-input.flex-item {
+  flex: 4;
+}
+
+.calibration-form.flex-item {
+  flex: 1;
+  max-width: 200px;
+}
+
+.plate-map {
+  display: grid;
+  gap: 5px;
+}
+
+.well-row {
+  display: contents;
+}
+
+.plate {
+  position: absolute;
+  top: 155px;
+  z-index:1;
+}

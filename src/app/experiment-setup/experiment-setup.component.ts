@@ -22,7 +22,9 @@ export class ExperimentSetupComponent {
     well_spacing_y_MM: 0,
     a1_centerMM: { x: 0, y: 0 },
     elementType: 'PlateFormat',
-    printPositionSizeMM: 0
+    printPositionSizeMM: 0,
+    well_bottom_thicknessMM: 0,
+    well_depth_MM: 0,
   };
 
 // Handle the change in the number of print heads and emit an event

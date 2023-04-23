@@ -11,12 +11,61 @@ export class PlateFormatService {
   selectedPlate$ = this.selectedPlateSource.asObservable();
 
   private plateFormats = [
-    { name: '6-well plate', 'plateId': 6, rows: 2, cols: 3, well_sizeMM: 34.8, well_spacing_x_MM: 39, well_spacing_y_MM: 39,'a1_centerMM': {x:24.798,y:23.275} },
-    { name: '12-well plate','plateId': 12,  rows: 3, cols: 4, well_sizeMM: 22.1, well_spacing_x_MM: 26, well_spacing_y_MM: 26, 'a1_centerMM': {x:24.75,y:16.68} },
-    { name: '24-well plate','plateId': 24,  rows: 4, cols: 6, well_sizeMM: 15.6, well_spacing_x_MM: 19.3, well_spacing_y_MM: 19.3, 'a1_centerMM': {x:15.12,y:13.49} },
-    { name: '48-well plate','plateId': 48,  rows: 6, cols: 8, well_sizeMM: 11.37, well_spacing_x_MM: 13.0, well_spacing_y_MM: 13.0, 'a1_centerMM': {x:18.38,y:10.24} },
-    { name: '96-well plate', 'plateId': 96, rows: 8, cols: 12, well_sizeMM: 6.96, well_spacing_x_MM: 9, well_spacing_y_MM: 9, 'a1_centerMM': {x:14.38,y:11.24} },
-    { name: '384-well plate', 'plateId': 384, rows: 12, cols: 24, well_sizeMM: 3.3, well_spacing_x_MM: 4.5, well_spacing_y_MM: 4.5, 'a1_centerMM': {x:12.13,y:8.99} }
+    { name: '6-well plate',
+      'plateId': 6,
+      rows: 2,
+      cols: 3,
+      well_sizeMM: 34.8,
+      well_spacing_x_MM: 39.12,
+      well_spacing_y_MM: 39.12,
+      'a1_centerMM': {x:24.798,y:23.275},
+      well_bottom_thicknessMM: 1.27,
+      well_depth_MM: 16.5
+    },
+    { name: '12-well plate',
+      'plateId': 12,
+      rows: 3,
+      cols: 4,
+      well_sizeMM: 22.1,
+      well_spacing_x_MM: 26,
+      well_spacing_y_MM: 26,
+      'a1_centerMM': {x:24.75,y:16.68},
+      well_bottom_thicknessMM: 1.27,
+      well_depth_MM: 16.5
+    },
+    { name: '24-well plate',
+      'plateId': 24,
+      rows: 4,
+      cols: 6,
+      well_sizeMM: 15.6,
+      well_spacing_x_MM: 19.3,
+      well_spacing_y_MM: 19.3,
+      'a1_centerMM': {x:15.12,y:13.49},
+      well_bottom_thicknessMM: 1.27,
+      well_depth_MM: 16.5
+    },
+    { name: '48-well plate',
+      'plateId': 48,
+      rows: 6,
+      cols: 8,
+      well_sizeMM: 11.37,
+      well_spacing_x_MM: 13.0,
+      well_spacing_y_MM: 13.0,
+      'a1_centerMM': {x:18.38,y:10.24},
+      well_bottom_thicknessMM: 1.27,
+      well_depth_MM: 16.5
+    },
+    { name: '96-well plate',
+      'plateId': 96,
+      rows: 8,
+      cols: 12,
+      well_sizeMM: 6.96,
+      well_spacing_x_MM: 9,
+      well_spacing_y_MM: 9,
+      'a1_centerMM': {x:14.38,y:11.24},
+      well_bottom_thicknessMM: 1.27,
+      well_depth_MM: 10.9
+    }
   ];
 
   selectedPlateFormat = this.getDefaultPlateFormat();

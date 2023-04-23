@@ -22,6 +22,7 @@ import { PrintHead } from "../../types/PrintHead";
 import { PrintHeadButton } from "../../types/PrintHeadButton";
 import {MatSelectChange} from "@angular/material/select";
 import {StyleService} from "../style.service";
+import {CalibrationService} from "../calibration.service";
 
 @Component({
   selector: 'app-plate-map',
@@ -30,6 +31,9 @@ import {StyleService} from "../style.service";
   providers: [ScreenUtils]
 })
 export class PlateMapComponent implements OnInit, OnDestroy {
+  xCalibration = 1;
+  yCalibration = 1;
+  zCalibration = 1;
 
   plateFormats: any[] = [];
   selectedPlate!: PlateFormat;
@@ -68,7 +72,8 @@ export class PlateMapComponent implements OnInit, OnDestroy {
     private printPositionService: PrintPositionService,
     private renderer: Renderer2,
     rendererFactory: RendererFactory2,
-    private styleService: StyleService
+    private styleService: StyleService,
+    private calibrationService: CalibrationService
   ) {
     this.renderer = rendererFactory.createRenderer(null, null);
     this.plateFormats = plateFormatService.getPlateFormats()
@@ -77,6 +82,15 @@ export class PlateMapComponent implements OnInit, OnDestroy {
     this.initializeSelectedPlate();
     this.updatePlateMap(this.selectedPlate);
     this.printHeadsSubscription = new Subscription();
+    this.calibrationService.xCalibration$.subscribe(value => {
+      this.xCalibration = value;
+    });
+    this.calibrationService.yCalibration$.subscribe(value => {
+      this.yCalibration = value;
+    });
+    this.calibrationService.zCalibration$.subscribe(value => {
+      this.zCalibration = value;
+    });
   }
 
   ngOnInit(): void {
@@ -348,6 +362,11 @@ export class PlateMapComponent implements OnInit, OnDestroy {
       this.selectionRectangleVisible = false;
     }
   }
+  updateCalibrationValues() {
+    this.calibrationService.setXCalibration(this.xCalibration);
+    this.calibrationService.setYCalibration(this.yCalibration);
+    this.calibrationService.setZCalibration(this.zCalibration);
+  }
   toPX(size_in_mm: number) {
     return this.screenUtils.convertMMToPX(size_in_mm);
   }
@@ -394,9 +413,12 @@ export class PlateMapComponent implements OnInit, OnDestroy {
       position: 'absolute',
       border: 'none',
       textAlign: 'center',
-      margin: 'auto',
+      marginTop: '0.25em',
       fontSize: '20px',
-      fontWeight: 'bold'
+      fontWeight: 'bold',
+      'color': '#555',
+      'textShadow': '1px 1px 2px rgba(0,0,0,0.4)',
+      backgroundClip: 'text',
     }
   };
 
