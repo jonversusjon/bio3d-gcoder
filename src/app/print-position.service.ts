@@ -116,7 +116,6 @@ export class PrintPositionService {
   updatePrintHeads(printHeads: PrintHead[]): void {
     this._printHeads.next(printHeads);
     this.printPositionSelectionChanged.emit();
-    console.log('_printHeads: ', this._printHeads);
   }
   private updatePrintHead(updatedPrintHead: PrintHead): void {
     const printHeads = this._printHeads.getValue();

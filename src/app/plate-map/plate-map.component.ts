@@ -10,7 +10,7 @@ import {
   Renderer2,
   RendererFactory2
 } from '@angular/core';
-import {Subject, Subscription} from "rxjs";
+import {BehaviorSubject, Subject, Subscription} from "rxjs";
 import {FormsModule} from "@angular/forms";
 import {ScreenUtils} from "../screen-utils";
 import {PlateFormatService} from '../plate-format.service';
@@ -33,8 +33,6 @@ import {DataAggregatorService} from "../data-aggregator.service";
 
 })
 export class PlateMapComponent implements OnInit, OnDestroy {
-  private destroy$ = new Subject<void>();
-
   xCalibration = 1;
   yCalibration = 1;
   zCalibration = 1;
@@ -69,6 +67,7 @@ export class PlateMapComponent implements OnInit, OnDestroy {
   public customButtonToggleStyle: any;
 
   private alphabet_upperCase = [...Array(26)].map((_, i) => String.fromCharCode('a'.charCodeAt(0) + i).toUpperCase());
+
   constructor(
     private formsModule: FormsModule,
     private screenUtils: ScreenUtils,
@@ -78,7 +77,6 @@ export class PlateMapComponent implements OnInit, OnDestroy {
     rendererFactory: RendererFactory2,
     private styleService: StyleService,
     private calibrationService: CalibrationService,
-    private cd: ChangeDetectorRef,
     private dataService: DataAggregatorService,
   ) {
     this.renderer = rendererFactory.createRenderer(null, null);
@@ -97,7 +95,6 @@ export class PlateMapComponent implements OnInit, OnDestroy {
     this.calibrationService.zCalibration$.subscribe(value => {
       this.zCalibration = value;
     });
-    this.updateDataAggregator();
   }
 
   ngOnInit(): void {
@@ -114,7 +111,6 @@ export class PlateMapComponent implements OnInit, OnDestroy {
     if (this.printHeadsSubscription) {
       this.printHeadsSubscription.unsubscribe();
     }
-
   }
   initializeSelectedPlate() {
     // Place the logic you want to run when the selectedPlate changes here
@@ -132,7 +128,7 @@ export class PlateMapComponent implements OnInit, OnDestroy {
       this.selectedPlate = newSelectedPlate;
       console.log('newSelectedPlate: ', newSelectedPlate);
       this.printPositionService.setSelectedPlate(newSelectedPlate);
-      this.updateDataAggregator();
+
     }
   }
 
@@ -241,7 +237,8 @@ export class PlateMapComponent implements OnInit, OnDestroy {
         };
       });
     }
-    this.updateDataAggregator();
+    this.dataService.plateMapWellsSubject.next(this.plateMap.wells);
+
   }
 
   get plateStyle() {
@@ -279,8 +276,9 @@ export class PlateMapComponent implements OnInit, OnDestroy {
       this.wellSelectionStates[wellIndex] = this.plateMap.wells[row][col].selected;
       this.lastClicked = { row, col };
     }
-    // Call updateExperiment for the changed well(s)
-    // this.updateExperiment(this.activePrintHeads, this.printHeadStateService.selectedPrintHeadButtons);
+
+    this.dataService.plateMapWellsSubject.next(this.plateMap.wells);
+
   }
 
   toggleRowSelection(rowIndex: number, event?: MouseEvent): void {
@@ -313,7 +311,7 @@ export class PlateMapComponent implements OnInit, OnDestroy {
       }
     }
     this.lastClickedRow = rowIndex;
-
+    this.dataService.plateMapWellsSubject.next(this.plateMap.wells);
   }
 
   toggleColumnSelection(colIndex: number, event?: MouseEvent): void {
@@ -345,6 +343,7 @@ export class PlateMapComponent implements OnInit, OnDestroy {
       }
     }
     this.lastClickedCol = colIndex;
+    this.dataService.plateMapWellsSubject.next(this.plateMap.wells);
   }
 
   areAllWellsSelected(startRow: number, endRow: number, startCol: number, endCol: number, wells: any[][]): boolean {
@@ -450,10 +449,4 @@ export class PlateMapComponent implements OnInit, OnDestroy {
     return index;
   }
 
-  updateDataAggregator(): void {
-    console.log('------------------------ update data -------------------------');
-    this.dataService.setSelectedPlate(this.selectedPlate);
-    this.dataService.setWellStates(this.plateMap.wells);
-    this.dataService.logData();
-  }
 }
