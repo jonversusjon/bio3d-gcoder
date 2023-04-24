@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { isWebSqlSupported, isIndexedDbSupported } from './browser-support';
+import { isWebSqlSupported, isIndexedDbSupported } from './_services/browser-support';
 import {PlateFormat} from "../types/PlateFormat";
 
 @Component({

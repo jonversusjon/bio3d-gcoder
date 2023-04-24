@@ -7,15 +7,15 @@ import {
   OnInit
 } from '@angular/core';
 import { PlateFormat } from "../../types/PlateFormat";
-import { ScreenUtils } from "../screen-utils";
-import { PrintPositionService } from "../print-position.service"
+import { ScreenUtils } from "../_services/screen-utils";
+import { PrintPositionService } from "../_services/print-position.service"
 import { PrintHead } from "../../types/PrintHead";
 import { PrintHeadButton } from "../../types/PrintHeadButton";
 import {Observable, Subscription} from "rxjs";
 import {Well} from "../../types/Well";
 import {Coordinates} from "../../types/Coordinates";
 import {Needle} from "../../types/Needle";
-import {StyleService} from "../style.service";
+import {StyleService} from "../_services/style.service";
 
 @Component({
   selector: 'app-printhead-component',

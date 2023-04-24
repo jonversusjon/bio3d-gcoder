@@ -1,10 +1,10 @@
 import {BehaviorSubject, Observable} from 'rxjs';
 import {Injectable} from "@angular/core";
-import { Coordinates } from "../types/Coordinates";
+import { Coordinates } from "../../types/Coordinates";
 import { ScreenUtils } from "./screen-utils";
-import { PrintHead } from "../types/PrintHead";
-import { PlateFormat } from "../types/PlateFormat";
-import { Needle } from "../types/Needle";
+import { PrintHead } from "../../types/PrintHead";
+import { PlateFormat } from "../../types/PlateFormat";
+import { Needle } from "../../types/Needle";
 import { EventEmitter } from "@angular/core";
 
 @Injectable({

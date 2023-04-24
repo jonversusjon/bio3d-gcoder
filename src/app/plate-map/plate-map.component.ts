@@ -1,29 +1,30 @@
 // TODO: make a legend showing color, order and description of print steps
 // TODO: some kind of calibration input
 // TODO: calculate print moves
-
+// TODO: this component should feed selectedPlate to the data aggregator, all of the well selected info
+//       now goes in the well-state service
 import {
-  ChangeDetectionStrategy,
   Component,
   OnDestroy,
   OnInit,
   Renderer2,
   RendererFactory2
 } from '@angular/core';
-import {BehaviorSubject, Subject, Subscription} from "rxjs";
+import {Subscription} from "rxjs";
 import {FormsModule} from "@angular/forms";
-import {ScreenUtils} from "../screen-utils";
-import {PlateFormatService} from '../plate-format.service';
-import { Well } from "../../types/Well";
+import {ScreenUtils} from "../_services/screen-utils";
+import {PlateFormatService} from '../_services/plate-format.service';
 import { PlateFormat } from "../../types/PlateFormat";
-import { PrintPositionService } from "../print-position.service";
+import { PrintPositionService } from "../_services/print-position.service";
 import { PrintHead } from "../../types/PrintHead";
 import { PrintHeadButton } from "../../types/PrintHeadButton";
 import {MatSelectChange} from "@angular/material/select";
-import {StyleService} from "../style.service";
-import {CalibrationService} from "../calibration.service";
-import { ChangeDetectorRef } from "@angular/core";
-import {DataAggregatorService} from "../data-aggregator.service";
+import {StyleService} from "../_services/style.service";
+import {CalibrationService} from "../_services/calibration.service";
+import {DataAggregatorService} from "../_services/data-aggregator.service";
+import { WellsStateService } from "../_services/wells-state.service";
+import { SelectionRectangleComponent } from "../selection-rectangle/selection-rectangle.component";
+import {PlateMap} from "../../types/PlateMap";
 
 @Component({
   selector: 'app-plate-map',
@@ -33,58 +34,46 @@ import {DataAggregatorService} from "../data-aggregator.service";
 
 })
 export class PlateMapComponent implements OnInit, OnDestroy {
+  private renderer: Renderer2;
+
   xCalibration = 1;
   yCalibration = 1;
   zCalibration = 1;
 
+  plateMap: PlateMap = { wells: [], columnHeaders: [], rowHeaders: [] };
+
   plateFormats: any[] = [];
   selectedPlate!: PlateFormat;
   prevSelectedPlate!: PlateFormat;
-  wellSelectionStates: boolean[] = [];
 
   private printHeadsSubscription: Subscription;
   public printHeads: PrintHead[] = [];
 
-  containerStyle: any = {
-    width: '100%',
-    height: '100%',
-    position: 'relative'
-  };
-
-  lastClicked: { row: number, col: number } | null = null;
-  lastClickedRow: number | null = null;
-  lastClickedCol: number | null = null;
-
-  plateMap: { wells: Well[][]; columnHeaders: any[]; rowHeaders: any[] } = { wells: [], columnHeaders: [], rowHeaders: [] };
   plateHeight = 85.4; // mm
   plateWidth = 127.6; //mm
   plateHeightPX = this.toPX(this.plateHeight);
   plateWidthPX = this.toPX(this.plateWidth);
 
-  selectionRectangleStart: {row: number, col: number} | null = null;
-  selectionRectangleVisible = false;
-
-  public customButtonToggleStyle: any;
-
-  private alphabet_upperCase = [...Array(26)].map((_, i) => String.fromCharCode('a'.charCodeAt(0) + i).toUpperCase());
+  private customButtonToggleStyle: any;
 
   constructor(
     private formsModule: FormsModule,
     private screenUtils: ScreenUtils,
     private plateFormatService: PlateFormatService,
     private printPositionService: PrintPositionService,
-    private renderer: Renderer2,
-    rendererFactory: RendererFactory2,
+    private rendererFactory: RendererFactory2,
     private styleService: StyleService,
     private calibrationService: CalibrationService,
     private dataService: DataAggregatorService,
+    private wellsStateService: WellsStateService,
+    private rectangleSelect: SelectionRectangleComponent
   ) {
     this.renderer = rendererFactory.createRenderer(null, null);
     this.plateFormats = plateFormatService.getPlateFormats()
     this.selectedPlate = this.plateFormats[0];
     this.prevSelectedPlate = this.selectedPlate;
     this.initializeSelectedPlate();
-    this.updatePlateMap(this.selectedPlate);
+    this.updatePlateMap(this.selectedPlate, this.plateMap);
     this.printHeadsSubscription = new Subscription();
     this.calibrationService.xCalibration$.subscribe(value => {
       this.xCalibration = value;
@@ -113,8 +102,7 @@ export class PlateMapComponent implements OnInit, OnDestroy {
     }
   }
   initializeSelectedPlate() {
-    // Place the logic you want to run when the selectedPlate changes here
-    this.updatePlateMap(this.selectedPlate);
+    this.updatePlateMap(this.selectedPlate, this.plateMap);
     // this.plateFormatChanged.emit(this.selectedPlate);
     this.printPositionService.setSelectedPlate(this.selectedPlate);
   }
@@ -123,7 +111,7 @@ export class PlateMapComponent implements OnInit, OnDestroy {
     const newSelectedPlate = event.value;
 
     if (newSelectedPlate !== this.prevSelectedPlate) {
-      this.updatePlateMap(newSelectedPlate);
+      this.updatePlateMap(newSelectedPlate, this.plateMap);
       this.prevSelectedPlate = newSelectedPlate;
       this.selectedPlate = newSelectedPlate;
       console.log('newSelectedPlate: ', newSelectedPlate);
@@ -132,113 +120,10 @@ export class PlateMapComponent implements OnInit, OnDestroy {
     }
   }
 
-  updatePlateMap(plate: PlateFormat, event?: MouseEvent) {
-    const rows = plate.rows;
-    const cols = plate.cols;
-
-    const wellDiameterPX = this.toPX(plate.well_sizeMM); // pixels
-    const wellSpacingPX = this.toPX(plate.well_spacing_x_MM - plate.well_sizeMM) // pixels
-    const a1_xPX = this.toPX(plate.a1_centerMM.x) // pixels
-    const a1_yPX = this.toPX(plate.a1_centerMM.y) // pixels
-    const colHeaderHeightPX = this.toPX(plate.a1_centerMM.y - (plate.well_sizeMM/2));
-    const rowHeaderWidthPX=this.toPX(plate.a1_centerMM.x - (plate.well_sizeMM/2));
-
-    const rowLabels = this.alphabet_upperCase.slice(0, cols);
-    const wellOriginsMM = this.plateFormatService.getWellOrigins(plate.a1_centerMM.x, plate.a1_centerMM.y, rows, cols, plate.well_spacing_x_MM, plate.well_spacing_y_MM);
-
+  updatePlateMap(selectedPlate: PlateFormat, plateMap: any, event?: MouseEvent) {
     if (this.selectedPlate) {
-      this.plateMap.wells = Array.from({length: rows}, (_, row) => {
-        return Array.from({length: cols}, (_, col) => {
-          const wellElement = this.renderer.createElement('div');
-          this.renderer.addClass(wellElement, 'plate-well');
-          this.renderer.setAttribute(wellElement, 'data-row', row.toString());
-          this.renderer.setAttribute(wellElement, 'data-col', col.toString());
-
-          this.renderer.listen(wellElement, 'click', (event: MouseEvent) => {
-            this.toggleWellSelection(row, col, event.shiftKey);
-          });
-
-          const origin_xMM = wellOriginsMM[row][col].x;
-          const origin_yMM = wellOriginsMM[row][col].y;
-
-          // Include the returned style in the final well object
-          return {
-            row: row,
-            col: col,
-            selected: false,
-            printPositionButtons: Array.from({ length: this.printPositionService.PRINT_POSITIONS_COUNT }, (_, index) => ({
-              printHead: -1,
-              position: index,
-              color: 'this.getNextColor()',
-              selected: false,
-              originPX: { x: 0, y: 0 },
-              originMM: { x: 0, y: 0 },
-              style: {},
-              elementType: 'PrintHeadButton'
-            })),
-            style: {
-              ...this.getCommonStyleHeaders(),
-              height: `${wellDiameterPX}px`,
-              width: `${wellDiameterPX}px`,
-              top: `${(a1_yPX - (wellDiameterPX / 2)) + (row * (wellSpacingPX + wellDiameterPX))}px`,
-              left: `${(a1_xPX - (wellDiameterPX / 2)) + (col * (wellSpacingPX + wellDiameterPX))}px`,
-              borderRadius: '50%',
-              border: '1px solid black',
-              backgroundColor: '#fefefe'
-            },
-            element: wellElement,
-            originMM: {x: origin_xMM, y:origin_yMM},
-            originPX: {
-              x: (a1_xPX - (wellDiameterPX / 2)) + (col * (wellSpacingPX + wellDiameterPX)),
-              y: (a1_yPX - (wellDiameterPX / 2)) + (row * (wellSpacingPX + wellDiameterPX))
-            },
-            elementType: 'Well'
-          } as Well;
-
-        });
-      });
-      //initialize or reset the wellSelectionStates Array
-      const wellCount = this.selectedPlate.rows * this.selectedPlate.cols
-      this.wellSelectionStates = new Array(wellCount).fill(false);
-
-      this.plateMap.rowHeaders = Array.from({length: plate.rows}, (_, row) => {
-        const rowElement = this.renderer.createElement('div');
-        this.renderer.addClass(rowElement, 'row-header');
-        this.renderer.setAttribute(rowElement, 'data-row', row.toString());
-
-        this.renderer.listen(rowElement, 'click', () => {
-          this.toggleRowSelection(row, event);
-        });
-
-        return {
-          style: {
-            ...this.getCommonStyleHeaders(),
-            height: `${wellDiameterPX}px`,
-            width: `${rowHeaderWidthPX}px`,
-            top: `${(row * (wellDiameterPX + wellSpacingPX)) + (wellDiameterPX / 2) + colHeaderHeightPX - 10}px`
-          },
-          type: 'rowHeader',
-          label: rowLabels[row],
-          row,
-        };
-      });
-
-      this.plateMap.columnHeaders = Array.from({length: plate.cols}, (_, col) => {
-        return {
-          style: {
-            ...this.getCommonStyleHeaders(),
-            height: `${rowHeaderWidthPX}px`,
-            width: `${wellDiameterPX}px`,
-            left: `${(col * (wellDiameterPX + wellSpacingPX)) + rowHeaderWidthPX}px`
-          },
-          type: 'columnHeader',
-          label: (col + 1).toString(),
-          col,
-        };
-      });
+      this.wellsStateService.updatePlateMap(selectedPlate, event);
     }
-    this.dataService.plateMapWellsSubject.next(this.plateMap.wells);
-
   }
 
   get plateStyle() {
@@ -253,120 +138,27 @@ export class PlateMapComponent implements OnInit, OnDestroy {
     };
   }
 
-  selectRegion(row: number, col: number, lastRow: number, lastCol: number): void {
-    const startRow = Math.min(row, lastRow);
-    const endRow = Math.max(row, lastRow);
-    const startCol = Math.min(col, lastCol);
-    const endCol = Math.max(col, lastCol);
+  // onMouseMove(event: MouseEvent, row: number, col: number): void {
+  //   if (event.shiftKey && this.rectangleSelect.selectionRectangleStart) {
+  //     // Update the ending coordinates of the selection rectangle and make it visible
+  //     this.rectangleSelect.selectionRectangleVisible = true;
+  //     const endRow = row;
+  //     const endCol = col;
+  //
+  //   } else {
+  //     // Hide the selection rectangle when the shift key is not pressed
+  //     this.rectangleSelect.selectionRectangleVisible = false;
+  //   }
+  // }
 
-    for (let r = startRow; r <= endRow; r++) {
-      for (let c = startCol; c <= endCol; c++) {
-        this.plateMap.wells[r][c].selected = !this.plateMap.wells[r][c].selected;
-      }
-    }
+  toggleWellSelection(plateMap: PlateMap, wellIndex: number, row: number) {
+    this.wellsStateService.toggleWellSelection(plateMap, wellIndex, row);
   }
-
-  toggleWellSelection(row: number, col: number, shiftKey: boolean = false): void {
-    if (shiftKey && this.lastClicked) {
-      this.selectionRectangleStart = {row, col};
-      this.selectRegion(row, col, this.lastClicked.row, this.lastClicked.col);
-    } else {
-      this.plateMap.wells[row][col].selected = !this.plateMap.wells[row][col].selected;
-      const wellIndex = row * this.plateMap.columnHeaders.length + col;
-      this.wellSelectionStates[wellIndex] = this.plateMap.wells[row][col].selected;
-      this.lastClicked = { row, col };
-    }
-
-    this.dataService.plateMapWellsSubject.next(this.plateMap.wells);
-
+  toggleRowSelection(selectedPlate: PlateFormat, plateMap: PlateMap,rowIndex: number, event?: MouseEvent) {
+    this.wellsStateService.toggleRowSelection(selectedPlate, plateMap, rowIndex, event);
   }
-
-  toggleRowSelection(rowIndex: number, event?: MouseEvent): void {
-    if(event) {
-      const shiftKeyPressed = event.shiftKey;
-
-      if (shiftKeyPressed && this.lastClickedRow !== null) {
-        const startRow = Math.min(rowIndex, this.lastClickedRow);
-        const endRow = Math.max(rowIndex, this.lastClickedRow);
-        const allSelected = this.areAllWellsSelected(startRow, endRow, 0, this.selectedPlate.cols - 1, this.plateMap.wells);
-
-        this.selectionRectangleStart = {row: rowIndex, col: 0};
-        for (let i = startRow; i <= endRow; i++) {
-          for (let j = 0; j < this.selectedPlate.cols; j++) {
-            this.plateMap.wells[i][j].selected = !allSelected;
-          }
-        }
-      } else {
-        // Toggle entire row
-        const allSelectedInRow = this.areAllWellsSelected(rowIndex, rowIndex, 0, this.selectedPlate.cols - 1, this.plateMap.wells);
-        for (let j = 0; j < this.selectedPlate.cols; j++) {
-          this.plateMap.wells[rowIndex][j].selected = !allSelectedInRow;
-        }
-      }
-    } else {
-      // Toggle entire row
-      const allSelectedInRow = this.areAllWellsSelected(rowIndex, rowIndex, 0, this.selectedPlate.cols - 1, this.plateMap.wells);
-      for (let j = 0; j < this.selectedPlate.cols; j++) {
-        this.plateMap.wells[rowIndex][j].selected = !allSelectedInRow;
-      }
-    }
-    this.lastClickedRow = rowIndex;
-    this.dataService.plateMapWellsSubject.next(this.plateMap.wells);
-  }
-
-  toggleColumnSelection(colIndex: number, event?: MouseEvent): void {
-    if(event) {
-      const shiftKeyPressed = event.shiftKey;
-      if (shiftKeyPressed && this.lastClickedCol !== null) {
-        this.selectionRectangleStart = {row: 0, col: colIndex};
-        const startCol = Math.min(colIndex, this.lastClickedCol);
-        const endCol = Math.max(colIndex, this.lastClickedCol);
-        const allSelected = this.areAllWellsSelected(0, this.selectedPlate.rows - 1, startCol, endCol, this.plateMap.wells);
-
-        for (let j = startCol; j <= endCol; j++) {
-          for (let i = 0; i < this.selectedPlate.rows; i++) {
-            this.plateMap.wells[i][j].selected = !allSelected;
-          }
-        }
-      } else {
-        // Toggle entire column
-        const allSelectedInCol = this.areAllWellsSelected(0, this.selectedPlate.rows - 1, colIndex, colIndex, this.plateMap.wells);
-        for (let i = 0; i < this.selectedPlate.rows; i++) {
-          this.plateMap.wells[i][colIndex].selected = !allSelectedInCol;
-        }
-      }
-    } else {
-      // Toggle entire column
-      const allSelectedInCol = this.areAllWellsSelected(0, this.selectedPlate.rows - 1, colIndex, colIndex, this.plateMap.wells);
-      for (let i = 0; i < this.selectedPlate.rows; i++) {
-        this.plateMap.wells[i][colIndex].selected = !allSelectedInCol;
-      }
-    }
-    this.lastClickedCol = colIndex;
-    this.dataService.plateMapWellsSubject.next(this.plateMap.wells);
-  }
-
-  areAllWellsSelected(startRow: number, endRow: number, startCol: number, endCol: number, wells: any[][]): boolean {
-    for (let i = startRow; i <= endRow; i++) {
-      for (let j = startCol; j <= endCol; j++) {
-        if (!wells[i][j].selected) {
-          return false;
-        }
-      }
-    }
-    return true;
-  }
-  onMouseMove(event: MouseEvent, row: number, col: number): void {
-    if (event.shiftKey && this.selectionRectangleStart) {
-      // Update the ending coordinates of the selection rectangle and make it visible
-      this.selectionRectangleVisible = true;
-      const endRow = row;
-      const endCol = col;
-
-    } else {
-      // Hide the selection rectangle when the shift key is not pressed
-      this.selectionRectangleVisible = false;
-    }
+  toggleColumnSelection(selectedPlate: PlateFormat, plateMap: PlateMap, colIndex: number, event?: MouseEvent) {
+    this.wellsStateService.toggleColumnSelection(selectedPlate, plateMap, colIndex, event);
   }
   updateCalibrationValues() {
     this.calibrationService.setXCalibration(this.xCalibration);
@@ -392,43 +184,19 @@ export class PlateMapComponent implements OnInit, OnDestroy {
   }
 
   getButtonTopPX(printHead: PrintHead, buttonIndex: number) {
-    const buttonWidthMM = printHead.buttonWidthMM;
-    const scaledButtonWidthMM = this.scale(buttonWidthMM);
-
     const buttonTopMM = this.printPositionService.getButtonTopMM(printHead, buttonIndex);
-    const scaledButtonTopMM = this.scale(buttonTopMM);
-    const adjustedScaledButtonTopMM = scaledButtonTopMM //- (scaledButtonWidthMM/2);
-
+    const adjustedScaledButtonTopMM = this.scale(buttonTopMM); //- (scaledButtonWidthMM/2);
     return this.toPX(adjustedScaledButtonTopMM);
   }
 
   getButtonLeftPX(printHead: PrintHead, buttonIndex: number) {
-    const buttonWidthMM = printHead.buttonWidthMM;
-    const scaledButtonWidthMM = this.scale(buttonWidthMM);
-
     const buttonLeftMM = this.printPositionService.getButtonLeftMM(printHead, buttonIndex);
-    const scaledButtonLeftMM = this.scale(buttonLeftMM);
-    const adjustedScaledButtonLeftMMv= scaledButtonLeftMM //- (scaledButtonWidthMM/2);
+    const adjustedScaledButtonLeftMMv= this.scale(buttonLeftMM); //- (scaledButtonWidthMM/2);
 
     return this.toPX(adjustedScaledButtonLeftMMv);
   }
-  getCommonStyleHeaders() {
-    return {
-      display: 'block',
-      position: 'absolute',
-      border: 'none',
-      textAlign: 'center',
-      marginTop: '0.25em',
-      fontSize: '20px',
-      fontWeight: 'bold',
-      'color': '#555',
-      'textShadow': '1px 1px 2px rgba(0,0,0,0.4)',
-      backgroundClip: 'text',
-    }
-  };
 
   getMergedStyles(printHead: PrintHead, button: PrintHeadButton) {
-
     const mergedStyle =
       {
         ...this.customButtonToggleStyle,
@@ -439,14 +207,6 @@ export class PlateMapComponent implements OnInit, OnDestroy {
         'border': 'none'
       };
     return mergedStyle;
-  }
-
-  trackByRow(index: number, row: any): number {
-    return index;
-  }
-
-  trackByWell(index: number, well: any): number {
-    return index;
   }
 
 }

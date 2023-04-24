@@ -2,8 +2,8 @@
 // TODO: it does not get updated printPosition.selected info for the well well printpositions are toggled
 
 import { Injectable } from '@angular/core';
-import {PlateFormat} from "../types/PlateFormat";
-import {Well} from "../types/Well";
+import {PlateFormat} from "../../types/PlateFormat";
+import {Well} from "../../types/Well";
 import {PrintPositionService} from "./print-position.service";
 import {BehaviorSubject, Subscription} from "rxjs";
 

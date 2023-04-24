@@ -15,19 +15,19 @@
     <div class="plate" [ngStyle]="plateStyle">
       <div class="blankTitle"></div>
       <div class="colHeader" *ngFor="let colHeader of plateMap.columnHeaders; let colIndex = index" [ngStyle]="colHeader.style"
-           (click)="toggleColumnSelection(colIndex, $event)">
+           (click)="toggleColumnSelection(selectedPlate, plateMap, colIndex, $event)">
         {{colHeader.label}}
       </div>
       <div class="rowHeader" *ngFor="let rowHeader of plateMap.rowHeaders; let rowIndex = index" [ngStyle]="rowHeader.style"
-           (click)="toggleRowSelection(rowIndex, $event)">
+           (click)="toggleRowSelection(selectedPlate, plateMap, rowIndex, $event)">
         {{rowHeader.label}}
       </div>
-      <div class="plate-row" *ngFor="let plateRow of plateMap.wells; let i = index; trackBy: trackByRow">
-        <div *ngFor="let well of plateRow; let rw = index; trackBy: trackByWell"
+      <div class="plate-row" *ngFor="let plateRow of plateMap.wells; let i = index;">
+        <div *ngFor="let well of plateRow; let rw = index;"
              class="print-position-picker"
              [ngStyle]="well.style"
              [ngClass]="{'selected-well': well.selected, 'unselected-well': !well.selected, 'base-well-style': true}"
-             (click)="toggleWellSelection(i,rw)">
+             (click)="toggleWellSelection(plateMap, i,rw)">
             <ng-container *ngFor="let printHead of printHeads">
               <ng-container *ngFor="let button of printHead.printPositionButtons; let buttonIndex = index">
                 <mat-button-toggle *ngIf="well.selected && button.selected"

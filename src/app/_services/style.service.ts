@@ -12,7 +12,19 @@ export class StyleService {
       'aspect-ratio': '1 / 1',
       'box-sizing': 'content-box'
     },
-    // Add more base styles here
+      'plate-headers': {
+        display: 'block',
+        position: 'absolute',
+        border: 'none',
+        textAlign: 'center',
+        marginTop: '0.25em',
+        fontSize: '20px',
+        fontWeight: 'bold',
+        'color': '#555',
+        'textShadow': '1px 1px 2px rgba(0,0,0,0.4)',
+        backgroundClip: 'text',
+      }
+
   };
 
   constructor() {}

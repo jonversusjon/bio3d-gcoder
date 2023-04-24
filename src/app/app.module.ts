@@ -1,10 +1,10 @@
 import { BrowserModule } from '@angular/platform-browser';
-import { NgModule } from '@angular/core';
+import {NgModule, Renderer2} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { AppComponent } from './app.component';
 import { PlateMapComponent } from './plate-map/plate-map.component';
 import { Pipe, PipeTransform } from '@angular/core';
-import { ScreenUtils } from "./screen-utils";
+import { ScreenUtils } from "./_services/screen-utils";
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatCardModule } from '@angular/material/card';
@@ -21,6 +21,8 @@ import { MatTooltipModule } from "@angular/material/tooltip";
 import { VerticalSliderComponent } from './vertical-slider/vertical-slider.component';
 import { NgOptimizedImage } from "@angular/common";
 import {MatButtonModule} from "@angular/material/button";
+import { SelectionRectangleComponent } from './selection-rectangle/selection-rectangle.component';
+import { RendererFactory2 } from "@angular/core";
 
 @Pipe({
   name: 'range'
@@ -40,7 +42,8 @@ export class RangePipe implements PipeTransform {
         PrintheadComponent,
         ExperimentSetupComponent,
         PrintDepthComponent,
-        VerticalSliderComponent
+        VerticalSliderComponent,
+        SelectionRectangleComponent
     ],
     imports: [
         BrowserModule,
@@ -57,7 +60,9 @@ export class RangePipe implements PipeTransform {
         NgOptimizedImage,
         MatButtonModule
     ],
-  providers: [ScreenUtils],
+  providers: [
+    ScreenUtils
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
