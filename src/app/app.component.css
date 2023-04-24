@@ -4,5 +4,5 @@
   padding: 24px;
   background-color: #dedede;
   height:100%;
-  width:100%;
+  max-width:1200px;
 }

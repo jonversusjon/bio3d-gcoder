@@ -1,17 +1,30 @@
-.slider-container {
-  display: block;
+.vertical-slider-container {
+  display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   user-select: none;
+  height: 100%;
+  width: 100%;
 }
 
 .vertical-slider {
   position: relative;
   width: 4px;
-  height: 110px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  height: 90%; /* Set the height of the vertical slider (adjust as needed) */
+}
+
+.vertical-slider-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+  height: 100%;
+  width: 100%;
 }
 
 .slider-track {
@@ -28,55 +41,53 @@
   border-radius: 50%;
   background-color: #2196f3;
   cursor: pointer;
+  z-index: 20;
+  left: 50%; /* Add this line to center the thumb horizontally */
+  transform: translateX(-50%);
 }
 
 .vertical-slider .vertical-thumb {
-  left: 12px;
   border-radius: 5px;
+  background-color: rgba(33, 150, 243, 0.75);
 }
 
 .vertical-slider .vertical-range {
   position: absolute;
   width: 100%;
   background-color: rgba(33, 150, 243, 0.5);
-  left: 18px;
 }
 
 .tick-container {
   position: absolute;
-  left: 0;
   display: flex;
   align-items: center;
+  justify-content: center;
+  z-index: 1;
+  left: 50%; /* Add this line to center the thumb horizontally */
+  transform: translateX(-50%);
+}
+
+.tick-label-container {
+  position: absolute;
+  bottom: 50%;
+  transform: translateY(50%);
 }
 
 .vertical-slider-tick {
-  position: absolute;
-  background-color: rgba(108, 117, 125, 0.35);
-  width: 1px;
-  height: 7px;
-  left:23px;
-  transform-origin: 50% 0;
-  transform: translateY(-50%) rotate(90deg);
-}
-
-.vertical-slider-tick.major {
-  height: 12px;
-  left: 25px;
-  background-color: rgba(108, 117, 125, 1);
+  /*position: relative;*/
+  height: 1px;
 }
 
 .slider-labels, .vertical-slider-tick-label {
-  font-size: 8px;
-  position: relative;
-  letter-spacing: -1px;
-  text-align: right;
+  font-size: 9px;
   font-weight: 200;
 }
 
 .vertical-slider-tick-label {
-  left: 4px;
   white-space: nowrap;
-  line-height: 1em;
+  position: relative;
+  left: -15px;
+  transform: translateX(-50%); /* Adjust for the element's width */
 }
 
 .tooltip {
@@ -88,8 +99,8 @@
   font-size: 14px;
   white-space: nowrap;
   pointer-events: none;
-  left: 50%;
-  transform: translateX(-50%);
-  bottom: 100%;
+  transform: translate(-50%, -100%);
+  bottom: 50%;
   margin-bottom: 8px;
+  z-index: 1000;
 }

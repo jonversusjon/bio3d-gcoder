@@ -1,36 +1,41 @@
-<div class="vertical-slider">
-  <div
-    class="vertical-range"
-    [style.bottom]="startThumbPosition + '%'"
-    [style.height]="(endThumbPosition - startThumbPosition) + '%'"
-  ></div>
-  <div
-    class="vertical-thumb"
-    [style.bottom]="startThumbPosition + '%'"
-    (mousedown)="onMouseDown($event, 'start')"
-  >
-    <div class="tooltip" [style.bottom]="startThumbPosition + 30 + 'px'">{{ startValue }}</div>
-  </div>
-  <div
-    class="vertical-thumb"
-    [style.bottom]="endThumbPosition + '%'"
-    (mousedown)="onMouseDown($event, 'end')"
-  >
-    <div class="tooltip" [style.bottom]="endThumbPosition + 30 + 'px'">{{ endValue }}</div>
-  </div>
-  <ng-container *ngFor="let tick of ticks">
-    <div class="tick-container" [style.bottom]="tick.bottom">
-      <div
-        class="vertical-slider-tick"
-        [class.major]="tick.major"
-      ></div>
-      <span
-        class="vertical-slider-tick-label"
-        *ngIf="tick.label"
-      >
-        {{ tick.label }}
-      </span>
+<div class="vertical-slider-container">
+  <div class="vertical-slider">
+    <div
+      class="vertical-range"
+      [style.bottom]="startThumbPosition + '%'"
+      [style.height]="(endThumbPosition - startThumbPosition) + '%'"
+    ></div>
+    <div
+      class="vertical-thumb"
+      [style.bottom]="startThumbPosition + '%'"
+      (mousedown)="onMouseDown($event, 'start')"
+      [class.active]="currentThumb === 'start'"
+    >
+      <div class="tooltip" [style.bottom]="startThumbPosition + 30 + 'px'">{{ startValue }}</div>
     </div>
-  </ng-container>
+    <div
+      class="vertical-thumb"
+      [style.bottom]="endThumbPosition + '%'"
+      (mousedown)="onMouseDown($event, 'end')"
+      [class.active]="currentThumb === 'end'"
+    >
+      <div class="tooltip" [style.bottom]="endThumbPosition + 30 + 'px'">{{ endValue }}</div>
+    </div>
+    <ng-container *ngFor="let tick of ticks">
+      <div class="tick-container" [style.bottom]="tick.bottom">
+        <div class="tick-label-container">
+          <em class="vertical-slider-tick-label" [style.color]="tick.textColor">
+            {{ tick.label }}
+          </em>
+        </div>
+        <div
+          class="vertical-slider-tick"
+          [style.background-color]="tick.backgroundColor"
+          [style.width]="tick.width"
+        ></div>
+      </div>
+    </ng-container>
 
+
+  </div>
 </div>

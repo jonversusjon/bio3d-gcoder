@@ -10,11 +10,17 @@
 }
 
 .flex-container {
+  display: flex;
+  flex-direction: column;
   padding: 0px;
   gap: 0px;
 }
 .plate-input.flex-item {
   flex: 4;
+}
+
+.plate-format-select-wrapper {
+  margin: 5px;
 }
 
 .calibration-form.flex-item {
@@ -32,7 +38,18 @@
 }
 
 .plate {
-  position: absolute;
-  top: 155px;
-  z-index:1;
+  margin: 5px;
 }
+
+.plate-calibration-container {
+  display: flex;
+  flex-direction: row;
+}
+.calibration-form.flex-item {
+  flex: 1;
+  max-width: 200px;
+  margin: 5px; /* Adjust this value to create the desired spacing */
+  transform: scale(0.6);
+}
+
+

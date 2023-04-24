@@ -1,17 +1,32 @@
+.print-depth-container {
+  display: flex;
+  height: 120px;
+}
+
 .print-depth-slider {
-  display: block;
-  height: 140px;
-  padding-top: 12px;
+  position: relative;
+  bottom: 8%;
+  height: 100%;
 }
 
 .image-container {
   background-image: url('../../assets/single_well_web.png');
   background-repeat: no-repeat;
-  background-position: center;
-  background-size: cover;
-  position: relative; /* Make sure the container is positioned */
-  z-index: 1; /* Set a z-index to make it appear above other elements */
-  width: 90%;
-  height: 90%;
+  background-size: 100% 100%;
+  position: relative;
+  z-index: 1;
   overflow: visible;
+  width: 100%;
+  height:100%;
+  object-fit: cover;
+  flex: 1;
+}
+
+app-vertical-slider {
+  display: block;
+  height: 100%;
+}
+
+.vertical-slider {
+  height: 92%;
 }

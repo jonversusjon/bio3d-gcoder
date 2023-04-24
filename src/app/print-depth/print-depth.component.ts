@@ -16,12 +16,12 @@ export class PrintDepthComponent {
   constructor() { }
 
   onStartDepthChange(value: number) {
-    // this.startDepth = value;
+    this.startDepth = value;
     this.startDepthChange.emit(this.startDepth);
   }
 
   onEndDepthChange(value: number) {
-    // this.endDepth = value;
+    this.endDepth = value;
     this.endDepthChange.emit(this.endDepth);
   }
 }

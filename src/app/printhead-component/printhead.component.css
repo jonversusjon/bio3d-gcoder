@@ -1,6 +1,5 @@
 .print-head-setup-component-wrapper {
   display: flex;
-  background: lightblue;
 }
 
 .mat-mdc-floating-label {
@@ -12,23 +11,10 @@
   width: 150px;
 }
 
-.printhead-header.flex-container {
-  padding: 0px;
-  gap: 0px;
-  height: 62px;
-}
-
-.printhead-description-field.flex-item {
-  flex: 3;
-}
-
-.needle-od-field.flex-item {
-  flex: 2;
-}
-
-.color-field-container.flex-item {
-  flex: 3;
-
+.printhead-setup-title {
+  display: grid;
+  grid-template-columns: 3fr 2fr 2fr;
+  font-size: 0.5em;
 }
 
 .active-toggle-container.flex-item {
@@ -42,16 +28,24 @@
 
 .footer-wrapper {
   margin-bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-grow: 1;
+  height: 100%;
 }
 
-mat-mdc-card {
-  padding: 16px;
+.mat-mdc-card-title {
+  /*font-size: 9px; !* Adjust this value as needed *!*/
+  top:0px;
+  margin:0;
+  align-items: center;
+  justify-content: left;
 }
-
-printhead-setup .mat-card-title {
-  font-size: 9px; /* Adjust this value as needed */
+.mat-mdc-card-title > .mat-mdc-text-field {}
+.mat-mdc-card-title > * {
+  border-radius: 0;
 }
-
 printhead-setup .mat-card-tile {
   box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14),
   0 1px 5px 0 rgba(0, 0, 0, 0.12),
@@ -59,17 +53,14 @@ printhead-setup .mat-card-tile {
   margin: 4px;
 }
 
-.mat-mdc-card-header {
-  padding-bottom: 8px;
-}
-
 .grid-list-container {
   max-height: 650px; /* Adjust this value as needed */
+  min-height: 320px;
   overflow-y: auto;
   direction: rtl;
   padding-left: 8px;
   overflow-x: hidden; /* Hide horizontal scrollbar */
-  min-width: 300px;
+  width: 300px;
   flex: 5;
   margin: 0;
 }
@@ -77,6 +68,14 @@ printhead-setup .mat-card-tile {
 .grid-list-container > * {
   direction: ltr;
 }
+
+.grid-container {
+  height: fit-content;
+  display: grid;
+  grid-template-columns: 3fr 2fr;
+  margin-bottom: 20px;
+}
+
 .mat-mdc-form-field-subscript-wrapper {
   margin: 0;
   padding: 0;
@@ -98,32 +97,6 @@ printhead-setup .mat-card-tile {
 .input-container {
   display: flex;
 }
-
-.print-position-picker-scalar {
-  transform: scale(1.0);
-}
-
-/*!* width *!*/
-/*::-webkit-scrollbar {*/
-/*  width: 20px;*/
-/*}*/
-
-/*!* Track *!*/
-/*::-webkit-scrollbar-track {*/
-/*  box-shadow: inset 0 0 5px grey;*/
-/*  border-radius: 10px;*/
-/*}*/
-
-/*!* Handle *!*/
-/*::-webkit-scrollbar-thumb {*/
-/*  background: #ffd54f;*/
-/*  border-radius: 10px;*/
-/*}*/
-
-/*!* Handle on hover *!*/
-/*::-webkit-scrollbar-thumb:hover {*/
-/*  background: #ffb94f;*/
-/*}*/
 
 /* width */
 ::-webkit-scrollbar {
@@ -165,7 +138,7 @@ printhead-setup .mat-card-tile {
   box-shadow: 0 0 5px 5px rgba(255, 255, 0, 0.5) !important;
 }
 
-.color-field-container,
+
 .active-toggle-container {
   display: flex;
   align-items: center;
@@ -173,11 +146,6 @@ printhead-setup .mat-card-tile {
   height: 100%;
 }
 
-.grid-container {
-  display: grid;
-  grid-template-columns: 2fr 1fr;
-  margin-bottom: 8px;
-}
 
 .grid-item {
   /* Add any other styles you want to apply to the grid items */

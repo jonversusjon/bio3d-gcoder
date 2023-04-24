@@ -10,15 +10,22 @@ export class VerticalSliderComponent {
   endThumbPosition = 60;
   startValue: number;
   endValue: number;
+  currentThumb!: 'start' | 'end';
   max = 15;
   min = 0;
   tickSpacing = 100 / (this.max - this.min + 1);
   ticks = Array.from({ length: this.max - this.min }, (_, i) => {
     const value = i + 1;
+    const isMajorTick = value % 5 == 0;
     return {
       value,
-      major: value % 5 === 0,
       label: value.toString(),
+      width: isMajorTick ? '12px' : '8px',
+      height: this.tickSpacing,
+      left: isMajorTick ? '0px' : '2px',
+      backgroundColor: isMajorTick ? 'rgba(64, 64, 64, 0.7)' : 'rgba(64, 64, 64, 0.3)',
+      textLeft: '18px' ,
+      textColor: isMajorTick ? 'grey' : 'transparent',
       bottom: (i * (1 / 15)) * 100 + '%'
     };
   });

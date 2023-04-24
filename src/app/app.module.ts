@@ -15,11 +15,11 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatSelectModule } from "@angular/material/select";
 import { ExperimentSetupComponent } from './experiment-setup/experiment-setup.component';
-import {MatButtonToggleModule} from "@angular/material/button-toggle";
+import { MatButtonToggleModule} from "@angular/material/button-toggle";
 import { PrintDepthComponent } from './print-depth/print-depth.component';
 import { MatTooltipModule } from "@angular/material/tooltip";
 import { VerticalSliderComponent } from './vertical-slider/vertical-slider.component';
-import {NgOptimizedImage} from "@angular/common";
+import { NgOptimizedImage } from "@angular/common";
 
 @Pipe({
   name: 'range'

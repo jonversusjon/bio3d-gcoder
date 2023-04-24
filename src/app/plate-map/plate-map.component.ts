@@ -5,13 +5,14 @@
 // TODO: the radius of print positions needs to update to match well_size
 
 import {
+  ChangeDetectionStrategy,
   Component,
   OnDestroy,
   OnInit,
   Renderer2,
   RendererFactory2
 } from '@angular/core';
-import {Subscription} from "rxjs";
+import {Subject, Subscription, takeUntil} from "rxjs";
 import {FormsModule} from "@angular/forms";
 import {ScreenUtils} from "../screen-utils";
 import {PlateFormatService} from '../plate-format.service';
@@ -23,14 +24,18 @@ import { PrintHeadButton } from "../../types/PrintHeadButton";
 import {MatSelectChange} from "@angular/material/select";
 import {StyleService} from "../style.service";
 import {CalibrationService} from "../calibration.service";
+import { ChangeDetectorRef } from "@angular/core";
 
 @Component({
   selector: 'app-plate-map',
   templateUrl: './plate-map.component.html',
   styleUrls: ['./plate-map.component.css'],
-  providers: [ScreenUtils]
+  providers: [ScreenUtils],
+
 })
 export class PlateMapComponent implements OnInit, OnDestroy {
+  private destroy$ = new Subject<void>();
+
   xCalibration = 1;
   yCalibration = 1;
   zCalibration = 1;
@@ -73,7 +78,8 @@ export class PlateMapComponent implements OnInit, OnDestroy {
     private renderer: Renderer2,
     rendererFactory: RendererFactory2,
     private styleService: StyleService,
-    private calibrationService: CalibrationService
+    private calibrationService: CalibrationService,
+    private cd: ChangeDetectorRef,
   ) {
     this.renderer = rendererFactory.createRenderer(null, null);
     this.plateFormats = plateFormatService.getPlateFormats()
@@ -94,7 +100,6 @@ export class PlateMapComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-
     this.printHeadsSubscription = this.printPositionService.printHeads$.subscribe(
       (printHeads: PrintHead[]) => {
         this.printHeads = printHeads;
@@ -104,6 +109,12 @@ export class PlateMapComponent implements OnInit, OnDestroy {
     this.customButtonToggleStyle = this.styleService.getBaseStyle('custom-button-toggle');
   }
 
+  ngOnDestroy(): void {
+    if (this.printHeadsSubscription) {
+      this.printHeadsSubscription.unsubscribe();
+    }
+
+  }
   initializeSelectedPlate() {
     // Place the logic you want to run when the selectedPlate changes here
     this.updatePlateMap(this.selectedPlate);
@@ -120,12 +131,6 @@ export class PlateMapComponent implements OnInit, OnDestroy {
       this.selectedPlate = newSelectedPlate;
       console.log('newSelectedPlate: ', newSelectedPlate);
       this.printPositionService.setSelectedPlate(newSelectedPlate);
-    }
-  }
-
-  ngOnDestroy(): void {
-    if (this.printHeadsSubscription) {
-      this.printHeadsSubscription.unsubscribe();
     }
   }
 
@@ -239,7 +244,7 @@ export class PlateMapComponent implements OnInit, OnDestroy {
 
   get plateStyle() {
     return {
-      position: 'absolute',
+      position: 'relative',
       border: '1px solid #000',
       height: `${this.plateHeightPX}px`,
       width: `${this.plateWidthPX}px`,
@@ -375,14 +380,13 @@ export class PlateMapComponent implements OnInit, OnDestroy {
     const printPickerSizeMM = this.printHeads[0].pickerWell.sizeMM;
     const wellSizeMM = this.selectedPlate.well_sizeMM;
     const ratio = wellSizeMM / printPickerSizeMM;
-    console.log('wellSizeMM: ', wellSizeMM, ', printPickerSizeMM: ', printPickerSizeMM, ', ratio: ', ratio);
+
     return valueToScale * ratio;
   }
   getButtonWidthPX(printHead: PrintHead) {
     const buttonWidthMM = printHead.buttonWidthMM;
     const plateMapButtonSizeMM = this.scale(buttonWidthMM);
-    console.log('buttonWidthMM: ', buttonWidthMM, ', plateMapButtonSize: ', plateMapButtonSizeMM);
-    console.log('buttonWidthPX: ', this.toPX(buttonWidthMM), ', plateMapButtonSizePX: ', this.toPX(plateMapButtonSizeMM))
+
     return this.toPX(plateMapButtonSizeMM);
   }
 
@@ -434,5 +438,18 @@ export class PlateMapComponent implements OnInit, OnDestroy {
         'border': 'none'
       };
     return mergedStyle;
+  }
+
+  trackByRow(index: number, row: any): number {
+    return index;
+  }
+
+  trackByWell(index: number, well: any): number {
+    return index;
+  }
+
+  onPrintPositionSelectionChanged() {
+    this.updatePlateMap(this.selectedPlate);
+
   }
 }

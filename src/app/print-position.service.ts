@@ -7,12 +7,15 @@ import { PrintHeadButton } from "../types/PrintHeadButton";
 import {PlateFormat} from "../types/PlateFormat";
 import {Well} from "../types/Well";
 import {Needle} from "../types/Needle";
+import { EventEmitter } from "@angular/core";
 
 @Injectable({
   providedIn: 'root',
 })
 
 export class PrintPositionService {
+  printPositionSelectionChanged = new EventEmitter<void>();
+
   PRINT_POSITIONS_COUNT = 9;
   private printPositionAngles = Array.from({length: this.PRINT_POSITIONS_COUNT - 1}, (_, i) => i / (this.PRINT_POSITIONS_COUNT - 1) * 2 * Math.PI);
   private printPositionCoordinates: Coordinates[] = [];
@@ -100,7 +103,7 @@ export class PrintPositionService {
     for (let i = 0; i < this.PRINT_POSITIONS_COUNT - 1; i++) {
       printPositionCoordinates.push({'x': (rawCoords[i].x - (dotSizeMM/2) + adj_x), 'y': (rawCoords[i].y - (dotSizeMM/2) + adj_y)});
     }
-
+    this.printPositionSelectionChanged.emit();
     return printPositionCoordinates;
   }
 
@@ -114,6 +117,7 @@ export class PrintPositionService {
 
   updatePrintHeads(printHeads: PrintHead[]): void {
     this._printHeads.next(printHeads);
+    this.printPositionSelectionChanged.emit();
     console.log('_printHeads: ', this._printHeads);
   }
   private updatePrintHead(updatedPrintHead: PrintHead): void {
@@ -126,6 +130,7 @@ export class PrintPositionService {
     } else {
       console.warn(`Warning(updatePrintHead): printHead with id ${updatedPrintHead.printHeadIndex} not found.`);
     }
+    this.printPositionSelectionChanged.emit();
     console.log('updatePrintHead: ', this._printHeads);
   }
 
@@ -136,6 +141,7 @@ export class PrintPositionService {
     } else {
       console.warn(`Warning(togglePrintHeadButton): printHead is undefined.`);
     }
+    this.printPositionSelectionChanged.emit();
   }
 
   updatePrintHeadNeedle(printHead: PrintHead, needle: Needle): void {
@@ -153,6 +159,7 @@ export class PrintPositionService {
         button.selected = isActive;
       });
       this.updatePrintHead(printHead);
+
     } else {
       console.warn(`Warning(updatePrintHeadButtonSelection): printHead is undefined.`);
     }
