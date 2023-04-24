@@ -3,10 +3,8 @@ import {Injectable} from "@angular/core";
 import { Coordinates } from "../types/Coordinates";
 import { ScreenUtils } from "./screen-utils";
 import { PrintHead } from "../types/PrintHead";
-import { PrintHeadButton } from "../types/PrintHeadButton";
-import {PlateFormat} from "../types/PlateFormat";
-import {Well} from "../types/Well";
-import {Needle} from "../types/Needle";
+import { PlateFormat } from "../types/PlateFormat";
+import { Needle } from "../types/Needle";
 import { EventEmitter } from "@angular/core";
 
 @Injectable({

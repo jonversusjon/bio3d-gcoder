@@ -17,9 +17,9 @@
               <input matInput [(ngModel)]="printhead.description" [disabled]="!printhead.active">
             </mat-form-field>
             <mat-form-field appearance="fill" class="needle-od-field grid-item">
-              <mat-label>Needle</mat-label>
-              <mat-select class="needle-select" [(ngModel)]="printhead.needle" (selectionChange)="updatePrintHeadNeedle(printhead, $event.value)">
-                <mat-option *ngFor="let needle of needles" [value]="needle">{{needle.name}}</mat-option>
+              <mat-label class="custom-mat-label">Needle</mat-label>
+              <mat-select class="needle-select custom-mat-select" [(ngModel)]="printhead.needle" (selectionChange)="updatePrintHeadNeedle(printhead, $event.value)">
+                <mat-option *ngFor="let needle of needles" [value]="needle" class="custom-mat-select-option">{{needle.name}}</mat-option>
               </mat-select>
             </mat-form-field>
             <mat-form-field appearance="fill" class="color-field grid-item">

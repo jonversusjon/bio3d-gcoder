@@ -32,11 +32,11 @@ export class PrintheadComponent implements OnInit, OnDestroy {
   printPositionCoordinates$!: Observable<Coordinates[]>;
   private colors: string[] = [
     '#009ADE',
+    '#FF1F5B',
     '#00CD6C',
     '#FFC61E',
-    '#FF1F5B',
+    '#AF58BA',
     '#F28522',
-    '#AF58BA'
   ];
 
   numberOfPrintHeads: number = 1;

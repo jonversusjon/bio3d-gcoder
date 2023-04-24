@@ -1,8 +1,6 @@
 // TODO: make a legend showing color, order and description of print steps
 // TODO: some kind of calibration input
 // TODO: calculate print moves
-// TODO: create input for printing depth (other controllable parameters?)
-// TODO: the radius of print positions needs to update to match well_size
 
 import {
   ChangeDetectionStrategy,
@@ -12,7 +10,7 @@ import {
   Renderer2,
   RendererFactory2
 } from '@angular/core';
-import {Subject, Subscription, takeUntil} from "rxjs";
+import {Subject, Subscription} from "rxjs";
 import {FormsModule} from "@angular/forms";
 import {ScreenUtils} from "../screen-utils";
 import {PlateFormatService} from '../plate-format.service';
@@ -25,6 +23,7 @@ import {MatSelectChange} from "@angular/material/select";
 import {StyleService} from "../style.service";
 import {CalibrationService} from "../calibration.service";
 import { ChangeDetectorRef } from "@angular/core";
+import {DataAggregatorService} from "../data-aggregator.service";
 
 @Component({
   selector: 'app-plate-map',
@@ -80,6 +79,7 @@ export class PlateMapComponent implements OnInit, OnDestroy {
     private styleService: StyleService,
     private calibrationService: CalibrationService,
     private cd: ChangeDetectorRef,
+    private dataService: DataAggregatorService,
   ) {
     this.renderer = rendererFactory.createRenderer(null, null);
     this.plateFormats = plateFormatService.getPlateFormats()
@@ -97,6 +97,7 @@ export class PlateMapComponent implements OnInit, OnDestroy {
     this.calibrationService.zCalibration$.subscribe(value => {
       this.zCalibration = value;
     });
+    this.updateDataAggregator();
   }
 
   ngOnInit(): void {
@@ -131,6 +132,7 @@ export class PlateMapComponent implements OnInit, OnDestroy {
       this.selectedPlate = newSelectedPlate;
       console.log('newSelectedPlate: ', newSelectedPlate);
       this.printPositionService.setSelectedPlate(newSelectedPlate);
+      this.updateDataAggregator();
     }
   }
 
@@ -239,7 +241,7 @@ export class PlateMapComponent implements OnInit, OnDestroy {
         };
       });
     }
-
+    this.updateDataAggregator();
   }
 
   get plateStyle() {
@@ -396,7 +398,7 @@ export class PlateMapComponent implements OnInit, OnDestroy {
 
     const buttonTopMM = this.printPositionService.getButtonTopMM(printHead, buttonIndex);
     const scaledButtonTopMM = this.scale(buttonTopMM);
-    const adjustedScaledButtonTopMM = scaledButtonTopMM - (scaledButtonWidthMM/2);
+    const adjustedScaledButtonTopMM = scaledButtonTopMM //- (scaledButtonWidthMM/2);
 
     return this.toPX(adjustedScaledButtonTopMM);
   }
@@ -407,7 +409,7 @@ export class PlateMapComponent implements OnInit, OnDestroy {
 
     const buttonLeftMM = this.printPositionService.getButtonLeftMM(printHead, buttonIndex);
     const scaledButtonLeftMM = this.scale(buttonLeftMM);
-    const adjustedScaledButtonLeftMMv= scaledButtonLeftMM - (scaledButtonWidthMM/2);
+    const adjustedScaledButtonLeftMMv= scaledButtonLeftMM //- (scaledButtonWidthMM/2);
 
     return this.toPX(adjustedScaledButtonLeftMMv);
   }
@@ -448,8 +450,10 @@ export class PlateMapComponent implements OnInit, OnDestroy {
     return index;
   }
 
-  onPrintPositionSelectionChanged() {
-    this.updatePlateMap(this.selectedPlate);
-
+  updateDataAggregator(): void {
+    console.log('------------------------ update data -------------------------');
+    this.dataService.setSelectedPlate(this.selectedPlate);
+    this.dataService.setWellStates(this.plateMap.wells);
+    this.dataService.logData();
   }
 }

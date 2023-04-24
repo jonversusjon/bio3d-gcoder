@@ -20,6 +20,7 @@ import { PrintDepthComponent } from './print-depth/print-depth.component';
 import { MatTooltipModule } from "@angular/material/tooltip";
 import { VerticalSliderComponent } from './vertical-slider/vertical-slider.component';
 import { NgOptimizedImage } from "@angular/common";
+import {MatButtonModule} from "@angular/material/button";
 
 @Pipe({
   name: 'range'
@@ -41,20 +42,21 @@ export class RangePipe implements PipeTransform {
         PrintDepthComponent,
         VerticalSliderComponent
     ],
-  imports: [
-    BrowserModule,
-    FormsModule,
-    BrowserAnimationsModule,
-    MatGridListModule,
-    MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSlideToggleModule,
-    MatSelectModule,
-    MatButtonToggleModule,
-    MatTooltipModule,
-    NgOptimizedImage
-  ],
+    imports: [
+        BrowserModule,
+        FormsModule,
+        BrowserAnimationsModule,
+        MatGridListModule,
+        MatCardModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatSlideToggleModule,
+        MatSelectModule,
+        MatButtonToggleModule,
+        MatTooltipModule,
+        NgOptimizedImage,
+        MatButtonModule
+    ],
   providers: [ScreenUtils],
   bootstrap: [AppComponent]
 })

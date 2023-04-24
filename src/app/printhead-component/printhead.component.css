@@ -54,7 +54,7 @@ printhead-setup .mat-card-tile {
 }
 
 .grid-list-container {
-  max-height: 650px; /* Adjust this value as needed */
+  max-height: 400px; /* Adjust this value as needed */
   min-height: 320px;
   overflow-y: auto;
   direction: rtl;
@@ -146,7 +146,15 @@ printhead-setup .mat-card-tile {
   height: 100%;
 }
 
-
 .grid-item {
   /* Add any other styles you want to apply to the grid items */
+}
+
+.custom-mat-select-option {
+  font-size: 11px;
+  height: 1rem;
+}
+
+.mat-mdc-form-field .mat-mdc-select {
+  font-size: 12px;
 }
