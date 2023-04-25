@@ -1,14 +1,13 @@
 // TODO: need a way to code for the coordinates of the plate map
 // TODO: need a way to code for calibrations - well_well_x, well_well_y, a1_center_left_edge, a1_center_top_edge, plate_height, well_depth
-import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { Injectable, ApplicationRef } from '@angular/core';
+import {BehaviorSubject, Observable, Subject} from 'rxjs';
+import {PlateFormat} from "../../types/PlateFormat";
 
 @Injectable({
   providedIn: 'root',
 })
 export class PlateFormatService {
-  private selectedPlateSource = new BehaviorSubject<any>(null);
-  selectedPlate$ = this.selectedPlateSource.asObservable();
 
   private plateFormats = [
     { name: '6-well plate',
@@ -68,21 +67,16 @@ export class PlateFormatService {
     }
   ];
 
-  selectedPlateFormat = this.getDefaultPlateFormat();
-  constructor() {
+  private _selectedPlateSubject = new Subject<PlateFormat | null>();
+  selectedPlate$ = this._selectedPlateSubject.asObservable();
+  private _latestSelectedPlate: PlateFormat | null = null;
+
+  constructor(private appRef: ApplicationRef) {
 
   }
 
   getPlateFormats() {
     return this.plateFormats;
-  }
-
-  getDefaultPlateFormat() {
-    return this.plateFormats[0];
-  }
-  setSelectedPlate(plate: any) {
-    this.selectedPlateFormat = plate;
-    this.selectedPlateSource.next(plate);
   }
 
   getWellOrigins(startingX: number, startingY: number, rows: number, cols: number, spacingX: number, spacingY: number): { x: number, y: number }[][] {
@@ -101,6 +95,15 @@ export class PlateFormatService {
     return coordinates;
   }
 
+  setSelectedPlate(plate: PlateFormat) {
+    this._latestSelectedPlate = plate;
+
+    this._selectedPlateSubject.next(plate);
+  }
+
+  getLatestSelectedPlate(): PlateFormat | null {
+    return this._latestSelectedPlate;
+  }
 
 }
 

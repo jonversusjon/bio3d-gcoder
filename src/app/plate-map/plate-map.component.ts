@@ -4,18 +4,19 @@
 // TODO: this component should feed selectedPlate to the data aggregator, all of the well selected info
 //       now goes in the well-state service
 import {
+  AfterViewInit,
   Component,
   OnDestroy,
   OnInit,
   Renderer2,
   RendererFactory2
 } from '@angular/core';
-import {Subscription} from "rxjs";
+import { Subscription } from "rxjs";
 import {FormsModule} from "@angular/forms";
 import {ScreenUtils} from "../_services/screen-utils";
 import {PlateFormatService} from '../_services/plate-format.service';
 import { PlateFormat } from "../../types/PlateFormat";
-import { PrintPositionService } from "../_services/print-position.service";
+import { PrintHeadStateService } from "../_services/print-head-state.service";
 import { PrintHead } from "../../types/PrintHead";
 import { PrintHeadButton } from "../../types/PrintHeadButton";
 import {MatSelectChange} from "@angular/material/select";
@@ -23,8 +24,9 @@ import {StyleService} from "../_services/style.service";
 import {CalibrationService} from "../_services/calibration.service";
 import {DataAggregatorService} from "../_services/data-aggregator.service";
 import { WellsStateService } from "../_services/wells-state.service";
-import { SelectionRectangleComponent } from "../selection-rectangle/selection-rectangle.component";
 import {PlateMap} from "../../types/PlateMap";
+import { ChangeDetectorRef } from "@angular/core";
+import { GcodeService } from "../_services/gcode.service";
 
 @Component({
   selector: 'app-plate-map',
@@ -33,8 +35,9 @@ import {PlateMap} from "../../types/PlateMap";
   providers: [ScreenUtils],
 
 })
-export class PlateMapComponent implements OnInit, OnDestroy {
+export class PlateMapComponent implements OnInit, AfterViewInit, OnDestroy {
   private renderer: Renderer2;
+  public printHeads!: PrintHead[];
 
   xCalibration = 1;
   yCalibration = 1;
@@ -46,35 +49,36 @@ export class PlateMapComponent implements OnInit, OnDestroy {
   selectedPlate!: PlateFormat;
   prevSelectedPlate!: PlateFormat;
 
-  private printHeadsSubscription: Subscription;
-  public printHeads: PrintHead[] = [];
-
   plateHeight = 85.4; // mm
   plateWidth = 127.6; //mm
   plateHeightPX = this.toPX(this.plateHeight);
   plateWidthPX = this.toPX(this.plateWidth);
 
   private customButtonToggleStyle: any;
-
+  private printHeadStateSubsciption: Subscription;
   constructor(
+    private gcodeService: GcodeService,
     private formsModule: FormsModule,
     private screenUtils: ScreenUtils,
     private plateFormatService: PlateFormatService,
-    private printPositionService: PrintPositionService,
+    private printHeadStateService: PrintHeadStateService,
     private rendererFactory: RendererFactory2,
     private styleService: StyleService,
     private calibrationService: CalibrationService,
     private dataService: DataAggregatorService,
     private wellsStateService: WellsStateService,
-    private rectangleSelect: SelectionRectangleComponent
+    private cd: ChangeDetectorRef,
   ) {
     this.renderer = rendererFactory.createRenderer(null, null);
     this.plateFormats = plateFormatService.getPlateFormats()
     this.selectedPlate = this.plateFormats[0];
     this.prevSelectedPlate = this.selectedPlate;
-    this.initializeSelectedPlate();
+
+    this.printHeadStateSubsciption = this.printHeadStateService.printHeads$.subscribe(printHeads => {
+      this.printHeads = printHeads;
+    });
     this.updatePlateMap(this.selectedPlate, this.plateMap);
-    this.printHeadsSubscription = new Subscription();
+
     this.calibrationService.xCalibration$.subscribe(value => {
       this.xCalibration = value;
     });
@@ -87,42 +91,43 @@ export class PlateMapComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.printHeadsSubscription = this.printPositionService.printHeads$.subscribe(
-      (printHeads: PrintHead[]) => {
-        this.printHeads = printHeads;
-        console.log('plate-map-component')
-      }
-    );
+
     this.customButtonToggleStyle = this.styleService.getBaseStyle('custom-button-toggle');
   }
 
+  ngAfterViewInit() {
+    this.initializeSelectedPlate(this.plateMap);
+  }
+
   ngOnDestroy(): void {
-    if (this.printHeadsSubscription) {
-      this.printHeadsSubscription.unsubscribe();
+    if (this.printHeadStateSubsciption) {
+      this.printHeadStateSubsciption.unsubscribe();
     }
   }
-  initializeSelectedPlate() {
-    this.updatePlateMap(this.selectedPlate, this.plateMap);
+  initializeSelectedPlate(plateMap: PlateMap) {
+    this.updatePlateMap(this.selectedPlate, plateMap);
     // this.plateFormatChanged.emit(this.selectedPlate);
-    this.printPositionService.setSelectedPlate(this.selectedPlate);
+    // this.printHeadStateService.setSelectedPlate(this.selectedPlate);
+    this.plateFormatService.setSelectedPlate(this.selectedPlate);
+
   }
 
   onSelectedPlateChanged(event: MatSelectChange): void {
     const newSelectedPlate = event.value;
 
     if (newSelectedPlate !== this.prevSelectedPlate) {
+
       this.updatePlateMap(newSelectedPlate, this.plateMap);
       this.prevSelectedPlate = newSelectedPlate;
       this.selectedPlate = newSelectedPlate;
-      console.log('newSelectedPlate: ', newSelectedPlate);
-      this.printPositionService.setSelectedPlate(newSelectedPlate);
-
+      this.plateFormatService.setSelectedPlate(newSelectedPlate);
     }
   }
 
   updatePlateMap(selectedPlate: PlateFormat, plateMap: any, event?: MouseEvent) {
     if (this.selectedPlate) {
-      this.wellsStateService.updatePlateMap(selectedPlate, event);
+      this.wellsStateService.updatePlateMap(selectedPlate, plateMap, event);
+      this.plateFormatService.setSelectedPlate(this.selectedPlate);
     }
   }
 
@@ -184,13 +189,13 @@ export class PlateMapComponent implements OnInit, OnDestroy {
   }
 
   getButtonTopPX(printHead: PrintHead, buttonIndex: number) {
-    const buttonTopMM = this.printPositionService.getButtonTopMM(printHead, buttonIndex);
+    const buttonTopMM = this.printHeadStateService.getButtonTopMM(printHead, buttonIndex);
     const adjustedScaledButtonTopMM = this.scale(buttonTopMM); //- (scaledButtonWidthMM/2);
     return this.toPX(adjustedScaledButtonTopMM);
   }
 
   getButtonLeftPX(printHead: PrintHead, buttonIndex: number) {
-    const buttonLeftMM = this.printPositionService.getButtonLeftMM(printHead, buttonIndex);
+    const buttonLeftMM = this.printHeadStateService.getButtonLeftMM(printHead, buttonIndex);
     const adjustedScaledButtonLeftMMv= this.scale(buttonLeftMM); //- (scaledButtonWidthMM/2);
 
     return this.toPX(adjustedScaledButtonLeftMMv);
@@ -208,5 +213,7 @@ export class PlateMapComponent implements OnInit, OnDestroy {
       };
     return mergedStyle;
   }
-
+  logState() {
+    this.gcodeService.formatExperimentDetails();
+  }
 }

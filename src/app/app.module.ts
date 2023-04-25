@@ -21,7 +21,7 @@ import { MatTooltipModule } from "@angular/material/tooltip";
 import { VerticalSliderComponent } from './vertical-slider/vertical-slider.component';
 import { NgOptimizedImage } from "@angular/common";
 import {MatButtonModule} from "@angular/material/button";
-import { SelectionRectangleComponent } from './selection-rectangle/selection-rectangle.component';
+import { RectangleSelectionComponent } from './rectangle-selection/rectangle-selection.component';
 import { RendererFactory2 } from "@angular/core";
 
 @Pipe({
@@ -43,7 +43,7 @@ export class RangePipe implements PipeTransform {
         ExperimentSetupComponent,
         PrintDepthComponent,
         VerticalSliderComponent,
-        SelectionRectangleComponent
+        RectangleSelectionComponent
     ],
     imports: [
         BrowserModule,

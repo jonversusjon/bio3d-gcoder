@@ -1,13 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 
-import { PrintPositionService } from './print-position.service';
+import { GcodeService } from './gcode.service';
 
-describe('PrintPositionService', () => {
-  let service: PrintPositionService;
+describe('GcodeService', () => {
+  let service: GcodeService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
-    service = TestBed.inject(PrintPositionService);
+    service = TestBed.inject(GcodeService);
   });
 
   it('should be created', () => {

@@ -8,14 +8,14 @@ import {
 } from '@angular/core';
 import { PlateFormat } from "../../types/PlateFormat";
 import { ScreenUtils } from "../_services/screen-utils";
-import { PrintPositionService } from "../_services/print-position.service"
+import { PrintHeadStateService } from "../_services/print-head-state.service"
 import { PrintHead } from "../../types/PrintHead";
 import { PrintHeadButton } from "../../types/PrintHeadButton";
 import {Observable, Subscription} from "rxjs";
-import {Well} from "../../types/Well";
 import {Coordinates} from "../../types/Coordinates";
 import {Needle} from "../../types/Needle";
 import {StyleService} from "../_services/style.service";
+import { PlateFormatService } from "../_services/plate-format.service";
 
 @Component({
   selector: 'app-printhead-component',
@@ -50,11 +50,12 @@ export class PrintheadComponent implements OnInit, OnDestroy {
   scale:number = 2; //factor to scale elements by if the smallest element falls below 6px
   constructor(
     private screenUtils: ScreenUtils,
-    private printPositionService: PrintPositionService,
+    private printPositionService: PrintHeadStateService,
     private cd: ChangeDetectorRef,
-    private styleService: StyleService) {
+    private styleService: StyleService,
+    private plateFormatService: PlateFormatService) {
     this.printPositionCoordinates$ = printPositionService.printPositionCoordinates$;
-    this.plateFormatChangedSubscription = this.printPositionService.selectedPlate$.subscribe(plate => {
+    this.plateFormatChangedSubscription = this.plateFormatService.selectedPlate$.subscribe(plate => {
       if (plate) {
         this.selectedPlate = plate;
         this.updatePrintHeads();

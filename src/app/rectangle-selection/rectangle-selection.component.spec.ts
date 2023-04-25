@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { SelectionRectangleComponent } from './selection-rectangle.component';
+import { RectangleSelectionComponent } from './rectangle-selection.component';
 
 describe('SelectionRectangleComponent', () => {
-  let component: SelectionRectangleComponent;
-  let fixture: ComponentFixture<SelectionRectangleComponent>;
+  let component: RectangleSelectionComponent;
+  let fixture: ComponentFixture<RectangleSelectionComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ SelectionRectangleComponent ]
+      declarations: [ RectangleSelectionComponent ]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(SelectionRectangleComponent);
+    fixture = TestBed.createComponent(RectangleSelectionComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

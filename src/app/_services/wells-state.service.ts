@@ -5,37 +5,47 @@ import { Well} from "../../types/Well";
 import { ScreenUtils } from "./screen-utils";
 import { UtilsService } from "./utils.service";
 import { PlateFormatService } from "./plate-format.service";
-import { DataAggregatorService } from "./data-aggregator.service";
-import { PrintPositionService } from "./print-position.service";
+import { PrintHeadStateService } from "./print-head-state.service";
 import { StyleService } from "./style.service";
-import { SelectionRectangleComponent } from "../selection-rectangle/selection-rectangle.component";
 import { PlateMap } from "../../types/PlateMap";
+import { RectangleSelectionService } from "./rectangle-selection.service";
+import {BehaviorSubject} from "rxjs";
+import { PrintPositionService } from "./print-position.service";
 
 @Injectable({
   providedIn: 'root'
 })
 export class WellsStateService {
   private renderer: Renderer2;
+  private currentPlateMap: PlateMap | null = null;
 
   lastClicked: { row: number, col: number } | null = null;
   lastClickedRow: number | null = null;
   lastClickedCol: number | null = null;
 
   wellSelectionStates: boolean[] = [];
-
+  private _wells = new BehaviorSubject<Well[][]>([]);
+  public wells$ = this._wells.asObservable();
   constructor(private utilsService: UtilsService,
               private screenUtils: ScreenUtils,
               private plateFormatService: PlateFormatService,
-              private dataService: DataAggregatorService,
-              private printPositionService: PrintPositionService,
+              private printHeadStateService: PrintHeadStateService,
               private styleService: StyleService,
               private rendererFactory: RendererFactory2,
-              private rectangleSelect: SelectionRectangleComponent)
+              private rectangleSelectionService: RectangleSelectionService,
+              private printPositionService: PrintPositionService,
+              )
   {
     this.renderer = rendererFactory.createRenderer(null, null);
+    this.printHeadStateService.printHeads$.subscribe((printHeads) => {
+      if(this.currentPlateMap) {
+        this._wells.next(this.currentPlateMap.wells);
+      }
+    });
   }
 
-  updatePlateMap(selectedPlate: PlateFormat, plateMap: any, event?: MouseEvent) {
+  updatePlateMap(selectedPlate: PlateFormat, plateMap: PlateMap, event?: MouseEvent) {
+
     const rows = selectedPlate.rows;
     const cols = selectedPlate.cols;
 
@@ -74,7 +84,7 @@ export class WellsStateService {
             row: row,
             col: col,
             selected: false,
-            printPositionButtons: Array.from({ length: this.printPositionService.PRINT_POSITIONS_COUNT }, (_, index) => ({
+            printPositionButtons: Array.from({ length: this.printHeadStateService.PRINT_POSITIONS_COUNT }, (_, index) => ({
               printHead: -1,
               position: index,
               color: 'this.getNextColor()',
@@ -144,13 +154,14 @@ export class WellsStateService {
           col,
         };
       });
-
-    this.dataService.plateMapWellsSubject.next(plateMap.wells);
+    this.currentPlateMap = plateMap;
+    this._wells.next(plateMap.wells);
 
   }
   toggleWellSelection(plateMap: PlateMap, row: number, col: number, shiftKey: boolean = false): void {
+    ;
     if (shiftKey && this.lastClicked) {
-      this.rectangleSelect.selectionRectangleStart = {row, col};
+      this.rectangleSelectionService.selectionRectangleStart = {row, col};
       this.selectRegion(plateMap, row, col, this.lastClicked.row, this.lastClicked.col);
     } else {
       plateMap.wells[row][col].selected = !plateMap.wells[row][col].selected;
@@ -158,10 +169,11 @@ export class WellsStateService {
       this.wellSelectionStates[wellIndex] = plateMap.wells[row][col].selected;
       this.lastClicked = { row, col };
     }
-
-    this.dataService.plateMapWellsSubject.next(plateMap.wells);
+    this.currentPlateMap = plateMap
+    this._wells.next(plateMap.wells);
   }
   toggleRowSelection(selectedPlate: PlateFormat, plateMap: PlateMap, rowIndex: number, event?: MouseEvent): void {
+
     if(event) {
       const shiftKeyPressed = event.shiftKey;
 
@@ -170,7 +182,7 @@ export class WellsStateService {
         const endRow = Math.max(rowIndex, this.lastClickedRow);
         const allSelected = this.areAllWellsSelected(startRow, endRow, 0, selectedPlate.cols - 1, plateMap.wells);
 
-        this.rectangleSelect.selectionRectangleStart = {row: rowIndex, col: 0};
+        this.rectangleSelectionService.selectionRectangleStart = {row: rowIndex, col: 0};
         for (let i = startRow; i <= endRow; i++) {
           for (let j = 0; j < selectedPlate.cols; j++) {
             plateMap.wells[i][j].selected = !allSelected;
@@ -190,15 +202,16 @@ export class WellsStateService {
         plateMap.wells[rowIndex][j].selected = !allSelectedInRow;
       }
     }
+    this.currentPlateMap = plateMap;
     this.lastClickedRow = rowIndex;
-    this.dataService.plateMapWellsSubject.next(plateMap.wells);
   }
 
   toggleColumnSelection(selectedPlate: PlateFormat, plateMap: PlateMap, colIndex: number, event?: MouseEvent): void {
+
     if(event) {
       const shiftKeyPressed = event.shiftKey;
       if (shiftKeyPressed && this.lastClickedCol !== null) {
-        this.rectangleSelect.selectionRectangleStart = {row: 0, col: colIndex};
+        this.rectangleSelectionService.selectionRectangleStart = {row: 0, col: colIndex};
         const startCol = Math.min(colIndex, this.lastClickedCol);
         const endCol = Math.max(colIndex, this.lastClickedCol);
         const allSelected = this.areAllWellsSelected(0, selectedPlate.rows - 1, startCol, endCol, plateMap.wells);
@@ -223,7 +236,7 @@ export class WellsStateService {
       }
     }
     this.lastClickedCol = colIndex;
-    this.dataService.plateMapWellsSubject.next(plateMap.wells);
+    this.currentPlateMap = plateMap;
   }
 
   areAllWellsSelected(startRow: number, endRow: number, startCol: number, endCol: number, wells: any[][]): boolean {
