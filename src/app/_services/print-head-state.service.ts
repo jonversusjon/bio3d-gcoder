@@ -14,6 +14,8 @@ import {PrintHeadButton} from "../../types/PrintHeadButton";
 
 export class PrintHeadStateService {
   printPositionSelectionChanged = new EventEmitter<void>();
+  private _printPositionCoordinates = new BehaviorSubject<Coordinates[]>([]);
+  public printPositionCoordinates$ = this._printPositionCoordinates.asObservable();
 
   printHeads: PrintHead[] = [];
   printHeadButtons: PrintHeadButton[] = [];
@@ -22,10 +24,8 @@ export class PrintHeadStateService {
   PRINT_POSITIONS_COUNT = 9;
   private printPositionAngles = Array.from({length: this.PRINT_POSITIONS_COUNT - 1}, (_, i) => i / (this.PRINT_POSITIONS_COUNT - 1) * 2 * Math.PI);
   private printPositionCoordinates: Coordinates[] = [];
-  private _printPositionCoordinates = new BehaviorSubject<Coordinates[]>([]);
-  public printPositionCoordinates$ = this._printPositionCoordinates.asObservable();
 
-  private _selectedPlate!: PlateFormat;
+  private _selectedPlate: PlateFormat | null = null;
   private colors: string[] = [
     '#009ADE',
     '#FF1F5B',
@@ -37,7 +37,9 @@ export class PrintHeadStateService {
 
   constructor(private screenUtils: ScreenUtils,
               private plateFormatService: PlateFormatService) {
+    console.log('print-head-state-service subscribing to selectedPlate');
     this.plateFormatService.selectedPlate$.subscribe((plate) => {
+      this._selectedPlate = plate; // <-- Add this line
       this.onSelectedPlateChange(plate);
     });
   }
@@ -60,11 +62,13 @@ export class PrintHeadStateService {
   ];
 
   onSelectedPlateChange(plate: PlateFormat | null) {
-    console.log('print head state service says plate was changed');
+
     if (plate) {
+      // console.log('print-head-state-service plate: ', plate);
       this.printPositionCoordinates = this.getPrintPositionCoordinates('Well', plate.printPositionSizeMM);
       this._printPositionCoordinates.next(this.printPositionCoordinates);
     } else {
+      console.warn('printhead state service has no idea what plate youre talking about');
       this.printPositionCoordinates = [];
     }
   }
@@ -81,6 +85,7 @@ export class PrintHeadStateService {
     }
     this.updatePrintHeadButtons(printHead);
   }
+
 
   updateAllPrintHeadButtons(printHead: PrintHead) {
     if (!printHead.active) {
@@ -99,13 +104,19 @@ export class PrintHeadStateService {
 
   toggleButton(printHead: PrintHead, printHeadButton: PrintHeadButton) {
     printHeadButton.selected = !printHeadButton.selected;
-    this.togglePrintHeadButton(printHead, printHeadButton.position, printHeadButton.selected);
+    this.updateAllPrintHeadButtons(printHead);
   }
   getButtonWidthMM(printHead: PrintHead) {
+    // TODO: this is being called a million times even when the user selects nothing
+    //       all they have to do is mouse over components
     if(this._selectedPlate) {
-      const buttonWidthMM = printHead.needle.odMM / (this._selectedPlate?.well_sizeMM / this.printPickerSizeMM);
+      // console.log('printHead.needle.odMM: ', printHead.needle.odMM);
+      // console.log('selectedPlate.well_sizeMM: ', this._selectedPlate.well_sizeMM);
+      // console.log('this.printPickerSizeMM: ', this.printPickerSizeMM);
+      const buttonWidthMM = printHead.needle.odMM / (this._selectedPlate.well_sizeMM / this.printPickerSizeMM);
       return buttonWidthMM;
     } else {
+      console.warn("can't calculate buttonWidthMM, no plate selected");
       return 0;
     }
   }
@@ -219,13 +230,25 @@ export class PrintHeadStateService {
   }
 
   updatePrintHeadNeedle(printHead: PrintHead, needle: Needle): void {
+    // TODO: how to get platemap to update when needle chantes
+    //       right now changing the needle changes the button sizes on the plateamap
+    //       but not their top and left properties
     const updatedPrintHead = {
       ...printHead,
-      needle: needle
+      needle: needle,
+      buttonWidthMM: this.getButtonWidthMM(printHead),
     };
 
+// Find the index of the printHead to be updated in the _printHeads BehaviorSubject
+    const index = this._printHeads.value.findIndex(ph => ph.printHeadIndex === printHead.printHeadIndex);
+
     // Update the PrintHead in the _printHeads BehaviorSubject
-    this.emitPrintHeads();
+    if (index !== -1) {
+      const updatedPrintHeads = [...this._printHeads.value];
+      updatedPrintHeads[index] = updatedPrintHead;
+      this._printHeads.next(updatedPrintHeads); // emit the updated _printHeads array
+    }
+
   }
   updatePrintHeadButtonSelection(printHead: PrintHead, isActive: boolean): void {
     if (printHead) {

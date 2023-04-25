@@ -12,7 +12,6 @@ import {
   RendererFactory2
 } from '@angular/core';
 import { Subscription } from "rxjs";
-import {FormsModule} from "@angular/forms";
 import {ScreenUtils} from "../_services/screen-utils";
 import {PlateFormatService} from '../_services/plate-format.service';
 import { PlateFormat } from "../../types/PlateFormat";
@@ -58,7 +57,6 @@ export class PlateMapComponent implements OnInit, AfterViewInit, OnDestroy {
   private printHeadStateSubsciption: Subscription;
   constructor(
     private gcodeService: GcodeService,
-    private formsModule: FormsModule,
     private screenUtils: ScreenUtils,
     private plateFormatService: PlateFormatService,
     private printHeadStateService: PrintHeadStateService,
@@ -72,6 +70,7 @@ export class PlateMapComponent implements OnInit, AfterViewInit, OnDestroy {
     this.renderer = rendererFactory.createRenderer(null, null);
     this.plateFormats = plateFormatService.getPlateFormats()
     this.selectedPlate = this.plateFormats[0];
+    this.plateFormatService.setSelectedPlate(this.selectedPlate);
     this.prevSelectedPlate = this.selectedPlate;
 
     this.printHeadStateSubsciption = this.printHeadStateService.printHeads$.subscribe(printHeads => {
@@ -91,7 +90,6 @@ export class PlateMapComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnInit(): void {
-
     this.customButtonToggleStyle = this.styleService.getBaseStyle('custom-button-toggle');
   }
 
@@ -124,7 +122,7 @@ export class PlateMapComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  updatePlateMap(selectedPlate: PlateFormat, plateMap: any, event?: MouseEvent) {
+  updatePlateMap(selectedPlate: PlateFormat, plateMap: PlateMap, event?: MouseEvent) {
     if (this.selectedPlate) {
       this.wellsStateService.updatePlateMap(selectedPlate, plateMap, event);
       this.plateFormatService.setSelectedPlate(this.selectedPlate);
@@ -142,19 +140,6 @@ export class PlateMapComponent implements OnInit, AfterViewInit, OnDestroy {
       borderRadius: '12px'
     };
   }
-
-  // onMouseMove(event: MouseEvent, row: number, col: number): void {
-  //   if (event.shiftKey && this.rectangleSelect.selectionRectangleStart) {
-  //     // Update the ending coordinates of the selection rectangle and make it visible
-  //     this.rectangleSelect.selectionRectangleVisible = true;
-  //     const endRow = row;
-  //     const endCol = col;
-  //
-  //   } else {
-  //     // Hide the selection rectangle when the shift key is not pressed
-  //     this.rectangleSelect.selectionRectangleVisible = false;
-  //   }
-  // }
 
   toggleWellSelection(plateMap: PlateMap, wellIndex: number, row: number) {
     this.wellsStateService.toggleWellSelection(plateMap, wellIndex, row);
@@ -202,16 +187,20 @@ export class PlateMapComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   getMergedStyles(printHead: PrintHead, button: PrintHeadButton) {
+    const wdPX = this.toPX(printHead.buttonWidthMM);
+    const tpPX = this.getButtonTopPX(printHead, button.position) - (wdPX/2);
+    const lfPX = this.getButtonLeftPX(printHead, button.position) - (wdPX/2)
     const mergedStyle =
       {
         ...this.customButtonToggleStyle,
-        'width': (this.getButtonWidthPX(printHead)) + 'px',
-        'top': (this.getButtonTopPX(printHead, button.position)) + 'px',
-        'left': (this.getButtonLeftPX(printHead, button.position)) + 'px',
+        'width': wdPX + 'px',
+        'top': tpPX + 'px',
+        'left': lfPX + 'px',
         'background-color': button.selected ? printHead.color : 'white',
         'border': 'none'
       };
     return mergedStyle;
+
   }
   logState() {
     this.gcodeService.formatExperimentDetails();

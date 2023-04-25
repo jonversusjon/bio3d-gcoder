@@ -7,6 +7,7 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 })
 export class PrintDepthComponent {
   @Input() wellDepthMM: number = 16.5;
+  @Input() activeToggle: boolean = false;
   @Output() startDepthChange = new EventEmitter<number>();
   @Output() endDepthChange = new EventEmitter<number>();
 

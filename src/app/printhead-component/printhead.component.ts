@@ -15,6 +15,7 @@ import {Coordinates} from "../../types/Coordinates";
 import {Needle} from "../../types/Needle";
 import {StyleService} from "../_services/style.service";
 import { PlateFormatService } from "../_services/plate-format.service";
+import {MatSlideToggleChange} from "@angular/material/slide-toggle";
 
 @Component({
   selector: 'app-printhead-component',
@@ -22,12 +23,9 @@ import { PlateFormatService } from "../_services/plate-format.service";
   styleUrls: ['./printhead.component.css']
 })
 export class PrintheadComponent implements OnInit, OnDestroy {
-  @Input() printHeadChanged!: PrintHead;
 
   public customButtonToggleStyle: any;
 
-  private plateFormatChangedSubscription: Subscription = new Subscription();
-  private selectedPlate!: PlateFormat;
   printPositionCoordinates$!: Observable<Coordinates[]>;
 
   printPickerSizeMM: number = 34.8;
@@ -36,6 +34,11 @@ export class PrintheadComponent implements OnInit, OnDestroy {
   needles:Needle[] = []
   printHeads: PrintHead[] = []
   printHeadCountInput: number = 1;
+  buttonWidthsPX:number[] = []
+
+  _selectedPlate: PlateFormat | null = null;
+
+  activeToggle: boolean = false;
 
   constructor(
     private screenUtils: ScreenUtils,
@@ -44,49 +47,64 @@ export class PrintheadComponent implements OnInit, OnDestroy {
     private styleService: StyleService,
     private plateFormatService: PlateFormatService) {
 
-    this.printHeadStateService.printHeads$.subscribe((printheads: PrintHead[]) => {
-      this.printHeads = printheads;
-      console.log('print-head-component received printheads: ', printheads);
+    this.plateFormatService.selectedPlate$.subscribe((plate) => {
+      console.log('print head component is aware of a plate change');
+      this._selectedPlate = plate;
+      this.onGetSelectedPlateChange(plate);
+    });
+
+    this.printHeadStateService.printHeads$.subscribe((printHeads: PrintHead[]) => {
+      this.printHeads = printHeads;
+      for (const printHead of printHeads) {
+        this.buttonWidthsPX[printHead.printHeadIndex] = this.toPX(this.printHeadStateService.getButtonWidthMM(printHead));
+      }
+      console.log('this.printHeadStateService.printHeads$ buttonwidthspx: ', this.buttonWidthsPX);
     });
 
     this.printPositionCoordinates$ = printHeadStateService.printPositionCoordinates$;
-    this.plateFormatChangedSubscription = this.plateFormatService.selectedPlate$.subscribe(plate => {
-      if (plate) {
-        this.selectedPlate = plate;
-        this.printHeadStateService.emitPrintHeads();
-      }
-    });
+
     this.needles = this.printHeadStateService.needles;
   }
 
   ngOnInit() {
     this.onPrintHeadCountChange();
-    this.cd.detectChanges();
     this.customButtonToggleStyle = this.styleService.getBaseStyle('custom-button-toggle');
+    this.buttonWidthsPX = new Array(this.printHeadCountInput).fill(0);
+    this.buttonWidthsPX[0] = this.printHeadStateService.getButtonWidthMM(this.printHeads[0]);
+    this.printHeadStateService.updatePrintHeadNeedle(this.printHeads[0], this.needles[0]);
+
   }
 
   ngOnDestroy() {
-    this.plateFormatChangedSubscription.unsubscribe();
   }
 
-  getButtonWidthPX(printhead: PrintHead) {
-    const scalar = this.getScalar(this.printHeadStateService.getButtonWidthMM(printhead))
-    const buttonWidthMM = this.printHeadStateService.getButtonWidthMM(printhead)*scalar;
-    printhead.buttonWidthMM = buttonWidthMM;
-    return this.toPX(buttonWidthMM);
+  // getButtonWidthPX(printhead: PrintHead) {
+  //   const scalar = this.getScalar(this.printHeadStateService.getButtonWidthMM(printhead))
+  //   const buttonWidthMM = this.printHeadStateService.getButtonWidthMM(printhead)*scalar;
+  //   printhead.buttonWidthMM = buttonWidthMM;
+  //   return this.toPX(buttonWidthMM);
+  // }
+
+  onGetSelectedPlateChange(selectPlate: PlateFormat | null) {
+
+    this.updateAllPrintHeadButtonSizes();
+
   }
   getButtonLeftPX(printHead: PrintHead, printHeadButtonPosition: number) {
-    const scalar = this.getScalar(this.printHeadStateService.getButtonWidthMM(printHead))
+    const scalar = this.getScalar(this.buttonWidthsPX[printHead.printHeadIndex]);
     return this.toPX(this.printHeadStateService.getButtonLeftMM(printHead, printHeadButtonPosition)*scalar);
   }
 
   getButtonTopPX(printHead: PrintHead, printHeadButtonPosition: number) {
-    const scalar = this.getScalar(this.printHeadStateService.getButtonWidthMM(printHead))
+    const scalar = this.getScalar(this.buttonWidthsPX[printHead.printHeadIndex]);
     return this.toPX(this.printHeadStateService.getButtonTopMM(printHead, printHeadButtonPosition)*scalar);
   }
 
+  onActiveToggleChange(event: MatSlideToggleChange) {
+    this.activeToggle = event.checked;
+  }
   onPrintPositionButtonChange(printHead: PrintHead, buttonIndex?: number, updateAll: boolean = false){
-
+    console.log('time to change some button sizes');
   }
 
   toggleButton(printhead: PrintHead, printHeadButton:PrintHeadButton) {
@@ -102,13 +120,23 @@ export class PrintheadComponent implements OnInit, OnDestroy {
   // }
   updatePrintHeadNeedle(printHead: PrintHead, needle: Needle) {
     this.printHeadStateService.updatePrintHeadNeedle(printHead, needle);
-    this.printHeadStateService.emitPrintHeads();
-    this.cd.markForCheck();
+    this.buttonWidthsPX[printHead.printHeadIndex] = this.toPX(this.printHeadStateService.getButtonWidthMM(printHead));
+
+    this.updateAllPrintHeadButtonSizes();
   }
+  updateAllPrintHeadButtonSizes() {
+
+    for (const printHead of this.printHeads) {
+      for (const button of printHead.printPositionButtons ) {
+        const newStyle = this.getMergedStyles(printHead, button)
+        button.style = newStyle;
+      }
+    }
+  }
+
   onPrintHeadCountChange() {
     this.printHeadStateService.updatePrintHeadsCount(this.printHeadCountInput);
-    this.cd.markForCheck();
-    console.log('this.printHeads: ', this.printHeads);
+    this.updateAllPrintHeadButtonSizes();
   }
   getScalar(size_in_mm: number) {
     return 1;
@@ -126,13 +154,17 @@ export class PrintheadComponent implements OnInit, OnDestroy {
   }
 
   getMergedStyles(printHead: PrintHead, button: PrintHeadButton) {
+    const wdPX = this.buttonWidthsPX[printHead.printHeadIndex];
+    const tpPX = this.getButtonTopPX(printHead, button.position)// - (wdPX/2);
+    const lfPX = this.getButtonLeftPX(printHead, button.position)// - (wdPX/2)
+    const buttonColor = printHead.active? (button.selected ? printHead.color : 'white') : '#f1f1f1';
     const mergedStyle =
      {
       ...this.customButtonToggleStyle,
-      'width': (this.getButtonWidthPX(printHead)) + 'px',
-      'top': (this.getButtonTopPX(printHead, button.position)) + 'px',
-      'left': (this.getButtonLeftPX(printHead, button.position)) + 'px',
-       'background-color': button.selected ? printHead.color : 'white'
+       'width': wdPX + 'px',
+      'top': tpPX + 'px',
+      'left': lfPX+ 'px',
+       'background-color': buttonColor
     };
     return mergedStyle;
   }

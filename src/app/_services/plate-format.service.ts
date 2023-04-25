@@ -95,10 +95,11 @@ export class PlateFormatService {
     return coordinates;
   }
 
-  setSelectedPlate(plate: PlateFormat) {
-    this._latestSelectedPlate = plate;
-
-    this._selectedPlateSubject.next(plate);
+  setSelectedPlate(plate: PlateFormat ) {
+    if(plate) {
+      this._latestSelectedPlate = plate;
+      this._selectedPlateSubject.next(plate);
+    }
   }
 
   getLatestSelectedPlate(): PlateFormat | null {
