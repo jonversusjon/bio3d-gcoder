@@ -1,9 +1,8 @@
 
   <mat-form-field class="printhead-number-input-wrapper" appearance="fill">
     <mat-label>Number of Printheads</mat-label>
-    <input matInput type="number" min="1" max="20" class="printhead-number-input" [(ngModel)]="numberOfPrintHeads" (change)="updatePrintHeads()">
+    <input matInput type="number" min="1" max="20" class="printhead-number-input" [(ngModel)]="printHeadCountInput" (change)="onPrintHeadCountChange()">
   </mat-form-field>
-
 
 <div class="grid-list-container">
   <div class="flex-container" style="justify-content: center; padding-right: 0; padding-left: 0;">
@@ -24,7 +23,7 @@
             </mat-form-field>
             <mat-form-field appearance="fill" class="color-field grid-item">
               <mat-label>Color</mat-label>
-              <input *ngIf="printhead.active" matInput type="color" [(ngModel)]="printhead.color" (change)="updatePrintHeadButtons(printhead, i, true)">
+              <input *ngIf="printhead.active" matInput type="color" [(ngModel)]="printhead.color" (change)="onPrintPositionButtonChange(printhead, i, true)">
               <input *ngIf="!printhead.active" matInput type="color" [(ngModel)]="inactiveColor" [disabled]="true">
             </mat-form-field>
           </div>
@@ -53,7 +52,7 @@
         <div class="footer-wrapper">
 
           <div class="active-toggle-container flex-item" style="min-height: 32px;">
-            <mat-slide-toggle [(ngModel)]="printhead.active" class="active-toggle" (change)="updatePrintHeadButtons(printhead, i, true)"></mat-slide-toggle>
+            <mat-slide-toggle [(ngModel)]="printhead.active" class="active-toggle" (change)="onPrintPositionButtonChange(printhead, i, true)"></mat-slide-toggle>
           </div>
         </div>
       </mat-card>

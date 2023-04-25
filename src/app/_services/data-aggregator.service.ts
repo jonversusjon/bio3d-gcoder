@@ -14,17 +14,16 @@ export class DataAggregatorService {
   private dataServiceWellsSnapshot: Well[][] = [];
   private dataServicePrintHeadsSnapshot: PrintHead[] = [];
   constructor(
-    private printPositionService: PrintHeadStateService,
+    private printHeadStateService: PrintHeadStateService,
     private wellStateService: WellsStateService)
   {
-    this.printPositionService.printHeads$.subscribe((printheads: PrintHead[]) => {
+    this.printHeadStateService.printHeads$.subscribe((printheads: PrintHead[]) => {
       this.dataServicePrintHeadsSnapshot = printheads;
-
-      console.log('data-aggregator received printheads: ', printheads);
+      // console.log('data-aggregator received printheads: ', printheads);
     });
     this.wellStateService.wells$.subscribe((wells: Well[][]) => {
       this.dataServiceWellsSnapshot = wells;
-      console.log('data-aggregator received wells: ', wells);
+      // console.log('data-aggregator received wells: ', wells);
     });
   }
 

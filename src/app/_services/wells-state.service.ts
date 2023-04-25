@@ -10,7 +10,6 @@ import { StyleService } from "./style.service";
 import { PlateMap } from "../../types/PlateMap";
 import { RectangleSelectionService } from "./rectangle-selection.service";
 import {BehaviorSubject} from "rxjs";
-import { PrintPositionService } from "./print-position.service";
 
 @Injectable({
   providedIn: 'root'
@@ -33,7 +32,6 @@ export class WellsStateService {
               private styleService: StyleService,
               private rendererFactory: RendererFactory2,
               private rectangleSelectionService: RectangleSelectionService,
-              private printPositionService: PrintPositionService,
               )
   {
     this.renderer = rendererFactory.createRenderer(null, null);

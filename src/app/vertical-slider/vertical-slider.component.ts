@@ -35,7 +35,7 @@ export class VerticalSliderComponent {
   constructor(private el: ElementRef) {
     this.startValue = this.calculateValue(this.startThumbPosition);
     this.endValue = this.calculateValue(this.endThumbPosition);
-    console.log('ticks: ', this.ticks);
+    // console.log('ticks: ', this.ticks);
   }
 
   calculateValue(thumbPosition: number): number {

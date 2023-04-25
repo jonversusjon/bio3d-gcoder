@@ -1,12 +1,12 @@
-import {BehaviorSubject, Observable} from 'rxjs';
-import {Injectable} from "@angular/core";
+import {BehaviorSubject} from 'rxjs';
+import {Injectable, EventEmitter} from "@angular/core";
 import { Coordinates } from "../../types/Coordinates";
 import { ScreenUtils } from "./screen-utils";
 import { PrintHead } from "../../types/PrintHead";
 import { PlateFormat } from "../../types/PlateFormat";
 import { Needle } from "../../types/Needle";
-import { EventEmitter } from "@angular/core";
 import { PlateFormatService } from "./plate-format.service";
+import {PrintHeadButton} from "../../types/PrintHeadButton";
 
 @Injectable({
   providedIn: 'root',
@@ -15,6 +15,10 @@ import { PlateFormatService } from "./plate-format.service";
 export class PrintHeadStateService {
   printPositionSelectionChanged = new EventEmitter<void>();
 
+  printHeads: PrintHead[] = [];
+  printHeadButtons: PrintHeadButton[] = [];
+  numberOfPrintHeads: number = 1;
+
   PRINT_POSITIONS_COUNT = 9;
   private printPositionAngles = Array.from({length: this.PRINT_POSITIONS_COUNT - 1}, (_, i) => i / (this.PRINT_POSITIONS_COUNT - 1) * 2 * Math.PI);
   private printPositionCoordinates: Coordinates[] = [];
@@ -22,6 +26,14 @@ export class PrintHeadStateService {
   public printPositionCoordinates$ = this._printPositionCoordinates.asObservable();
 
   private _selectedPlate!: PlateFormat;
+  private colors: string[] = [
+    '#009ADE',
+    '#FF1F5B',
+    '#00CD6C',
+    '#FFC61E',
+    '#AF58BA',
+    '#F28522',
+  ];
 
   constructor(private screenUtils: ScreenUtils,
               private plateFormatService: PlateFormatService) {
@@ -52,7 +64,6 @@ export class PrintHeadStateService {
     if (plate) {
       this.printPositionCoordinates = this.getPrintPositionCoordinates('Well', plate.printPositionSizeMM);
       this._printPositionCoordinates.next(this.printPositionCoordinates);
-      // this.recalculatePrintPositionSize();
     } else {
       this.printPositionCoordinates = [];
     }
@@ -60,6 +71,35 @@ export class PrintHeadStateService {
 
   onPrintHeadsUpdate(printHeads: PrintHead[] | null) {
 
+  }
+
+  updatePrintHeadButtons(printHead: PrintHead, buttonIndex?: number, updateAll: boolean = false) {
+    if (updateAll) {
+      this.updateAllPrintHeadButtons(printHead);
+    } else if (buttonIndex !== undefined) {
+      this.toggleButton(printHead, printHead.printPositionButtons[buttonIndex]);
+    }
+    this.updatePrintHeadButtons(printHead);
+  }
+
+  updateAllPrintHeadButtons(printHead: PrintHead) {
+    if (!printHead.active) {
+      this.setAllButtonsInactive(printHead);
+    } else {
+      // if (this.selectedPlate) { // Add this check
+      // this.printPositionService.repopulatePrintPositionButtons(this.selectedPlate.well_sizeMM, printHead, undefined);
+      // }
+    }
+  }
+  setAllButtonsInactive(printHead: PrintHead) {
+    printHead.printPositionButtons.forEach(button => {
+      button.selected = false;
+    });
+  }
+
+  toggleButton(printHead: PrintHead, printHeadButton: PrintHeadButton) {
+    printHeadButton.selected = !printHeadButton.selected;
+    this.togglePrintHeadButton(printHead, printHeadButton.position, printHeadButton.selected);
   }
   getButtonWidthMM(printHead: PrintHead) {
     if(this._selectedPlate) {
@@ -115,29 +155,63 @@ export class PrintHeadStateService {
     return this._printPickerSizeMM;
   }
 
-  updatePrintHeads(printHeads: PrintHead[]): void {
-    this._printHeads.next(printHeads);
-    this.printPositionSelectionChanged.emit();
-  }
-  private updatePrintHead(updatedPrintHead: PrintHead): void
-  {
-    const printHeads = this._printHeads.getValue();
-    const printHeadIndex = printHeads.findIndex(printHead => printHead.printHeadIndex === updatedPrintHead.printHeadIndex);
+  // updatePrintHeads(printHeads: PrintHead[]): void {
+  //
+  // }
+  // updatePrintHead(updatedPrintHead: PrintHead): void {
+  //   const printHeads = this._printHeads.getValue();
+  //   const printHeadIndex = printHeads.findIndex(printHead => printHead.printHeadIndex === updatedPrintHead.printHeadIndex);
+  //
+  //   if (printHeadIndex > -1) {
+  //     printHeads[printHeadIndex] = updatedPrintHead;
+  //     this._printHeads.next(printHeads);
+  //   } else {
+  //     console.warn(`Warning(updatePrintHead): printHead with id ${updatedPrintHead.printHeadIndex} not found.`);
+  //   }
+  //   this.printPositionSelectionChanged.emit();
+  // }
 
-    if (printHeadIndex > -1) {
-      printHeads[printHeadIndex] = updatedPrintHead;
-      this._printHeads.next(printHeads);
+  updatePrintHeadsCount(numberOfPrintHeads: number) {
+    const newPrintHead: PrintHead = {
+      printHeadIndex: this.printHeads.length,
+      description: '',
+      color: this.getNextColor(),
+      active: true,
+      printPositionButtons: Array.from({ length: this.PRINT_POSITIONS_COUNT }, (_, index) => ({
+        printHead: this.printHeads.length,
+        position: index,
+        color: this.getNextColor(),
+        selected: false,
+        originPX: { x: 0, y: 0 },
+        originMM: { x: 0, y: 0 },
+        style: {}
+      })),
+      needle: this.needles[0],
+      printPositionSizeMM: this.needles[0].odMM,
+      buttonWidthMM: 0,
+      pickerWell: { sizeMM: this.printPickerSizeMM },
+      elementType: 'PrintHead'
+    };
+
+    if (numberOfPrintHeads > this.printHeads.length) {
+      for (let i = this.printHeads.length; i < numberOfPrintHeads; i++) {
+        this.printHeads.push({ ...newPrintHead });
+      }
     } else {
-      console.warn(`Warning(updatePrintHead): printHead with id ${updatedPrintHead.printHeadIndex} not found.`);
+      this.printHeads = this.printHeads.slice(0, numberOfPrintHeads);
     }
-    this.printPositionSelectionChanged.emit();
-    console.log('updatePrintHead: ', this._printHeads);
+
+    this.emitPrintHeads();
   }
 
+  emitPrintHeads() {
+    this._printHeads.next(this.printHeads);
+    this.printPositionSelectionChanged.emit();
+  }
   togglePrintHeadButton(printHead: PrintHead, buttonIndex: number, isSelected: boolean): void {
     if (printHead) {
       printHead.printPositionButtons[buttonIndex].selected = isSelected;
-      this.updatePrintHead(printHead);
+      this.emitPrintHeads();
     } else {
       console.warn(`Warning(togglePrintHeadButton): printHead is undefined.`);
     }
@@ -151,14 +225,14 @@ export class PrintHeadStateService {
     };
 
     // Update the PrintHead in the _printHeads BehaviorSubject
-    this.updatePrintHead(updatedPrintHead);
+    this.emitPrintHeads();
   }
   updatePrintHeadButtonSelection(printHead: PrintHead, isActive: boolean): void {
     if (printHead) {
       printHead.printPositionButtons.forEach(button => {
         button.selected = isActive;
       });
-      this.updatePrintHead(printHead);
+      this.emitPrintHeads();
 
     } else {
       console.warn(`Warning(updatePrintHeadButtonSelection): printHead is undefined.`);
@@ -170,6 +244,11 @@ export class PrintHeadStateService {
 
   scale(size: number, scalar: number) {
     return size*scalar;
+  }
+
+  private getNextColor(): string {
+    const currentColorIndex = this.printHeads.length % this.colors.length;
+    return this.colors[currentColorIndex];
   }
 
 

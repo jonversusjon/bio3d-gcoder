@@ -22,7 +22,18 @@ export class GcodeService {
     const data = this.dataService.getAggregatedData();
     this.wells = data["well-snapshot"];
     this.printHeads = data["printhead-snapshot"];
-    console.log('gcode this.wells: ', this.wells);
+
+    //cycle through printheads
+    for(let printHead of this.printHeads) {
+      if( printHead.active ) {
+        // extract selected buttons
+        const selectedButtons = printHead.printPositionButtons.filter(
+          button => button.selected
+        );
+        console.log('gcode selectedButtons: ', selectedButtons);
+      }
+    }
+
     console.log('gcode this.printHeads: ', this.printHeads);
   }
 
