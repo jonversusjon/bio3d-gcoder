@@ -10,11 +10,7 @@ import {PlateFormat} from "../types/PlateFormat";
 export class AppComponent {
   isSupported = false;
   message = '';
-  selectedPlateFormat!: PlateFormat;
 
-  handlePlateFormatChange(newPlateFormat: PlateFormat) {
-    this.selectedPlateFormat = newPlateFormat;
-  }
   ngOnInit(): void {
     if (!isWebSqlSupported() && !isIndexedDbSupported()) {
       this.isSupported = false;

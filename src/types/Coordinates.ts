@@ -44,3 +44,10 @@ export interface Coordinates {
    */
   label?: string;
 }
+
+export function emptyCoordinates(): Coordinates {
+  return {
+    x: 0,
+    y: 0
+  }
+}

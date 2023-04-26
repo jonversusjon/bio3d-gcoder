@@ -24,8 +24,9 @@ import {CalibrationService} from "../_services/calibration.service";
 import {DataAggregatorService} from "../_services/data-aggregator.service";
 import { WellsStateService } from "../_services/wells-state.service";
 import {PlateMap} from "../../types/PlateMap";
-import { ChangeDetectorRef } from "@angular/core";
 import { GcodeService } from "../_services/gcode.service";
+import {PrintPositionService} from "../_services/print-position.service";
+import {Coordinates} from "../../types/Coordinates";
 
 @Component({
   selector: 'app-plate-map',
@@ -36,7 +37,7 @@ import { GcodeService } from "../_services/gcode.service";
 })
 export class PlateMapComponent implements OnInit, AfterViewInit, OnDestroy {
   private renderer: Renderer2;
-  public printHeads!: PrintHead[];
+  printHeads!: PrintHead[];
 
   xCalibration = 1;
   yCalibration = 1;
@@ -54,7 +55,10 @@ export class PlateMapComponent implements OnInit, AfterViewInit, OnDestroy {
   plateWidthPX = this.toPX(this.plateWidth);
 
   private customButtonToggleStyle: any;
-  private printHeadStateSubsciption: Subscription;
+  private printHeadStateSubscription!: Subscription;
+
+  printPositionOriginsMM: Coordinates[][] = [];
+
   constructor(
     private gcodeService: GcodeService,
     private screenUtils: ScreenUtils,
@@ -65,17 +69,19 @@ export class PlateMapComponent implements OnInit, AfterViewInit, OnDestroy {
     private calibrationService: CalibrationService,
     private dataService: DataAggregatorService,
     private wellsStateService: WellsStateService,
-    private cd: ChangeDetectorRef,
+    private printPositionService: PrintPositionService,
   ) {
     this.renderer = rendererFactory.createRenderer(null, null);
     this.plateFormats = plateFormatService.getPlateFormats()
     this.selectedPlate = this.plateFormats[0];
     this.plateFormatService.setSelectedPlate(this.selectedPlate);
     this.prevSelectedPlate = this.selectedPlate;
-
-    this.printHeadStateSubsciption = this.printHeadStateService.printHeads$.subscribe(printHeads => {
+    this.printPositionOriginsMM[0] = this.printPositionService.getPrintPositionOriginsMM('plate-map', this.selectedPlate.well_sizeMM);
+    this.printHeadStateSubscription = this.printHeadStateService.printHeads$.subscribe(printHeads => {
       this.printHeads = printHeads;
+      this.onGetPrintHeadChanges(this.printHeads);
     });
+
     this.updatePlateMap(this.selectedPlate, this.plateMap);
 
     this.calibrationService.xCalibration$.subscribe(value => {
@@ -98,10 +104,19 @@ export class PlateMapComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    if (this.printHeadStateSubsciption) {
-      this.printHeadStateSubsciption.unsubscribe();
+    if (this.printHeadStateSubscription) {
+      this.printHeadStateSubscription.unsubscribe();
     }
   }
+
+  onGetPrintHeadChanges(printHeads: PrintHead[]) {
+    this.printPositionOriginsMM = [];
+    for(let printHead of printHeads) {
+      this.printPositionOriginsMM.push(this.printPositionService.getPrintPositionOriginsMM('plate-map', this.selectedPlate.well_sizeMM));
+    }
+
+  }
+
   initializeSelectedPlate(plateMap: PlateMap) {
     this.updatePlateMap(this.selectedPlate, plateMap);
     // this.plateFormatChanged.emit(this.selectedPlate);
@@ -111,13 +126,15 @@ export class PlateMapComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   onSelectedPlateChanged(event: MatSelectChange): void {
+    console.log('onselectedPlateChanged');
     const newSelectedPlate = event.value;
 
     if (newSelectedPlate !== this.prevSelectedPlate) {
-
+      console.log('newSelectedPlate does not equal prevSelectedPlate');
       this.updatePlateMap(newSelectedPlate, this.plateMap);
       this.prevSelectedPlate = newSelectedPlate;
       this.selectedPlate = newSelectedPlate;
+
       this.plateFormatService.setSelectedPlate(newSelectedPlate);
     }
   }
@@ -125,7 +142,6 @@ export class PlateMapComponent implements OnInit, AfterViewInit, OnDestroy {
   updatePlateMap(selectedPlate: PlateFormat, plateMap: PlateMap, event?: MouseEvent) {
     if (this.selectedPlate) {
       this.wellsStateService.updatePlateMap(selectedPlate, plateMap, event);
-      this.plateFormatService.setSelectedPlate(this.selectedPlate);
     }
   }
 
@@ -167,40 +183,45 @@ export class PlateMapComponent implements OnInit, AfterViewInit, OnDestroy {
     return valueToScale * ratio;
   }
   getButtonWidthPX(printHead: PrintHead) {
-    const buttonWidthMM = printHead.buttonWidthMM;
+    const buttonWidthMM = printHead.buttonWidthPX;
     const plateMapButtonSizeMM = this.scale(buttonWidthMM);
 
     return this.toPX(plateMapButtonSizeMM);
   }
 
-  getButtonTopPX(printHead: PrintHead, buttonIndex: number) {
-    const buttonTopMM = this.printHeadStateService.getButtonTopMM(printHead, buttonIndex);
-    const adjustedScaledButtonTopMM = this.scale(buttonTopMM); //- (scaledButtonWidthMM/2);
-    return this.toPX(adjustedScaledButtonTopMM);
+  getPrintPositionOriginsMM() {
+    return this.printPositionService.getPrintPositionOriginsMM("plate-map", this.selectedPlate.well_sizeMM);
   }
 
-  getButtonLeftPX(printHead: PrintHead, buttonIndex: number) {
-    const buttonLeftMM = this.printHeadStateService.getButtonLeftMM(printHead, buttonIndex);
-    const adjustedScaledButtonLeftMMv= this.scale(buttonLeftMM); //- (scaledButtonWidthMM/2);
 
-    return this.toPX(adjustedScaledButtonLeftMMv);
+  getStylePrintPositionButton(printHead: PrintHead, printHeadButton: PrintHeadButton) {
+    const buttonSizePX = this.getPrintPositionButtonWidthPX(printHead.needle.odMM);
+    let topPX = this.getButtonTopPX(printHeadButton.position) - (buttonSizePX/2);
+    let lfPX = this.getButtonLeftPX(printHeadButton.position) - (buttonSizePX/2);
+    const buttonColor = printHead.active? (printHeadButton.selected ? printHead.color : 'white') : '#f1f1f1';
+
+    return {
+      ...this.customButtonToggleStyle,
+      'width': buttonSizePX + 'px',
+      'top': topPX + 'px',
+      'left': lfPX + 'px',
+      'background-color': buttonColor,
+      border:'none',
+    };
   }
 
-  getMergedStyles(printHead: PrintHead, button: PrintHeadButton) {
-    const wdPX = this.toPX(printHead.buttonWidthMM);
-    const tpPX = this.getButtonTopPX(printHead, button.position) - (wdPX/2);
-    const lfPX = this.getButtonLeftPX(printHead, button.position) - (wdPX/2)
-    const mergedStyle =
-      {
-        ...this.customButtonToggleStyle,
-        'width': wdPX + 'px',
-        'top': tpPX + 'px',
-        'left': lfPX + 'px',
-        'background-color': button.selected ? printHead.color : 'white',
-        'border': 'none'
-      };
-    return mergedStyle;
+  getPrintPositionButtonWidthPX(needleOdMM: number) {
+    const plateMapWellDiamMM = this.selectedPlate.well_sizeMM;
+    return this.toPX(this.printPositionService.getButtonWidthMM('print-head', needleOdMM, plateMapWellDiamMM));
+  }
+  getButtonLeftPX(printHeadButtonPosition: number) {
+    return this.toPX(this.printPositionService.getButtonLeftMM(
+      this.printPositionOriginsMM[printHeadButtonPosition], printHeadButtonPosition));
+  }
 
+  getButtonTopPX(printHeadButtonPosition: number) {
+    return this.toPX(this.printPositionService.getButtonTopMM(
+      this.printPositionOriginsMM[printHeadButtonPosition], printHeadButtonPosition));
   }
   logState() {
     this.gcodeService.formatExperimentDetails();

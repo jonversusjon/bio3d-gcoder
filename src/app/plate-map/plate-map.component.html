@@ -31,7 +31,7 @@
             <ng-container *ngFor="let printHead of printHeads">
               <ng-container *ngFor="let button of printHead.printPositionButtons; let buttonIndex = index">
                 <mat-button-toggle *ngIf="well.selected && button.selected"
-                        [ngStyle]="getMergedStyles(printHead, button)"
+                        [ngStyle]="getStylePrintPositionButton(printHead, button)"
                         [style.background-color]="printHead.color"
                 ></mat-button-toggle>
               </ng-container>

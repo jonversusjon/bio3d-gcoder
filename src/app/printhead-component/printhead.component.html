@@ -17,7 +17,7 @@
             </mat-form-field>
             <mat-form-field appearance="fill" class="needle-od-field grid-item">
               <mat-label class="custom-mat-label">Needle</mat-label>
-              <mat-select class="needle-select custom-mat-select" [(ngModel)]="printhead.needle" (selectionChange)="updatePrintHeadNeedle(printhead, $event.value)">
+              <mat-select class="needle-select custom-mat-select" [(ngModel)]="printhead.needle" (selectionChange)="onNeedleChange(printhead, $event.value)">
                 <mat-option *ngFor="let needle of needles" [value]="needle" class="custom-mat-select-option">{{needle.name}}</mat-option>
               </mat-select>
             </mat-form-field>
@@ -32,14 +32,16 @@
         <mat-card-content class="grid-container">
           <div class="print-position-picker-wrapper">
             <div class="print-position-picker grid-item"
-                 [ngStyle]="getPrintPositionPickerStyle(printhead)">
+                 [ngStyle]="getStylePrintPositionPicker(printhead)">
               <ng-container *ngFor="let printHeadButton of printhead.printPositionButtons; let j = index">
                 <mat-button-toggle
                   (click)="toggleButton(printhead, printHeadButton)"
                   [checked]="printHeadButton.selected"
                   class="print-position-picker-position-button custom-button-toggle"
-                  [ngStyle]="getMergedStyles(printhead, printHeadButton)"
+                  [ngStyle]="getStylePrintPositionButton(printhead, printHeadButton)"
+
                 ></mat-button-toggle>
+                <!--                  [ngStyle]="getStylePrintPositionButton(printHeadButton.position, printHeadButton.style, 'scale-upbv')"-->
               </ng-container>
             </div>
           </div>
@@ -59,52 +61,4 @@
     </div>
   </div>
 </div>
-
-
-            <!--  <div class="print-position-picker-scalar">-->
-<!--    <mat-form-field class="printhead-number-input-wrapper" appearance="fill">-->
-<!--      <mat-label>Number of Printheads</mat-label>-->
-<!--      <input matInput type="number" min="1" max="20" class="printhead-number-input" [(ngModel)]="numberOfPrintHeads" (change)="updatePrintHeads()">-->
-<!--    </mat-form-field>-->
-<!--  </div>-->
-
-<!--  <div class="grid-list-container">-->
-<!--    <div class="flex-container" style="justify-content: center; padding-right: 0">-->
-<!--      <div *ngFor="let printhead of printHeads; let i = index" class="flex-item">-->
-<!--        <mat-card [ngClass]="{'disabled': !printhead.active}">-->
-<!--          <div class="printhead-header flex-container">-->
-<!--            <mat-form-field appearance="fill" class="printhead-description-field flex-item">-->
-<!--              <mat-label>Printhead Description</mat-label>-->
-<!--              <input matInput [(ngModel)]="printhead.description" [disabled]="!printhead.active">-->
-<!--            </mat-form-field>-->
-<!--            <mat-form-field appearance="fill" class="color-field flex-item">-->
-<!--              <mat-label>Color</mat-label>-->
-<!--              <input *ngIf="printhead.active" matInput type="color" [(ngModel)]="printhead.color" (change)="updatePrintHeadButtons(printhead, i, true)">-->
-<!--              <input *ngIf="!printhead.active" matInput type="color" [(ngModel)]="inactiveColor" [disabled]="true">-->
-<!--            </mat-form-field>-->
-<!--          </div>-->
-<!--          <div class="active-toggle-wrapper">-->
-<!--            <mat-slide-toggle [(ngModel)]="printhead.active" class="active-toggle" (change)="updatePrintHeadButtons(printhead, i, true)"></mat-slide-toggle>-->
-<!--          </div>-->
-<!--          <mat-card-content style="display: flex; justify-content: center;">-->
-<!--            <div class="print-position-picker" [ngStyle]="{ 'width': (getPrintPickerWidthPX()) + 'px' }">-->
-<!--              <ng-container *ngFor="let printHeadButton of printhead.printPositionButtons; let j = index">-->
-<!--                <mat-button-toggle-->
-<!--                  (click)="toggleButton(printHeadButton)"-->
-<!--                  [checked]="printHeadButton.selected"-->
-<!--                  class="print-position-picker-position-button custom-button-toggle"-->
-<!--                  [ngStyle]="{-->
-<!--                    'width': (getButtonWidthPX()) + 'px',-->
-<!--                    'top': (getButtonTopPX(printhead, j)) + 'px',-->
-<!--                    'left': (getButtonLeftPX(printhead, j)) + 'px',-->
-<!--                    'background-color': printHeadButton.selected ? printhead.color : 'white'-->
-<!--                  }"-->
-<!--                ></mat-button-toggle>-->
-<!--              </ng-container>-->
-<!--            </div>-->
-<!--          </mat-card-content>-->
-<!--        </mat-card>-->
-<!--      </div>-->
-<!--    </div>-->
-<!--  </div>-->
 

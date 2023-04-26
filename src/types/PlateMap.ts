@@ -5,3 +5,11 @@ export interface PlateMap {
   columnHeaders: any[];
   rowHeaders: any[]
 }
+
+export function emptyPlateMap(): PlateMap {
+  return {
+    wells: [],
+    columnHeaders: [],
+    rowHeaders: []
+  }
+}

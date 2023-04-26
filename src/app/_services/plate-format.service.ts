@@ -9,7 +9,7 @@ import {PlateFormat} from "../../types/PlateFormat";
 })
 export class PlateFormatService {
 
-  private plateFormats = [
+  public plateFormats = [
     { name: '6-well plate',
       'plateId': 6,
       rows: 2,
@@ -98,6 +98,7 @@ export class PlateFormatService {
   setSelectedPlate(plate: PlateFormat ) {
     if(plate) {
       this._latestSelectedPlate = plate;
+      console.log('setting next plate');
       this._selectedPlateSubject.next(plate);
     }
   }
