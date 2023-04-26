@@ -77,6 +77,7 @@ export class PlateMapComponent implements OnInit, AfterViewInit, OnDestroy {
     this.plateFormatService.setSelectedPlate(this.selectedPlate);
     this.prevSelectedPlate = this.selectedPlate;
     this.printPositionOriginsMM[0] = this.printPositionService.getPrintPositionOriginsMM('plate-map', this.selectedPlate.well_sizeMM);
+    console.log('plate-map initialized with print position origins ', this.printPositionOriginsMM);
     this.printHeadStateSubscription = this.printHeadStateService.printHeads$.subscribe(printHeads => {
       this.printHeads = printHeads;
       this.onGetPrintHeadChanges(this.printHeads);
@@ -126,16 +127,23 @@ export class PlateMapComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   onSelectedPlateChanged(event: MatSelectChange): void {
-    console.log('onselectedPlateChanged');
     const newSelectedPlate = event.value;
-
     if (newSelectedPlate !== this.prevSelectedPlate) {
-      console.log('newSelectedPlate does not equal prevSelectedPlate');
-      this.updatePlateMap(newSelectedPlate, this.plateMap);
+      console.log('printPositionOriginsMM before: ', this.printPositionOriginsMM);
       this.prevSelectedPlate = newSelectedPlate;
       this.selectedPlate = newSelectedPlate;
-
       this.plateFormatService.setSelectedPlate(newSelectedPlate);
+      this.printPositionOriginsMM = [];
+      for(let printHead of this.printHeads) {
+        this.printPositionOriginsMM.push(
+          this.printPositionService.getPrintPositionOriginsMM('plate-map', this.selectedPlate.well_sizeMM)
+        );
+      }
+
+      this.updatePlateMap(newSelectedPlate, this.plateMap);
+
+
+      console.log('printPositionOriginsMM after: ', this.printPositionOriginsMM);
     }
   }
 
@@ -175,18 +183,9 @@ export class PlateMapComponent implements OnInit, AfterViewInit, OnDestroy {
     return this.screenUtils.convertMMToPX(size_in_mm);
   }
 
-  scale(valueToScale: number) {
-    const printPickerSizeMM = this.printHeads[0].pickerWell.sizeMM;
-    const wellSizeMM = this.selectedPlate.well_sizeMM;
-    const ratio = wellSizeMM / printPickerSizeMM;
-
-    return valueToScale * ratio;
-  }
   getButtonWidthPX(printHead: PrintHead) {
     const buttonWidthMM = printHead.buttonWidthPX;
-    const plateMapButtonSizeMM = this.scale(buttonWidthMM);
-
-    return this.toPX(plateMapButtonSizeMM);
+    return this.toPX(buttonWidthMM);
   }
 
   getPrintPositionOriginsMM() {
@@ -195,9 +194,10 @@ export class PlateMapComponent implements OnInit, AfterViewInit, OnDestroy {
 
 
   getStylePrintPositionButton(printHead: PrintHead, printHeadButton: PrintHeadButton) {
+    const buttonOrigins = this.printPositionOriginsMM[printHead.printHeadIndex];
     const buttonSizePX = this.getPrintPositionButtonWidthPX(printHead.needle.odMM);
-    let topPX = this.getButtonTopPX(printHeadButton.position) - (buttonSizePX/2);
-    let lfPX = this.getButtonLeftPX(printHeadButton.position) - (buttonSizePX/2);
+    let topPX = this.getButtonTopPX(buttonOrigins, printHeadButton.position) - (buttonSizePX/2);
+    let lfPX = this.getButtonLeftPX(buttonOrigins, printHeadButton.position) - (buttonSizePX/2);
     const buttonColor = printHead.active? (printHeadButton.selected ? printHead.color : 'white') : '#f1f1f1';
 
     return {
@@ -212,16 +212,17 @@ export class PlateMapComponent implements OnInit, AfterViewInit, OnDestroy {
 
   getPrintPositionButtonWidthPX(needleOdMM: number) {
     const plateMapWellDiamMM = this.selectedPlate.well_sizeMM;
-    return this.toPX(this.printPositionService.getButtonWidthMM('print-head', needleOdMM, plateMapWellDiamMM));
+    return this.toPX(this.printPositionService.getButtonWidthMM('plate-map', needleOdMM, plateMapWellDiamMM));
   }
-  getButtonLeftPX(printHeadButtonPosition: number) {
-    return this.toPX(this.printPositionService.getButtonLeftMM(
-      this.printPositionOriginsMM[printHeadButtonPosition], printHeadButtonPosition));
+  getButtonLeftPX(buttonOrigins: Coordinates[], printHeadButtonPosition: number) {
+    const buttonLeftMM = this.printPositionService.getButtonLeftMM(buttonOrigins, printHeadButtonPosition);
+    return this.toPX(buttonLeftMM);
   }
 
-  getButtonTopPX(printHeadButtonPosition: number) {
-    return this.toPX(this.printPositionService.getButtonTopMM(
-      this.printPositionOriginsMM[printHeadButtonPosition], printHeadButtonPosition));
+  getButtonTopPX(buttonOrigins: Coordinates[], printHeadButtonPosition: number) {
+    const buttonTopMM = this.printPositionService.getButtonTopMM(
+      buttonOrigins, printHeadButtonPosition);
+    return this.toPX(buttonTopMM);
   }
   logState() {
     this.gcodeService.formatExperimentDetails();
