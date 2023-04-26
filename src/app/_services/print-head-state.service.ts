@@ -118,6 +118,8 @@ export class PrintHeadStateService {
   toggleButton(printHead: PrintHead, printHeadButton: PrintHeadButton) {
     printHeadButton.selected = !printHeadButton.selected;
     this.updateAllPrintHeadButtons(printHead);
+    this._printHeads.next(this.printHeads);
+
   }
 
   // updatePrintHeads(printHeads: PrintHead[]): void {
@@ -180,7 +182,9 @@ export class PrintHeadStateService {
     } else {
       console.warn(`Warning(togglePrintHeadButton): printHead is undefined.`);
     }
-    this.printPositionSelectionChanged.emit();
+    this.printPositionSelectionChanged.emit()
+    this._printHeads.next(this.printHeads);
+
   }
 
   updatePrintHeadNeedle(printHead: PrintHead, needle: Needle): void {
@@ -193,16 +197,32 @@ export class PrintHeadStateService {
       buttonWidthMM: 0//this.printPositionService.getButtonWidthMM(printHead),
     };
 
-// Find the index of the printHead to be updated in the _printHeads BehaviorSubject
-//     const index = this._printHeads.value.findIndex(ph => ph.printHeadIndex === printHead.printHeadIndex);
+    // Find the index of the printHead to be updated in the _printHeads BehaviorSubject
+    const index = this._printHeads.value.findIndex(ph => ph.printHeadIndex === printHead.printHeadIndex);
 
-    // Update the PrintHead in the _printHeads BehaviorSubject
-    // if (index !== -1) {
-    //   const updatedPrintHeads = [...this._printHeads.value];
-    //   updatedPrintHeads[index] = updatedPrintHead;
-    //   this._printHeads.next(updatedPrintHeads); // emit the updated _printHeads array
-    // }
+    //Update the PrintHead in the _printHeads BehaviorSubject
+    if (index !== -1) {
+      const updatedPrintHeads = [...this._printHeads.value];
+      updatedPrintHeads[index] = updatedPrintHead;
+      this._printHeads.next(updatedPrintHeads); // emit the updated _printHeads array
+    }
+  }
 
+  updatePrintPositionColor(printHead: PrintHead, color: string): void {
+    const updatedPrintHead = {
+      ...printHead,
+      color: color,
+    };
+
+    // Find the index of the printHead to be updated in the _printHeads BehaviorSubject
+    const index = this._printHeads.value.findIndex(ph => ph.printHeadIndex === printHead.printHeadIndex);
+
+    //Update the PrintHead in the _printHeads BehaviorSubject
+    if (index !== -1) {
+      const updatedPrintHeads = [...this._printHeads.value];
+      updatedPrintHeads[index] = updatedPrintHead;
+      this._printHeads.next(updatedPrintHeads); // emit the updated _printHeads array
+    }
   }
   updatePrintHeadButtonSelection(printHead: PrintHead, isActive: boolean): void {
     if (printHead) {

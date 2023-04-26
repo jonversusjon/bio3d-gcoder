@@ -84,8 +84,8 @@ export class PrintheadComponent implements OnInit, OnDestroy {
   onActiveToggleChange(event: MatSlideToggleChange) {
     this.activeToggle = event.checked;
   }
-  onPrintPositionButtonChange(printHead: PrintHead, buttonIndex?: number, updateAll: boolean = false){
-    console.log('time to change some button sizes');
+  onPrintPositionColorChange(printHead: PrintHead, color: string){
+    this.printHeadStateService.updatePrintPositionColor(printHead, color);
   }
 
   toggleButton(printHead: PrintHead, printHeadButton:PrintHeadButton) {
@@ -94,7 +94,6 @@ export class PrintheadComponent implements OnInit, OnDestroy {
 
   onNeedleChange(printHead: PrintHead, needle: Needle) {
     this.printHeadStateService.updatePrintHeadNeedle(printHead, needle);
-    // this.printPositionService.getButtonWidthMM(printHead, 'print-head');
     this.updateAllPrintHeadButtonSizes([printHead]);
   }
   updateAllPrintHeadButtonSizes(printHeads: PrintHead[]) {

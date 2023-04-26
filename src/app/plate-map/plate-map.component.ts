@@ -21,7 +21,6 @@ import { PrintHeadButton } from "../../types/PrintHeadButton";
 import {MatSelectChange} from "@angular/material/select";
 import {StyleService} from "../_services/style.service";
 import {CalibrationService} from "../_services/calibration.service";
-import {DataAggregatorService} from "../_services/data-aggregator.service";
 import { WellsStateService } from "../_services/wells-state.service";
 import {PlateMap} from "../../types/PlateMap";
 import { GcodeService } from "../_services/gcode.service";
@@ -67,7 +66,6 @@ export class PlateMapComponent implements OnInit, AfterViewInit, OnDestroy {
     private rendererFactory: RendererFactory2,
     private styleService: StyleService,
     private calibrationService: CalibrationService,
-    private dataService: DataAggregatorService,
     private wellsStateService: WellsStateService,
     private printPositionService: PrintPositionService,
   ) {
@@ -120,8 +118,6 @@ export class PlateMapComponent implements OnInit, AfterViewInit, OnDestroy {
 
   initializeSelectedPlate(plateMap: PlateMap) {
     this.updatePlateMap(this.selectedPlate, plateMap);
-    // this.plateFormatChanged.emit(this.selectedPlate);
-    // this.printHeadStateService.setSelectedPlate(this.selectedPlate);
     this.plateFormatService.setSelectedPlate(this.selectedPlate);
 
   }

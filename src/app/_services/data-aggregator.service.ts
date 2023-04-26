@@ -19,11 +19,11 @@ export class DataAggregatorService {
   {
     this.printHeadStateService.printHeads$.subscribe((printheads: PrintHead[]) => {
       this.dataServicePrintHeadsSnapshot = printheads;
-      // console.log('data-aggregator received printheads: ', printheads);
+      console.log('data-aggregator received printheads: ', printheads);
     });
     this.wellStateService.wells$.subscribe((wells: Well[][]) => {
       this.dataServiceWellsSnapshot = wells;
-      // console.log('data-aggregator received wells: ', wells);
+      console.log('data-aggregator received wells: ', wells);
     });
   }
 

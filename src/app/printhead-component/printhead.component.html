@@ -23,7 +23,7 @@
             </mat-form-field>
             <mat-form-field appearance="fill" class="color-field grid-item">
               <mat-label>Color</mat-label>
-              <input *ngIf="printhead.active" matInput type="color" [(ngModel)]="printhead.color" (change)="onPrintPositionButtonChange(printhead, printHeadIndex, true)">
+              <input *ngIf="printhead.active" matInput type="color" [(ngModel)]="printhead.color" (change)="onPrintPositionColorChange(printhead, printhead.color)">
               <input *ngIf="!printhead.active" matInput type="color" [(ngModel)]="inactiveColor" [disabled]="true">
             </mat-form-field>
           </div>
@@ -39,7 +39,6 @@
                   [checked]="printHeadButton.selected"
                   class="print-position-picker-position-button custom-button-toggle"
                   [ngStyle]="getStylePrintPositionButton(printhead, printHeadButton)"
-
                 ></mat-button-toggle>
                 <!--                  [ngStyle]="getStylePrintPositionButton(printHeadButton.position, printHeadButton.style, 'scale-upbv')"-->
               </ng-container>

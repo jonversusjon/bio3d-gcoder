@@ -154,7 +154,6 @@ export class WellsStateService {
       });
     this.currentPlateMap = plateMap;
     this._wells.next(plateMap.wells);
-
   }
   toggleWellSelection(plateMap: PlateMap, row: number, col: number, shiftKey: boolean = false): void {
     ;
@@ -202,6 +201,8 @@ export class WellsStateService {
     }
     this.currentPlateMap = plateMap;
     this.lastClickedRow = rowIndex;
+    this._wells.next(plateMap.wells);
+
   }
 
   toggleColumnSelection(selectedPlate: PlateFormat, plateMap: PlateMap, colIndex: number, event?: MouseEvent): void {
@@ -235,6 +236,8 @@ export class WellsStateService {
     }
     this.lastClickedCol = colIndex;
     this.currentPlateMap = plateMap;
+    this._wells.next(plateMap.wells);
+
   }
 
   areAllWellsSelected(startRow: number, endRow: number, startCol: number, endCol: number, wells: any[][]): boolean {
