@@ -36,6 +36,7 @@ export class WellsStateService {
   {
     this.renderer = rendererFactory.createRenderer(null, null);
     this.printHeadStateService.printHeads$.subscribe((printHeads) => {
+      console.log('wells-state-service notified of a change to printheads');
       if(this.currentPlateMap) {
         this._wells.next(this.currentPlateMap.wells);
       }

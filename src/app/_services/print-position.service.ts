@@ -38,8 +38,12 @@ export class PrintPositionService {
         return needleOdMM;
       case 'print-head':
         if(selectedPlateWellDiamMM) {
+          // console.log('getButtonWidthMM: needleOdMM:', needleOdMM, 'plateMapWellDiamMM:', selectedPlateWellDiamMM);
           const scalar = selectedPlateWellDiamMM / this.PRINT_PICKER_DIAM_MM;
+          // console.log('getButtonWidthMM returning: ', (needleOdMM / scalar));
+          // console.trace();
           return needleOdMM / scalar;
+
         } else {
           console.warn("print-position-service couldn't calculate button width; selected plate well diam (MM) not received;");
           return 0;

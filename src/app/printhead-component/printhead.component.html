@@ -35,10 +35,10 @@
                  [ngStyle]="getStylePrintPositionPicker(printhead)">
               <ng-container *ngFor="let printHeadButton of printhead.printPositionButtons; let j = index">
                 <mat-button-toggle
-                  (click)="toggleButton(printhead, printHeadButton)"
+                  (click)="togglePrintHeadButton(printhead, printHeadButton)"
                   [checked]="printHeadButton.selected"
                   class="print-position-picker-position-button custom-button-toggle"
-                  [ngStyle]="getStylePrintPositionButton(printhead, printHeadButton)"
+                  [ngStyle]="printHeadButton.style"
                 ></mat-button-toggle>
                 <!--                  [ngStyle]="getStylePrintPositionButton(printHeadButton.position, printHeadButton.style, 'scale-upbv')"-->
               </ng-container>

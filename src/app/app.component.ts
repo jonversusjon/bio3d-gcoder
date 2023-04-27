@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { isWebSqlSupported, isIndexedDbSupported } from './_services/browser-support';
-import {PlateFormat} from "../types/PlateFormat";
+import { MatDialog } from '@angular/material/dialog';
+import { ExportGcodeFormComponent } from './export-gcode-form/export-gcode-form.component';
 
 @Component({
   selector: 'app-root',
@@ -11,6 +12,7 @@ export class AppComponent {
   isSupported = false;
   message = '';
 
+  constructor(public dialog: MatDialog) {}
   ngOnInit(): void {
     if (!isWebSqlSupported() && !isIndexedDbSupported()) {
       this.isSupported = false;
@@ -19,5 +21,13 @@ export class AppComponent {
       console.log('Browser meets requirements for SqlJs');
       this.isSupported = true;
     }
+  }
+
+  openExportGcodeForm(): void {
+    const dialogRef = this.dialog.open(ExportGcodeFormComponent);
+
+    dialogRef.afterClosed().subscribe(result => {
+      console.log(`Dialog result: ${result}`);
+    });
   }
 }

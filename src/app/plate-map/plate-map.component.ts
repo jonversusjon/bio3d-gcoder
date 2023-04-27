@@ -77,8 +77,9 @@ export class PlateMapComponent implements OnInit, AfterViewInit, OnDestroy {
     this.printPositionOriginsMM[0] = this.printPositionService.getPrintPositionOriginsMM('plate-map', this.selectedPlate.well_sizeMM);
     console.log('plate-map initialized with print position origins ', this.printPositionOriginsMM);
     this.printHeadStateSubscription = this.printHeadStateService.printHeads$.subscribe(printHeads => {
-      this.printHeads = printHeads;
-      this.onGetPrintHeadChanges(this.printHeads);
+      console.log('plate map component notified of printhead changes');
+      // this.printHeads = printHeads;
+      this.onGetPrintHeadChanges(printHeads);
     });
 
     this.updatePlateMap(this.selectedPlate, this.plateMap);

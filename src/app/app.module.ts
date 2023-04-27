@@ -23,6 +23,8 @@ import { NgOptimizedImage } from "@angular/common";
 import {MatButtonModule} from "@angular/material/button";
 import { RectangleSelectionComponent } from './rectangle-selection/rectangle-selection.component';
 import { RendererFactory2 } from "@angular/core";
+import { ExportGcodeFormComponent } from './export-gcode-form/export-gcode-form.component';
+import {MAT_DIALOG_DATA, MatDialogModule, MatDialogRef} from "@angular/material/dialog";
 
 @Pipe({
   name: 'range'
@@ -43,7 +45,8 @@ export class RangePipe implements PipeTransform {
         ExperimentSetupComponent,
         PrintDepthComponent,
         VerticalSliderComponent,
-        RectangleSelectionComponent
+        RectangleSelectionComponent,
+        ExportGcodeFormComponent
     ],
     imports: [
         BrowserModule,
@@ -58,10 +61,13 @@ export class RangePipe implements PipeTransform {
         MatButtonToggleModule,
         MatTooltipModule,
         NgOptimizedImage,
+        MatDialogModule,
         MatButtonModule
     ],
   providers: [
-    ScreenUtils
+    ScreenUtils,
+    { provide: MatDialogRef, useValue: {} },
+    { provide: MAT_DIALOG_DATA, useValue: {} }
   ],
   bootstrap: [AppComponent]
 })
