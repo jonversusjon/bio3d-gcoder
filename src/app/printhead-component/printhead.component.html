@@ -53,7 +53,7 @@
         <div class="footer-wrapper">
 
           <div class="active-toggle-container flex-item" style="min-height: 32px;">
-            <mat-slide-toggle [(ngModel)]="printhead.active" class="active-toggle" (change)="onActiveToggleChange($event)"></mat-slide-toggle>
+            <mat-slide-toggle [(ngModel)]="printhead.active" class="active-toggle" (change)="onActiveToggleChange(printhead, $event)"></mat-slide-toggle>
           </div>
         </div>
       </mat-card>

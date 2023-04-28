@@ -15,7 +15,7 @@ import {StyleService} from "../_services/style.service";
 import { PlateFormatService } from "../_services/plate-format.service";
 import {MatSlideToggleChange} from "@angular/material/slide-toggle";
 import {PrintPositionService} from "../_services/print-position.service";
-import {Subscription} from "rxjs";
+import {BehaviorSubject, Subscription} from "rxjs";
 
 @Component({
   selector: 'app-printhead-component',
@@ -32,7 +32,7 @@ export class PrintheadComponent implements OnInit, OnDestroy, OnChanges, DoCheck
   printHeads: PrintHead[] = []
   printHeadCountInput: number = 1;
 
-  _selectedPlate: PlateFormat | null = null;
+  _selectedPlate!: PlateFormat;
 
   activeToggle: boolean = false;
 
@@ -62,11 +62,11 @@ export class PrintheadComponent implements OnInit, OnDestroy, OnChanges, DoCheck
 
   ngOnInit() {
     this.printHeadStateService.printHeads$.subscribe(printHeads => {
+      console.log('printhead-component notified of printheads change');
       this.printHeads = printHeads;
     });
-    this.printHeadStateService.initializePrintHeads(1);
-
-    this.printHeadStateService.updatePrintHeadNeedle(this.printHeads[0], this.needles[0]);
+    this.printHeadStateService.generateDefaultPrintHeads(1);
+    this.printHeadStateService.updateNeedle(this.printHeads[0].printHeadIndex, this.needles[0]);
 
   }
 
@@ -91,24 +91,27 @@ export class PrintheadComponent implements OnInit, OnDestroy, OnChanges, DoCheck
     this.subscriptions.forEach((subscription) => subscription.unsubscribe());
   }
 
-  onGetSelectedPlateChange(selectPlate: PlateFormat | null) {
+
+  onGetSelectedPlateChange(selectPlate: PlateFormat) {
     this.updateAllPrintHeadButtonSizes(this.printHeads);
   }
 
-  onActiveToggleChange(event: MatSlideToggleChange) {
+  onActiveToggleChange(printHead: PrintHead, event: MatSlideToggleChange) {
     this.activeToggle = event.checked;
+    if (!this.activeToggle) {
+      this.printHeadStateService.setAllButtonsInactive(printHead.printHeadIndex);
+    }
   }
   onPrintPositionColorChange(printHead: PrintHead, color: string){
-    this.printHeadStateService.updatePrintPositionColor(printHead, color);
+    this.printHeadStateService.updateColor(printHead.printHeadIndex, color);
   }
 
   togglePrintHeadButton(printHead: PrintHead, printHeadButton:PrintHeadButton) {
-    console.log('togglePrintHeadButton called')
-    this.printHeadStateService.togglePrintHeadButton(printHead, printHeadButton.position, printHeadButton.selected);
+    this.printHeadStateService.toggleButtonStatus(printHead.printHeadIndex, printHeadButton.position);
   }
 
   onNeedleChange(printHead: PrintHead, needle: Needle) {
-    this.printHeadStateService.updatePrintHeadNeedle(printHead, needle);
+    this.printHeadStateService.updateNeedle(printHead.printHeadIndex, needle);
     this.updateAllPrintHeadButtonSizes([printHead]);
   }
   updateAllPrintHeadButtonSizes(printHeads: PrintHead[]) {
@@ -133,7 +136,7 @@ export class PrintheadComponent implements OnInit, OnDestroy, OnChanges, DoCheck
 
   onPrintHeadCountChange() {
     console.log('onPrintHeadHeadCountChange triggered');
-    this.printHeadStateService.createPrintHeads(this.printHeadCountInput);
+    this.printHeadStateService.generateDefaultPrintHeads(this.printHeadCountInput);
     this.updateAllPrintHeadButtonSizes(this.printHeads);
   }
 
@@ -147,10 +150,6 @@ export class PrintheadComponent implements OnInit, OnDestroy, OnChanges, DoCheck
   getPrintPickerWidthPX(printHead: PrintHead) {
     return (this.toPX(this.printPositionService.PRINT_PICKER_DIAM_MM));
   }
-
-
-
-
 
   getStylePrintPositionPicker(printHead: PrintHead) {
     const mergedPrintPickerStyle =

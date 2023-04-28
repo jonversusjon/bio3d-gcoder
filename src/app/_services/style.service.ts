@@ -4,6 +4,12 @@ import { Injectable } from '@angular/core';
   providedIn: 'root'
 })
 export class StyleService {
+  public THEME_COLORS: any = {
+    'colorblindSafeDefault' : ['#4477AA','#CCBB44','#AA3377','#66CCEE','#EE6677','#228833','#BBBBBB'],
+    'defaultLightTheme' : ['#FF1F5B','#00CD6C','#009ADE','#AF58BA','#FFC61E','#F28522','#A0B1BA','#A6761D'],
+  }
+
+
   private _baseStyles: { [key: string]: any } = {
     'custom-button-toggle': {
       'position': 'absolute',

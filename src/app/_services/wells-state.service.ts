@@ -10,6 +10,7 @@ import { StyleService } from "./style.service";
 import { PlateMap } from "../../types/PlateMap";
 import { RectangleSelectionService } from "./rectangle-selection.service";
 import {BehaviorSubject} from "rxjs";
+import {PrintPositionService} from "./print-position.service";
 
 @Injectable({
   providedIn: 'root'
@@ -32,6 +33,7 @@ export class WellsStateService {
               private styleService: StyleService,
               private rendererFactory: RendererFactory2,
               private rectangleSelectionService: RectangleSelectionService,
+              private printPositionService: PrintPositionService,
               )
   {
     this.renderer = rendererFactory.createRenderer(null, null);
@@ -83,7 +85,7 @@ export class WellsStateService {
             row: row,
             col: col,
             selected: false,
-            printPositionButtons: Array.from({ length: this.printHeadStateService.PRINT_POSITIONS_COUNT }, (_, index) => ({
+            printPositionButtons: Array.from({ length: this.printPositionService.PRINT_POSITIONS_COUNT }, (_, index) => ({
               printHead: -1,
               position: index,
               color: 'this.getNextColor()',

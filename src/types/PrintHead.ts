@@ -14,12 +14,12 @@ export interface PrintHead {
   elementType: 'PrintHead';
 }
 
-export function emptyPrintHeadButton(): PrintHead {
+export function emptyPrintHead(): PrintHead {
   return {
     printHeadIndex: -1,
     description: '',
     color: 'white',
-    active: false,
+    active: true,
     printPositionButtons: [],
     printPositionSizeMM: 0,
     buttonWidthPX: 0,

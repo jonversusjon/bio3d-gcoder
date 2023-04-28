@@ -2,7 +2,7 @@
 // TODO: need a way to code for calibrations - well_well_x, well_well_y, a1_center_left_edge, a1_center_top_edge, plate_height, well_depth
 import { Injectable, ApplicationRef } from '@angular/core';
 import {BehaviorSubject, Observable, Subject} from 'rxjs';
-import {PlateFormat} from "../../types/PlateFormat";
+import {emptyPlateFormat, PlateFormat} from "../../types/PlateFormat";
 
 @Injectable({
   providedIn: 'root',
@@ -67,9 +67,9 @@ export class PlateFormatService {
     }
   ];
 
-  private _selectedPlateSubject = new Subject<PlateFormat | null>();
+  private _selectedPlateSubject = new Subject<PlateFormat>();
   selectedPlate$ = this._selectedPlateSubject.asObservable();
-  private _latestSelectedPlate: PlateFormat | null = null;
+  private _latestSelectedPlate: PlateFormat = emptyPlateFormat();
 
   constructor(private appRef: ApplicationRef) {
 
