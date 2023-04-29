@@ -43,13 +43,12 @@ export class PlateMapComponent implements OnInit, AfterViewInit, OnDestroy {
   zCalibration = 1;
 
   plateMap: PlateMap = { wells: [], columnHeaders: [], rowHeaders: [] };
-
-  plateFormats: any[] = [];
+  plateFormats: PlateFormat[] = [];
   selectedPlate!: PlateFormat;
   prevSelectedPlate!: PlateFormat;
 
-  plateHeight = 85.4; // mm = 323px;
-  plateWidth = 127.6; //mm = 482px => 3.777px/mm
+  plateHeight = 85.4;
+  plateWidth = 127.6;
   plateHeightPX = this.toPX(this.plateHeight);
   plateWidthPX = this.toPX(this.plateWidth);
 
@@ -70,29 +69,10 @@ export class PlateMapComponent implements OnInit, AfterViewInit, OnDestroy {
     private printPositionService: PrintPositionService,
   ) {
     this.renderer = rendererFactory.createRenderer(null, null);
-    this.plateFormats = plateFormatService.getPlateFormats()
-    this.selectedPlate = this.plateFormats[0];
-    this.plateFormatService.setSelectedPlate(this.selectedPlate);
-    this.prevSelectedPlate = this.selectedPlate;
-    this.printPositionOriginsMM[0] = this.printPositionService.getPrintPositionOriginsMM('plate-map', this.selectedPlate.well_sizeMM);
-    console.log('plate-map initialized with print position origins ', this.printPositionOriginsMM);
-    this.printHeadStateSubscription = this.printHeadStateService.printHeads$.subscribe(printHeads => {
-      console.log('plate map component notified of printhead changes');
-      // this.printHeads = printHeads;
-      this.onGetPrintHeadChanges(printHeads);
-    });
-
+    this.initializePlateFormats();
+    this.initializePrintHeadStateSubscription();
     this.updatePlateMap(this.selectedPlate, this.plateMap);
-
-    this.calibrationService.xCalibration$.subscribe(value => {
-      this.xCalibration = value;
-    });
-    this.calibrationService.yCalibration$.subscribe(value => {
-      this.yCalibration = value;
-    });
-    this.calibrationService.zCalibration$.subscribe(value => {
-      this.zCalibration = value;
-    });
+    this.subscribeToCalibrationUpdates();
   }
 
   ngOnInit(): void {
@@ -109,12 +89,30 @@ export class PlateMapComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
+  initializePlateFormats() {
+    this.plateFormats = this.plateFormatService.getPlateFormats()
+    this.selectedPlate = this.plateFormats[0];
+    this.prevSelectedPlate = this.selectedPlate;
+    this.plateFormatService.setSelectedPlate(this.selectedPlate);
+    this.printPositionOriginsMM[0] = this.printPositionService.getPrintPositionOriginsMM('plate-map', this.selectedPlate.well_sizeMM);
+  }
+
+  initializePrintHeadStateSubscription() {
+    this.printHeadStateSubscription = this.printHeadStateService.printHeads$.subscribe(printHeads => {
+      this.printHeads = printHeads;
+      this.onGetPrintHeadChanges(printHeads);
+    });
+  }
+
+  subscribeToCalibrationUpdates() {
+    this.calibrationService.xCalibration$.subscribe(value => this.xCalibration = value);
+    this.calibrationService.yCalibration$.subscribe(value => this.yCalibration = value);
+    this.calibrationService.zCalibration$.subscribe(value => this.zCalibration = value);
+  }
+
   onGetPrintHeadChanges(printHeads: PrintHead[]) {
     if(printHeads.length > 0) {
-      this.printPositionOriginsMM = [];
-      for (let printHead of printHeads) {
-        this.printPositionOriginsMM.push(this.printPositionService.getPrintPositionOriginsMM('plate-map', this.selectedPlate.well_sizeMM));
-      }
+      this.printPositionOriginsMM = printHeads.map(() => this.printPositionService.getPrintPositionOriginsMM('plate-map', this.selectedPlate.well_sizeMM));
     }
   }
 
@@ -126,8 +124,8 @@ export class PlateMapComponent implements OnInit, AfterViewInit, OnDestroy {
 
   onSelectedPlateChanged(event: MatSelectChange): void {
     const newSelectedPlate = event.value;
+    console.log('newSelectedPlate: ', newSelectedPlate);
     if (newSelectedPlate !== this.prevSelectedPlate) {
-      console.log('printPositionOriginsMM before: ', this.printPositionOriginsMM);
       this.prevSelectedPlate = newSelectedPlate;
       this.selectedPlate = newSelectedPlate;
       this.plateFormatService.setSelectedPlate(newSelectedPlate);

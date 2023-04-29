@@ -19,11 +19,11 @@ export class DataAggregatorService {
   {
     this.printHeadStateService.printHeads$.subscribe((printheads: PrintHead[]) => {
       this.dataServicePrintHeadsSnapshot = printheads;
-      console.log('data-aggregator received printheads: ', printheads);
+      // console.log('data-aggregator received printheads: ', printheads);
     });
     this.wellStateService.wells$.subscribe((wells: Well[][]) => {
       this.dataServiceWellsSnapshot = wells;
-      console.log('data-aggregator received wells: ', wells);
+      // console.log('data-aggregator received wells: ', wells);
     });
   }
 
@@ -34,8 +34,8 @@ export class DataAggregatorService {
     }
   }
   aggregateData() {
-    console.log('dataServicePrintHeadsSnapshot: ', this.dataServicePrintHeadsSnapshot);
-    console.log('dataServiceWellsSnapshot: ', this.dataServiceWellsSnapshot);
+    // console.log('dataServicePrintHeadsSnapshot: ', this.dataServicePrintHeadsSnapshot);
+    // console.log('dataServiceWellsSnapshot: ', this.dataServiceWellsSnapshot);
     /*
     This function needs to create a JSON with
       Plate Information:

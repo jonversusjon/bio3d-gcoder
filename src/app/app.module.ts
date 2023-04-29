@@ -9,7 +9,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatCardModule } from '@angular/material/card';
 import { FloorPipe } from '../types/floor.pipe';
-import { PrintheadComponent } from './printhead-component/printhead.component';
+import { PrintHeadComponent } from './printhead-component/printhead.component';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
@@ -41,7 +41,7 @@ export class RangePipe implements PipeTransform {
         PlateMapComponent,
         RangePipe,
         FloorPipe,
-        PrintheadComponent,
+        PrintHeadComponent,
         ExperimentSetupComponent,
         PrintDepthComponent,
         VerticalSliderComponent,

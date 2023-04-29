@@ -61,7 +61,7 @@ export class PrintHeadStateService implements OnDestroy {
       const defaultPlateFormat: PlateFormat =  this.plateFormatService.plateFormats[0];
       this.currentSelectedPlate = defaultPlateFormat;
 
-      this.printPositionOriginsMM = this.printPositionService.getPrintPositionOriginsMM("print-head", defaultPlateFormat.well_sizeMM);
+      // this.printPositionOriginsMM = this.printPositionService.getPrintPositionOriginsMM("print-head", defaultPlateFormat.well_sizeMM);
 
       this.selectedPlateSubscription = this.plateFormatService.selectedPlate$.subscribe((plate) => {
         this.currentSelectedPlate = plate;
@@ -159,35 +159,15 @@ export class PrintHeadStateService implements OnDestroy {
 
       // Assuming the function `resizePrintPositionButtons` is already implemented
       // to resize print position buttons based on the needle outer diameter.
-      console.log('resizePrintPositionButtons called with selectedPrintHead.printHeadIndex: ', selectedPrintHead.printHeadIndex, ' newNeedle.odMM: ', newNeedle.odMM);
-      this.resizePrintPositionButtons(selectedPrintHead.printHeadIndex, newNeedle.odMM);
+      // console.log('resizePrintPositionButtons called with selectedPrintHead.printHeadIndex: ', selectedPrintHead.printHeadIndex, ' newNeedle.odMM: ', newNeedle.odMM);
+      // this.resizePrintPositionButtons(selectedPrintHead.printHeadIndex, newNeedle.odMM);
       this._printHeads.next(currentPrintHeads);
     } else {
       console.error(`Invalid printHeadIndex: ${printHeadIndex}`);
     }
   }
 
-  resizePrintPositionButtons(printHeadIndex: number, newNeedleOdMM: number): void {
-    const printPickerDiamMM = 5; // Replace this with the actual value
-    const currentPrintHeads = this._printHeads.value;
 
-    if (this.currentSelectedPlate && currentPrintHeads[printHeadIndex]) {
-      const scaleFactor =  (printPickerDiamMM / this.currentSelectedPlate.well_sizeMM);
-
-      const selectedPrintHead = currentPrintHeads[printHeadIndex];
-      selectedPrintHead.printPositionButtons.forEach(button => {
-        button.widthPX = newNeedleOdMM * scaleFactor
-      });
-
-      this._printHeads.next(currentPrintHeads);
-    } else {
-      if (!this.currentSelectedPlate) {
-        console.error('No selected plate found');
-      } else {
-        console.error(`Invalid printHeadIndex: ${printHeadIndex}`);
-      }
-    }
-  }
 
   // Update color property and active state color of print position buttons
   updateColor(printHeadIndex: number, newColor: string): void {

@@ -1,0 +1,218 @@
+/* Global styles */
+::-webkit-scrollbar {
+  width: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+  box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgb(64, 64, 64, 0.2);
+  border: 1px solid rgb(64, 64, 64, 0.2);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(128, 128, 128, 0.5);
+}
+
+/* Main container */
+.container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background-color: lightgray;
+  min-height: 300px;
+}
+
+.content {
+  padding: 20px;
+}
+
+/* Grid container */
+.grid-container {
+  display: flex;
+  width: 100%;
+}
+
+.grid-item {
+}
+
+/* Print position picker */
+.print-position-picker-wrapper {
+  flex: 2;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  aspect-ratio: 1 / 1;
+  margin-right: 16px;
+}
+
+.print-position-picker {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  justify-content: center;
+  align-items: center;
+}
+
+.print-position-picker-position-button.custom-button-toggle {
+  position: absolute;
+  border: 1px solid black;
+  border-radius: 50%;
+  background-color: white;
+  aspect-ratio: 1 / 1;
+  box-sizing: border-box;
+  z-index: 10;
+}
+
+.watermark {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  font-weight: bold;
+  font-size: 2em;
+  color: rgba(64, 64, 64, 0.1);
+  pointer-events: none;
+  line-height: 1.5em;
+  z-index: 1;
+}
+
+/* Print depth */
+.print-depth-wrapper {
+  flex: 1;
+}
+
+/* Other styles */
+.print-head-setup-component-wrapper {
+  display: flex;
+}
+
+.mat-mdc-floating-label {
+  font-size: 10px;
+}
+
+.printhead-number-input-wrapper {
+  flex: 1;
+  width: 150px;
+}
+
+.printhead-setup-title {
+  display: grid;
+  grid-template-columns: 3fr 2fr 2fr;
+  font-size: 0.5em;
+}
+
+.active-toggle-container.flex-item {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: inherit;
+  height: 100%;
+}
+
+.footer-wrapper {
+  margin-bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-grow: 1;
+  height: 100%;
+}
+
+.mat-mdc-card-title {
+  top: 0px;
+  margin: 0;
+  align-items: center;
+  justify-content: left;
+}
+
+.mat-mdc-card-title > .mat-mdc-text-field {}
+.mat-mdc-card-title > * {
+  border-radius: 0;
+}
+
+printhead-setup .mat-card-tile {
+  box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12), 0 3px
+  1px -2px rgba(0, 0, 0, 0.2);
+  margin: 4px;
+}
+
+.grid-list-container {
+  max-height: 400px;
+  min-height: 320px;
+  overflow-y: auto;
+  direction: rtl;
+  padding-left: 8px;
+  overflow-x: hidden;
+  width: 300px;
+  flex: 5;
+  margin: 0;
+}
+
+.grid-list-container > * {
+  direction: ltr;
+}
+
+.mat-mdc-form-field-subscript-wrapper {
+  margin: 0;
+  padding: 0;
+  display: none;
+}
+
+.mat-mdc-form-field-hint-wrapper {
+  display: none;
+}
+
+.active-toggle {
+  margin-left: auto;
+}
+
+.mat-mdc-form-field-bottom-align::before {
+  height: 5px;
+}
+
+.input-container {
+  display: flex;
+}
+
+.mat-button-toggle:focus {
+  outline: none;
+}
+
+.mat-button-toggle:focus .mat-button-toggle-label-content {
+  outline: 2px solid #007bff;
+  outline-offset: 2px;
+  border-radius: 50%;
+}
+
+.selected-button-glow {
+  box-shadow: 0 0 5px 5px rgba(255, 255, 0, 0.5) !important;
+}
+
+.active-toggle-container {
+  display: flex;
+  align-items: center;
+  background-color: inherit;
+  height: 100%;
+}
+
+.custom-mat-select-option {
+  font-size: 11px;
+  height: 1rem;
+}
+
+.mat-mdc-form-field .mat-mdc-select {
+  font-size: 12px;
+}

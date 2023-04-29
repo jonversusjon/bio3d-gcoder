@@ -32,13 +32,21 @@
         <mat-card-content class="grid-container">
           <div class="print-position-picker-wrapper">
             <div class="print-position-picker grid-item"
-                 [ngStyle]="getStylePrintPositionPicker(printhead)">
+                 [ngStyle]="getStylePrintPositionPicker()">
+              <div class="watermark" *ngIf="!printPositionService.toScale">
+                NOT TO<br>SCALE
+              </div>
               <ng-container *ngFor="let printHeadButton of printhead.printPositionButtons; let j = index">
-                <button [ngStyle]="getStylePrintPositionButton(printhead, j)"
+                <button class="print-position-picker-position-button custom-button-toggle" [ngStyle]="{
+                  'color': printhead.color,
+                  'width': printPositionService.printPositionButtonWidthPX + 'px',
+                  'top': 'calc(' + printPositionService.printPositionOriginsPct[j].y + '% - ' + (printPositionService.printPositionButtonWidthPX/2) + 'px)',
+                  'left': 'calc(' + printPositionService.printPositionOriginsPct[j].x + '% - ' + (printPositionService.printPositionButtonWidthPX/2) + 'px)'
+                }"
                         (click)="togglePrintHeadButton(printhead, printHeadButton)"
                 ></button>
-
               </ng-container>
+
             </div>
           </div>
           <div class="print-depth-wrapper grid-item">
