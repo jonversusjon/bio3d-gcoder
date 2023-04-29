@@ -48,8 +48,8 @@ export class PlateMapComponent implements OnInit, AfterViewInit, OnDestroy {
   selectedPlate!: PlateFormat;
   prevSelectedPlate!: PlateFormat;
 
-  plateHeight = 85.4; // mm
-  plateWidth = 127.6; //mm
+  plateHeight = 85.4; // mm = 323px;
+  plateWidth = 127.6; //mm = 482px => 3.777px/mm
   plateHeightPX = this.toPX(this.plateHeight);
   plateWidthPX = this.toPX(this.plateWidth);
 
@@ -110,11 +110,12 @@ export class PlateMapComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   onGetPrintHeadChanges(printHeads: PrintHead[]) {
-    this.printPositionOriginsMM = [];
-    for(let printHead of printHeads) {
-      this.printPositionOriginsMM.push(this.printPositionService.getPrintPositionOriginsMM('plate-map', this.selectedPlate.well_sizeMM));
+    if(printHeads.length > 0) {
+      this.printPositionOriginsMM = [];
+      for (let printHead of printHeads) {
+        this.printPositionOriginsMM.push(this.printPositionService.getPrintPositionOriginsMM('plate-map', this.selectedPlate.well_sizeMM));
+      }
     }
-
   }
 
   initializeSelectedPlate(plateMap: PlateMap) {
@@ -209,7 +210,8 @@ export class PlateMapComponent implements OnInit, AfterViewInit, OnDestroy {
 
   getPrintPositionButtonWidthPX(needleOdMM: number) {
     const plateMapWellDiamMM = this.selectedPlate.well_sizeMM;
-    return this.toPX(this.printPositionService.getButtonWidthMM('plate-map', needleOdMM, plateMapWellDiamMM));
+    console.log('plate-map-component plateMapWellDiamMM: ', plateMapWellDiamMM);
+    return this.toPX(this.printPositionService.getButtonWidthMM('plate-map', plateMapWellDiamMM, needleOdMM));
   }
   getButtonLeftPX(buttonOrigins: Coordinates[], printHeadButtonPosition: number) {
     const buttonLeftMM = this.printPositionService.getButtonLeftMM(buttonOrigins, printHeadButtonPosition);

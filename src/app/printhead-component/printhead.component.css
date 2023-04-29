@@ -162,3 +162,12 @@ printhead-setup .mat-card-tile {
 ::ng-deep .mat-slide-toggle .mat-ripple-element {
   display: none;
 }
+
+.print-position-picker-position-button.custom-button-toggle {
+  position: absolute;
+  border: 1px solid black;
+  border-radius: 50%;
+  background-color: white;
+  aspect-ratio: 1 / 1;
+  box-sizing: content-box;
+}

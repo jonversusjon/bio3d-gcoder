@@ -9,13 +9,13 @@ import { ScreenUtils } from "../_services/screen-utils";
 import { PrintHeadStateService } from "../_services/print-head-state.service"
 import { PrintHead } from "../../types/PrintHead";
 import { PrintHeadButton } from "../../types/PrintHeadButton";
-import {Coordinates} from "../../types/Coordinates";
 import {Needle} from "../../types/Needle";
 import {StyleService} from "../_services/style.service";
 import { PlateFormatService } from "../_services/plate-format.service";
 import {MatSlideToggleChange} from "@angular/material/slide-toggle";
 import {PrintPositionService} from "../_services/print-position.service";
-import {BehaviorSubject, Subscription} from "rxjs";
+import {Subscription} from "rxjs";
+import {Coordinates} from "../../types/Coordinates";
 
 @Component({
   selector: 'app-printhead-component',
@@ -36,6 +36,12 @@ export class PrintheadComponent implements OnInit, OnDestroy, OnChanges, DoCheck
 
   activeToggle: boolean = false;
 
+  printPositionButtonBaseStyle = {};
+  printPositionButtonTopsPX:number[] = [];
+  printPositionButtonLeftsPX:number[] = [];
+  printPositionButtonWidthPX: number = 9;
+
+  printPositionOriginsMM:Coordinates[] = []
   constructor(
     private screenUtils: ScreenUtils,
     private printHeadStateService: PrintHeadStateService,
@@ -53,10 +59,10 @@ export class PrintheadComponent implements OnInit, OnDestroy, OnChanges, DoCheck
     this.subscriptions.push(
       this.printHeadStateService.printHeads$.subscribe((printHeads: PrintHead[]) => {
         this.printHeads = printHeads;
-        // ...
       })
     );
-
+    this.printPositionButtonBaseStyle = this.styleService.getBaseStyle('print-position-button');
+    this.printPositionOriginsMM = this.printPositionService.getPrintPositionOriginsMM('print-head', this.plateFormatService.getPlateFormats()[0].well_sizeMM)
     this.needles = this.printHeadStateService.needles;
   }
 
@@ -64,10 +70,8 @@ export class PrintheadComponent implements OnInit, OnDestroy, OnChanges, DoCheck
     this.printHeadStateService.printHeads$.subscribe(printHeads => {
       console.log('printhead-component notified of printheads change');
       this.printHeads = printHeads;
+      console.log('this.printHeads: ', this.printHeads);
     });
-    this.printHeadStateService.generateDefaultPrintHeads(1);
-    this.printHeadStateService.updateNeedle(this.printHeads[0].printHeadIndex, this.needles[0]);
-
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -92,8 +96,16 @@ export class PrintheadComponent implements OnInit, OnDestroy, OnChanges, DoCheck
   }
 
 
-  onGetSelectedPlateChange(selectPlate: PlateFormat) {
-    this.updateAllPrintHeadButtonSizes(this.printHeads);
+  onGetSelectedPlateChange(selectedPlate: PlateFormat) {
+    if(this.printHeads.length < 1) {
+      this.printHeadStateService.loadDefaultPrintHeads(1);
+      this.printHeadStateService.updateNeedle(this.printHeads[0].printHeadIndex, this.needles[0]);
+      for(let printHead of this.printHeads) {
+        this.updateButtonsSize(printHead, selectedPlate.well_sizeMM, printHead.needle.odMM);
+      }
+    }
+
+    // this.updateAllPrintHeadButtonSizes(this.printHeads);
   }
 
   onActiveToggleChange(printHead: PrintHead, event: MatSlideToggleChange) {
@@ -112,38 +124,45 @@ export class PrintheadComponent implements OnInit, OnDestroy, OnChanges, DoCheck
 
   onNeedleChange(printHead: PrintHead, needle: Needle) {
     this.printHeadStateService.updateNeedle(printHead.printHeadIndex, needle);
-    this.updateAllPrintHeadButtonSizes([printHead]);
   }
-  updateAllPrintHeadButtonSizes(printHeads: PrintHead[]) {
-    if(this._selectedPlate) {
-      for (const printHead of printHeads) {
-        const printPositionSizeMM = this.printPositionService.getButtonWidthMM(
-          "print-head", printHead.needle.odMM, this._selectedPlate?.well_sizeMM)
 
-        const radius = printPositionSizeMM/2;
-        const printPositionOriginsMM = this.printPositionService.getPrintPositionOriginsMM(
-          "print-head", this._selectedPlate?.well_sizeMM, -radius, -radius)
-
-        for (const button of printHead.printPositionButtons) {
-          // const newPrintPositionButonStyle = this.getMergedPrintPositionStyles(this.printPositionOriginsMM, button.position, printPositionSizeMM);
-          // button.style = newPrintPositionButonStyle;
-        }
-      }
-    } else {
-      console.warn("Printhead component unable to update all printHead button sizes; no selected plate;");
-    }
+  updateButtonsSize(printHead: PrintHead, plateMapWellSize: number, needleOdMM: number) {
+    // Calculate the new button width, top, and width based on the needle selection
+    const printPositionButtonWidthMM = this.printPositionService.getButtonWidthMM(
+      'print-head', this._selectedPlate.well_sizeMM, printHead.needle.odMM);
+    const calculatedButtonWidthPX = this.toPX(printPositionButtonWidthMM);
+    this.printPositionButtonWidthPX = calculatedButtonWidthPX < 9 ? 9 : calculatedButtonWidthPX;
+    this.printPositionButtonLeftsPX = this.printPositionOriginsMM.map(coordinate => this.toPX(coordinate.x - this.printPositionButtonWidthPX / 2));
+    this.printPositionButtonTopsPX = this.printPositionOriginsMM.map(coordinate => this.toPX(coordinate.y - this.printPositionButtonWidthPX/2));
   }
+
+  // updateAllPrintHeadButtonSizes(printHeads: PrintHead[]) {
+  //   console.log('printhead.component this._selectedPlate.well_sizeMM: ', this._selectedPlate.well_sizeMM);
+  //   if(this._selectedPlate) {
+  //     for (const printHead of printHeads) {
+  //       const printPositionSizeMM = this.printPositionService.getButtonWidthMM(
+  //         "print-head", this._selectedPlate?.well_sizeMM, printHead.needle.odMM);
+  //
+  //       const radius = printPositionSizeMM/2;
+  //       const printPositionOriginsMM = this.printPositionService.getPrintPositionOriginsMM(
+  //         "print-head", this._selectedPlate?.well_sizeMM, -radius, -radius)
+  //
+  //       for (const button of printHead.printPositionButtons) {
+  //         // const newPrintPositionButonStyle = this.getMergedPrintPositionStyles(this.printPositionOriginsMM, button.position, printPositionSizeMM);
+  //         // button.style = newPrintPositionButonStyle;
+  //       }
+  //     }
+  //   } else {
+  //     console.warn("Printhead component unable to update all printHead button sizes; no selected plate;");
+  //   }
+  // }
 
   onPrintHeadCountChange() {
-    console.log('onPrintHeadHeadCountChange triggered');
-    this.printHeadStateService.generateDefaultPrintHeads(this.printHeadCountInput);
-    this.updateAllPrintHeadButtonSizes(this.printHeads);
+    this.printHeadStateService.onPrintHeadCountChange(this.printHeadCountInput);
+    // this.updateAllPrintHeadButtonSizes(this.printHeads);
   }
 
-  toPX(size_in_mm:number, scale=1) {
-    if(scale && scale != 1) {
-      size_in_mm = size_in_mm * scale;
-    }
+  toPX(size_in_mm:number): number {
     return this.screenUtils.convertMMToPX(size_in_mm);
   }
 
@@ -154,13 +173,22 @@ export class PrintheadComponent implements OnInit, OnDestroy, OnChanges, DoCheck
   getStylePrintPositionPicker(printHead: PrintHead) {
     const mergedPrintPickerStyle =
       {
-        ...this.styleService.getBaseStyle('custom-button-toggle'),
+        ...this.styleService.getBaseStyle('well'),
         'width': (this.getPrintPickerWidthPX(printHead)) + 'px',
         'bottom-margin': '8px'
       }
     return mergedPrintPickerStyle;
   }
 
-
+  getStylePrintPositionButton(printHead: PrintHead, buttonIndex: number) {
+    const baseStyle = this.styleService.getBaseStyle('print-position-button');
+    const buttonStyle =
+      {...baseStyle,
+        'width': this.printPositionButtonWidthPX + 'px',
+        'top': this.printPositionButtonTopsPX[buttonIndex] + 'px',
+        'left': this.printPositionButtonLeftsPX[buttonIndex] + 'px'
+      }
+      return buttonStyle;
+  }
 }
 

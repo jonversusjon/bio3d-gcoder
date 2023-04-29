@@ -3,13 +3,13 @@
 import { Injectable, ApplicationRef } from '@angular/core';
 import {BehaviorSubject, Observable, Subject} from 'rxjs';
 import {emptyPlateFormat, PlateFormat} from "../../types/PlateFormat";
+import {emptyCoordinates} from "../../types/Coordinates";
 
 @Injectable({
   providedIn: 'root',
 })
 export class PlateFormatService {
-
-  public plateFormats = [
+  public plateFormats:PlateFormat[] = [
     { name: '6-well plate',
       'plateId': 6,
       rows: 2,
@@ -18,6 +18,8 @@ export class PlateFormatService {
       well_spacing_x_MM: 39.12,
       well_spacing_y_MM: 39.12,
       'a1_centerMM': {x:24.798,y:23.275},
+      elementType: 'PlateFormat',
+      printPositionSizeMM: 0,
       well_bottom_thicknessMM: 1.27,
       well_depth_MM: 16.5
     },
@@ -29,6 +31,8 @@ export class PlateFormatService {
       well_spacing_x_MM: 26,
       well_spacing_y_MM: 26,
       'a1_centerMM': {x:24.75,y:16.68},
+      elementType: 'PlateFormat',
+      printPositionSizeMM: 0,
       well_bottom_thicknessMM: 1.27,
       well_depth_MM: 16.5
     },
@@ -40,6 +44,8 @@ export class PlateFormatService {
       well_spacing_x_MM: 19.3,
       well_spacing_y_MM: 19.3,
       'a1_centerMM': {x:15.12,y:13.49},
+      elementType: 'PlateFormat',
+      printPositionSizeMM: 0,
       well_bottom_thicknessMM: 1.27,
       well_depth_MM: 16.5
     },
@@ -51,6 +57,8 @@ export class PlateFormatService {
       well_spacing_x_MM: 13.0,
       well_spacing_y_MM: 13.0,
       'a1_centerMM': {x:18.38,y:10.24},
+      elementType: 'PlateFormat',
+      printPositionSizeMM: 0,
       well_bottom_thicknessMM: 1.27,
       well_depth_MM: 16.5
     },
@@ -62,6 +70,8 @@ export class PlateFormatService {
       well_spacing_x_MM: 9,
       well_spacing_y_MM: 9,
       'a1_centerMM': {x:14.38,y:11.24},
+      elementType: 'PlateFormat',
+      printPositionSizeMM: 0,
       well_bottom_thicknessMM: 1.27,
       well_depth_MM: 10.9
     }

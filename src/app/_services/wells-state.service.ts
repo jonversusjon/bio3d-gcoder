@@ -92,7 +92,9 @@ export class WellsStateService {
               selected: false,
               originPX: { x: 0, y: 0 },
               originMM: { x: 0, y: 0 },
-              style: {},
+              topPX:0,
+              leftPX:0,
+              widthPX:0,
               elementType: 'PrintHeadButton'
             })),
             style: {

@@ -6,7 +6,7 @@
 
 <div class="grid-list-container">
   <div class="flex-container" style="justify-content: center; padding-right: 0; padding-left: 0;">
-    <div *ngFor="let printhead of printHeads; let printHeadIndex = index" class="flex-item">
+    <div *ngFor="let printhead of printHeads;" class="flex-item">
       <mat-card [ngClass]="{'disabled': !printhead.active}">
 
         <mat-card-title>
@@ -34,13 +34,10 @@
             <div class="print-position-picker grid-item"
                  [ngStyle]="getStylePrintPositionPicker(printhead)">
               <ng-container *ngFor="let printHeadButton of printhead.printPositionButtons; let j = index">
-                <mat-button-toggle
-                  (click)="togglePrintHeadButton(printhead, printHeadButton)"
-                  [checked]="printHeadButton.selected"
-                  class="print-position-picker-position-button custom-button-toggle"
-                  [ngStyle]="printHeadButton.style"
-                ></mat-button-toggle>
-                <!--                  [ngStyle]="getStylePrintPositionButton(printHeadButton.position, printHeadButton.style, 'scale-upbv')"-->
+                <button [ngStyle]="getStylePrintPositionButton(printhead, j)"
+                        (click)="togglePrintHeadButton(printhead, printHeadButton)"
+                ></button>
+
               </ng-container>
             </div>
           </div>

@@ -27,14 +27,14 @@ import {StyleService} from "./style.service";
 export class PrintHeadStateService implements OnDestroy {
   private _printHeads = new BehaviorSubject<PrintHead[]>([]);
   printHeads$ = this._printHeads.asObservable();
+  private currentPrintHeads:PrintHead[] = [];
 
   private _printPickerSizeMM: number = 34.8;
 
-  private readonly _selectedPlate: BehaviorSubject<PlateFormat>;
   private selectedPlateSubscription!: Subscription;
-  private currentSelectedPlate!: PlateFormat;
+  private currentSelectedPlate: PlateFormat;
 
-  public customButtonToggleStyle: any;
+
   private _printPositionCoordinates = new BehaviorSubject<Coordinates[]>([]);
   public printPositionCoordinates$ = this._printPositionCoordinates.asObservable();
 
@@ -57,19 +57,16 @@ export class PrintHeadStateService implements OnDestroy {
               private plateFormatService: PlateFormatService,
               private printPositionService: PrintPositionService,
               private styleService: StyleService) {
-      this._selectedPlate = new BehaviorSubject<PlateFormat>(emptyPlateFormat());
-      this._selectedPlate.subscribe((selectedPlate: PlateFormat) => {
-        this.currentSelectedPlate = selectedPlate;
-      });
-      const defaultPlateFormat =  this.plateFormatService.plateFormats[0];
-      this.customButtonToggleStyle = this.styleService.getBaseStyle('custom-button-toggle');
+
+      const defaultPlateFormat: PlateFormat =  this.plateFormatService.plateFormats[0];
+      this.currentSelectedPlate = defaultPlateFormat;
 
       this.printPositionOriginsMM = this.printPositionService.getPrintPositionOriginsMM("print-head", defaultPlateFormat.well_sizeMM);
 
-      this.plateFormatService.selectedPlate$.subscribe((plate) => {
-      console.log('printhead state service updates selected plate');
-      // this.onSelectedPlateChange(plate);
-    });
+      this.selectedPlateSubscription = this.plateFormatService.selectedPlate$.subscribe((plate) => {
+        this.currentSelectedPlate = plate;
+        // this.onSelectedPlateChange(plate);
+      });
   }
 
   ngOnDestroy() {
@@ -77,38 +74,49 @@ export class PrintHeadStateService implements OnDestroy {
   }
 
   // Generate printheads with default values and buttons
-  generateDefaultPrintHeads(numPrintHeads: number): void {
+ loadDefaultPrintHeads(numPrintHeads: number): void {
     const printHeads: PrintHead[] = [];
 
     for (let i = 0; i < numPrintHeads; i++) {
-      const createPrintHead = this.createDefaultPrintHead();
-      createPrintHead.color = this.styleService.THEME_COLORS.defaultLightTheme[i % this.styleService.THEME_COLORS.defaultLightTheme.length];
-      printHeads.push(createPrintHead);
+      const createdPrintHead = this.createPrintHead(i);
+      printHeads.push(createdPrintHead);
     }
-
+    this.currentPrintHeads = printHeads;
     this._printHeads.next(printHeads);
   }
 
-  // Create a single printhead with default values
-  private createDefaultPrintHead(): PrintHead {
-    return emptyPrintHead();
-  }
+  onPrintHeadCountChange(numPrintHeads: number): void {
+    const currentPrintHeadCount = this.currentPrintHeads.length;
 
-  // Handle increase/decrease of printheads
-  updateNumPrintHeads(newNumPrintHeads: number): void {
-    const currentPrintHeads = this._printHeads.value;
-    const currentNumPrintHeads = currentPrintHeads.length;
-
-    if (newNumPrintHeads > currentNumPrintHeads) {
-      for (let i = currentNumPrintHeads; i < newNumPrintHeads; i++) {
-        currentPrintHeads.push(this.createDefaultPrintHead());
+    if (numPrintHeads > currentPrintHeadCount) {
+      while (this.currentPrintHeads.length < numPrintHeads) {
+        const createPrintHead = this.createPrintHead(this.currentPrintHeads.length);
+        this.currentPrintHeads.push(createPrintHead);
       }
-    } else if (newNumPrintHeads < currentNumPrintHeads) {
-      currentPrintHeads.splice(newNumPrintHeads);
+    } else if (numPrintHeads < currentPrintHeadCount) {
+      while (this.currentPrintHeads.length > numPrintHeads ) {
+        this.currentPrintHeads.pop();
+      }
     }
 
-    this._printHeads.next(currentPrintHeads);
+    this._printHeads.next(this.currentPrintHeads);
   }
+
+  private createPrintHead(printHeadIndex: number): PrintHead {
+    console.log('createPrintHead thinks well diam: ', this.currentSelectedPlate.well_sizeMM);
+    const newPrintHead: PrintHead = emptyPrintHead();
+    newPrintHead.printHeadIndex = printHeadIndex;
+    newPrintHead.color = this.styleService.THEME_COLORS.defaultLightTheme[printHeadIndex % this.styleService.THEME_COLORS.defaultLightTheme.length];
+
+    console.log('Calling loadPrintPositionButtons with args:', 'print-head', this.currentSelectedPlate.well_sizeMM, this.needles[0].odMM);
+    newPrintHead.printPositionButtons = this.printPositionService.loadPrintPositionButtons(
+      'print-head',
+      this.currentSelectedPlate.well_sizeMM,
+      this.needles[0].odMM);
+
+    return newPrintHead;
+  }
+
 
   // Toggle print position button's status
   toggleButtonStatus(printHeadIndex: number, buttonIndex: number): void {
@@ -151,6 +159,7 @@ export class PrintHeadStateService implements OnDestroy {
 
       // Assuming the function `resizePrintPositionButtons` is already implemented
       // to resize print position buttons based on the needle outer diameter.
+      console.log('resizePrintPositionButtons called with selectedPrintHead.printHeadIndex: ', selectedPrintHead.printHeadIndex, ' newNeedle.odMM: ', newNeedle.odMM);
       this.resizePrintPositionButtons(selectedPrintHead.printHeadIndex, newNeedle.odMM);
       this._printHeads.next(currentPrintHeads);
     } else {
@@ -162,19 +171,17 @@ export class PrintHeadStateService implements OnDestroy {
     const printPickerDiamMM = 5; // Replace this with the actual value
     const currentPrintHeads = this._printHeads.value;
 
-    if (this._selectedPlate && currentPrintHeads[printHeadIndex]) {
+    if (this.currentSelectedPlate && currentPrintHeads[printHeadIndex]) {
       const scaleFactor =  (printPickerDiamMM / this.currentSelectedPlate.well_sizeMM);
 
       const selectedPrintHead = currentPrintHeads[printHeadIndex];
       selectedPrintHead.printPositionButtons.forEach(button => {
-        button.style = {
-          ...button.style,
-          width: `${newNeedleOdMM * scaleFactor}px`
-        };      });
+        button.widthPX = newNeedleOdMM * scaleFactor
+      });
 
       this._printHeads.next(currentPrintHeads);
     } else {
-      if (!this._selectedPlate) {
+      if (!this.currentSelectedPlate) {
         console.error('No selected plate found');
       } else {
         console.error(`Invalid printHeadIndex: ${printHeadIndex}`);
@@ -192,10 +199,7 @@ export class PrintHeadStateService implements OnDestroy {
 
       // Update the active state color of print position buttons
       selectedPrintHead.printPositionButtons.forEach(button => {
-        button.style =
-          {...button.style,
-          color: newColor}
-        ;
+        button.color = newColor
       });
 
       this._printHeads.next(currentPrintHeads);

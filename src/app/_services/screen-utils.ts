@@ -4,11 +4,15 @@ import { Injectable } from '@angular/core';
 export class ScreenUtils {
   private ppi: number | undefined;
 
-  convertMMToPX(mm: number): number {
-    const scalar = 1.0;
-    const inches = mm / 25.4;
-    const PX = inches * this.getPPI() * scalar;
-    return Math.round(PX);
+  convertMMToPX(mm: number, message?: string): number {
+    const scalar = 3.78; // this is px/mm
+    // const inches = mm / 25.4;
+    // const PX = inches * this.getPPI() * scalar;
+    const PX = mm * scalar;
+    if(message) {
+      console.log('convertMMToPX message: ', message, ' PX: ', PX);
+    }
+    return PX;
   }
 
   getPPI(): number {
