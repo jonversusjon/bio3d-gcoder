@@ -1,7 +1,7 @@
 import {Coordinates, emptyCoordinates} from "./Coordinates";
 
 export interface PrintHeadButton {
-  printHead: number;
+  parentIndex: number;
   position: number;
   selected: boolean;
   topPX: number;
@@ -9,12 +9,11 @@ export interface PrintHeadButton {
   widthPX: number;
   color: string;
   originMM: Coordinates;
-  originPX: Coordinates;
 }
 
 export function emptyPrintHeadButton(): PrintHeadButton {
   return {
-    printHead: -1,
+    parentIndex: -1,
     position: -1,
     selected: false,
     topPX: 0,
@@ -22,6 +21,5 @@ export function emptyPrintHeadButton(): PrintHeadButton {
     widthPX: 0,
     color: 'white',
     originMM: emptyCoordinates(),
-    originPX: emptyCoordinates(),
   }
 }

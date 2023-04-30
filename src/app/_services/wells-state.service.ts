@@ -86,7 +86,7 @@ export class WellsStateService {
             col: col,
             selected: false,
             printPositionButtons: Array.from({ length: this.printPositionService.PRINT_POSITIONS_COUNT }, (_, index) => ({
-              printHead: -1,
+              parentIndex: -1,
               position: index,
               color: 'this.getNextColor()',
               selected: false,

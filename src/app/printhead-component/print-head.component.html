@@ -1,12 +1,12 @@
 
-  <mat-form-field class="printhead-number-input-wrapper" appearance="fill">
-    <mat-label>Number of Printheads</mat-label>
-    <input matInput type="number" min="1" max="20" class="printhead-number-input" [(ngModel)]="printHeadCountInput" (change)="onPrintHeadCountChange()">
-  </mat-form-field>
+<mat-form-field class="printhead-number-input-wrapper" appearance="fill">
+  <mat-label>Number of Print-heads</mat-label>
+  <input matInput type="number" min="1" max="20" class="printhead-number-input" [(ngModel)]="printHeadCountInput" (change)="onPrintHeadCountChange()">
+</mat-form-field>
 
 <div class="grid-list-container">
   <div class="flex-container" style="justify-content: center; padding-right: 0; padding-left: 0;">
-    <div *ngFor="let printhead of printHeads;" class="flex-item">
+    <div *ngFor="let printhead of printHeads; let printHeadIndex = index" class="flex-item">
       <mat-card [ngClass]="{'disabled': !printhead.active}">
 
         <mat-card-title>
@@ -17,7 +17,7 @@
             </mat-form-field>
             <mat-form-field appearance="fill" class="needle-od-field grid-item">
               <mat-label class="custom-mat-label">Needle</mat-label>
-              <mat-select class="needle-select custom-mat-select" [(ngModel)]="printhead.needle" (selectionChange)="onNeedleChange(printhead, $event.value)">
+              <mat-select class="needle-select custom-mat-select" [(ngModel)]="printhead.needle" (selectionChange)="onNeedleChange(printhead, $event.value)" [disabled]="!printhead.active">
                 <mat-option *ngFor="let needle of needles" [value]="needle" class="custom-mat-select-option">{{needle.name}}</mat-option>
               </mat-select>
             </mat-form-field>
@@ -38,12 +38,11 @@
               </div>
               <ng-container *ngFor="let printHeadButton of printhead.printPositionButtons; let j = index">
                 <button class="print-position-picker-position-button custom-button-toggle" [ngStyle]="{
-                  'color': printhead.color,
-                  'width': printPositionService.printPositionButtonWidthPX + 'px',
-                  'top': 'calc(' + printPositionService.printPositionOriginsPct[j].y + '% - ' + (printPositionService.printPositionButtonWidthPX/2) + 'px)',
-                  'left': 'calc(' + printPositionService.printPositionOriginsPct[j].x + '% - ' + (printPositionService.printPositionButtonWidthPX/2) + 'px)'
-                }"
-                        (click)="togglePrintHeadButton(printhead, printHeadButton)"
+                  'background-color': !printhead.active ? 'grey' : (printHeadButton.selected ? printhead.color : 'white'),
+                  'width': printPositionService.printPositionButtonWidthPX[printHeadIndex] + 'px',
+                  'top': 'calc(' + printPositionService.printPositionOriginsPct[j].y + '% - ' + (printPositionService.printPositionButtonWidthPX[printHeadIndex]/2) + 'px)',
+                  'left': 'calc(' + printPositionService.printPositionOriginsPct[j].x + '% - ' + (printPositionService.printPositionButtonWidthPX[printHeadIndex]/2) + 'px)'
+                }" (click)="togglePrintHeadButton(printhead, printHeadButton)"
                 ></button>
               </ng-container>
 

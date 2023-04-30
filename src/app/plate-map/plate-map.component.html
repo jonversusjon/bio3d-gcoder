@@ -10,13 +10,14 @@
         </mat-option>
       </mat-select>
     </mat-form-field>
-
   </div>
+  <div class="plate-map" (mousemove)="onMouseMove($event)" (mouseleave)="onMouseLeave()">
+
     <div class="plate" [ngStyle]="plateStyle">
       <div class="blankTitle"></div>
       <div class="colHeader" *ngFor="let colHeader of plateMap.columnHeaders; let colIndex = index" [ngStyle]="colHeader.style"
-           (click)="toggleColumnSelection(selectedPlate, plateMap, colIndex, $event)">
-        {{colHeader.label}}
+             (click)="toggleColumnSelection(selectedPlate, plateMap, colIndex, $event)">
+          {{colHeader.label}}
       </div>
       <div class="rowHeader" *ngFor="let rowHeader of plateMap.rowHeaders; let rowIndex = index" [ngStyle]="rowHeader.style"
            (click)="toggleRowSelection(selectedPlate, plateMap, rowIndex, $event)">
@@ -27,18 +28,25 @@
              class="print-position-picker"
              [ngStyle]="well.style"
              [ngClass]="{'selected-well': well.selected, 'unselected-well': !well.selected, 'base-well-style': true}"
-             (click)="toggleWellSelection(plateMap, i,rw)">
-            <ng-container *ngFor="let printHead of printHeads">
-              <ng-container *ngFor="let button of printHead.printPositionButtons; let buttonIndex = index">
-                <mat-button-toggle *ngIf="well.selected && button.selected"
-                        [ngStyle]="getStylePrintPositionButton(printHead, button)"
-                        [style.background-color]="printHead.color"
-                ></mat-button-toggle>
-              </ng-container>
-            </ng-container>
+             (click)="toggleWellSelection(plateMap, i,rw)"
+             (mouseenter)="toggleMagnifier(true, $event, wellElement)"
+             (mouseleave)="toggleMagnifier(false)"
+             #wellElement>
+            <svg width="100%" height="100%">
+              <g *ngFor="let printHead of printHeads; let printHeadIndex = index;">
+                <g *ngFor="let button of printHead.printPositionButtons; let buttonIndex = index">
+                  <circle *ngIf="well.selected && button.selected"
+                          [attr.cx]="printPositionService.printPositionOriginsPct[buttonIndex].x + '%'"
+                          [attr.cy]="printPositionService.printPositionOriginsPct[buttonIndex].y + '%'"
+                          [attr.r]="printPositionService.printPositionButtonWidthPX_PlateMap[printHeadIndex] / 2"
+                          [attr.fill]="printHead.color"></circle>
+                </g>
+              </g>
+            </svg>
         </div>
       </div>
     </div>
+  </div>
   <div class="plate-calibration-container">
     <div class="calibration-form flex-item">
       <div class="calibration-controls">
@@ -61,7 +69,40 @@
     </div>
   </div>
 </div>
-<button (click)="logState()">Log Current State</button>
+<div class="magnifier" [ngStyle]="getMagnifierStyle()">
+  <div class="magnified-content" [ngStyle]="magnifiedContentStyle">
+    <div class="plate" [ngStyle]="plateStyle">
+      <div class="blankTitle"></div>
+      <div class="colHeader" *ngFor="let colHeader of plateMap.columnHeaders; let colIndex = index" [ngStyle]="colHeader.style"
+           (click)="toggleColumnSelection(selectedPlate, plateMap, colIndex, $event)">
+        {{colHeader.label}}
+      </div>
+      <div class="rowHeader" *ngFor="let rowHeader of plateMap.rowHeaders; let rowIndex = index" [ngStyle]="rowHeader.style"
+           (click)="toggleRowSelection(selectedPlate, plateMap, rowIndex, $event)">
+        {{rowHeader.label}}
+      </div>
+      <div class="plate-row" *ngFor="let plateRow of plateMap.wells; let i = index;">
+        <div *ngFor="let well of plateRow; let rw = index;"
+             class="print-position-picker"
+             [ngStyle]="well.style"
+             [ngClass]="{'selected-well': well.selected, 'unselected-well': !well.selected, 'base-well-style': true}"
+             (click)="toggleWellSelection(plateMap, i,rw)">
+          <svg width="100%" height="100%">
+            <g *ngFor="let printHead of printHeads; let printHeadIndex = index;">
+              <g *ngFor="let button of printHead.printPositionButtons; let buttonIndex = index">
+                <circle *ngIf="well.selected && button.selected"
+                        [attr.cx]="printPositionService.printPositionOriginsPct[buttonIndex].x + '%'"
+                        [attr.cy]="printPositionService.printPositionOriginsPct[buttonIndex].y + '%'"
+                        [attr.r]="printPositionService.printPositionButtonWidthPX_PlateMap[printHeadIndex] / 2"
+                        [attr.fill]="printHead.color"></circle>
+              </g>
+            </g>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
 
 

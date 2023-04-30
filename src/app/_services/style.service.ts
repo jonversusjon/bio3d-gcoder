@@ -11,11 +11,11 @@ export class StyleService {
 
   private _baseStyles: { [key: string]: any } = {
     'well': {
-      position: 'absolute',
+      position: 'relative',
       borderRadius: '50%',
       border: '1px solid black',
       aspectRatio: '1 / 1',
-      boxSizing: 'content-box',
+      boxSizing: 'border-box',
     },
     'print-position-button': {
       position: 'absolute',

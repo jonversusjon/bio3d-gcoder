@@ -9,6 +9,7 @@ print positions inside the printHead and the plate map
  */
 
 import {Injectable} from "@angular/core";
+import { Subject } from 'rxjs';
 import {Coordinates} from "../../types/Coordinates";
 import {ScreenUtils} from "./screen-utils";
 import {PrintHeadButton, emptyPrintHeadButton} from "../../types/PrintHeadButton";
@@ -24,7 +25,8 @@ export class PrintPositionService {
   // constants //
   PRINT_POSITIONS_COUNT: number = 9; // One central print position surrounded by a ring of 8 print positions
   PRINT_PICKER_DIAM_MM: number = 34.8; // the print picker size in PX doesn't change but relative needle sizes are represented based on this
-  BUTTON_MIN_WIDTH_PX: number = 4;
+  // in angular the actual width of anything is calculated as computedWidth = specifiedWidth + (borderLeftWidth + borderRightWidth) + (paddingLeft + paddingRight)
+  BUTTON_MIN_WIDTH_PX: number = 7;
   public customButtonToggleStyle: any;
 
   // class variables //
@@ -34,12 +36,16 @@ export class PrintPositionService {
 
   public printPositionButtonTopsPX:number[] = [];
   public printPositionButtonLeftsPX:number[] = [];
-  public printPositionButtonWidthPX: number = 9;
-
+  public printPositionButtonWidthPX: number[] = [9];
+  public printPositionButtonWidthPX_PlateMap: number[] = [9];
   public toScale: boolean = false;
+
+  buttonWidthChanged = new Subject<void>();
+
   constructor(private screenUtils: ScreenUtils,
               private plateFormatService: PlateFormatService,
-              private styleService: StyleService) {
+              private styleService: StyleService,
+             ) {
     this.customButtonToggleStyle = this.styleService.getBaseStyle('custom-button-toggle');
     this.printPositionOriginsMM = this.getPrintPositionOriginsMM('print-head', this.plateFormatService.getPlateFormats()[0].well_sizeMM)
     this.printPositionOriginsPct = this.getPrintPositionOriginsPct(this.plateFormatService.getPlateFormats()[0].well_sizeMM);
@@ -58,22 +64,22 @@ export class PrintPositionService {
     }
   }
 
-  getButtonLeftMM(buttonCoordinates: Coordinates[], buttonPosition: number) {
-    if (buttonCoordinates[buttonPosition]) {
-      return buttonCoordinates[buttonPosition].x;
-    } else {
-      console.warn("print-position-service couldn't calculate button left; coordinates for position ", buttonPosition, "not received;");
-      return 0;
-    }
-  }
-
-  getButtonTopMM(buttonCoordinates: Coordinates[], buttonPosition: number) {
-    if (buttonCoordinates[buttonPosition]) {
-      return buttonCoordinates[buttonPosition].y;
-    } else {
-      return 0;
-    }
-  }
+  // getButtonLeftMM(buttonCoordinates: Coordinates[], buttonPosition: number) {
+  //   if (buttonCoordinates[buttonPosition]) {
+  //     return buttonCoordinates[buttonPosition].x;
+  //   } else {
+  //     console.warn("print-position-service couldn't calculate button left; coordinates for position ", buttonPosition, "not received;");
+  //     return 0;
+  //   }
+  // }
+  //
+  // getButtonTopMM(buttonCoordinates: Coordinates[], buttonPosition: number) {
+  //   if (buttonCoordinates[buttonPosition]) {
+  //     return buttonCoordinates[buttonPosition].y;
+  //   } else {
+  //     return 0;
+  //   }
+  // }
 
   // getPrintPositionCoordinates(parentType: 'PrintHead' | 'Well', dotSizeMM:number, adj_x= 0, adj_y= 0) {
   getPrintPositionOriginsMM(forWhichElement: 'plate-map' | 'print-head', selectedPlateWellDiamMM: number, adj_x= 0, adj_y= 0) {
@@ -117,53 +123,53 @@ export class PrintPositionService {
   }
 
   loadPrintPositionButtons(forWhichElement: 'plate-map' | 'print-head',
+                           parentIndex: number,
                            selectedPlateWellDiamMM: number,
                            needleOdMM: number,
                            adj_x = 0, adj_y = 0): PrintHeadButton[] {
     const printPositionOriginsMM = this.getPrintPositionOriginsMM(forWhichElement, selectedPlateWellDiamMM, adj_x, adj_y);
-    return printPositionOriginsMM.map(coordinates => {
+    return printPositionOriginsMM.map((coordinates, index) => {
       const button = emptyPrintHeadButton();
-      // const buttonWidthMM = this.getButtonWidthMM(forWhichElement, selectedPlateWellDiamMM, needleOdMM);
-      // const message = "buttonWidth is " + buttonWidthMM.toString() + " MM";
 
-      // const calculatedButtonWidthPX = this.toPX(buttonWidthMM, message);
-      // const buttonWidthPX = calculatedButtonWidthPX < 9 ? 9 : calculatedButtonWidthPX;
-      // this.toScale = calculatedButtonWidthPX >= 9;
-      // const leftPX = this.toPX(coordinates.x - buttonWidthPX / 2);
-      // const topPX = this.toPX(coordinates.y - buttonWidthPX / 2);
-      // button.leftPX = leftPX;
-      // button.topPX = topPX;
-      // button.widthPX = buttonWidthPX;
+      // add the properties that don't change
+      button.parentIndex = parentIndex;
+      button.position = index;
+      button.originMM = coordinates;
 
       return button;
     });
   }
 
+
   getNewButtonsSize(forWhichElement: 'plate-map' | 'print-head', printHead: PrintHead, plateMapWellSize: number, needleOdMM: number) {
     // Calculate the new button width, top, and width based on the needle selection
-    // console.log('getNewButtonsSize called with printHead: ', printHead, ' plateMapWellSize: ', plateMapWellSize, 'needleOdMM: ', needleOdMM);
-    const printPositionButtonWidthMM = this.getButtonWidthMM(forWhichElement, plateMapWellSize, needleOdMM);
+    const printPositionButtonWidthMM = this.getButtonWidthMM('print-head', plateMapWellSize, needleOdMM);
+    const printPositionButtonWidthMM_PlateMap = this.getButtonWidthMM('plate-map', plateMapWellSize, needleOdMM)
     const calculatedButtonWidthPX = this.toPX(printPositionButtonWidthMM);
+    const printPositionButtonWidthPX_PlateMap = this.toPX(printPositionButtonWidthMM_PlateMap);
 
-    this.printPositionButtonWidthPX = calculatedButtonWidthPX < this.BUTTON_MIN_WIDTH_PX ? this.BUTTON_MIN_WIDTH_PX : calculatedButtonWidthPX;
-    this.toScale = calculatedButtonWidthPX > this.BUTTON_MIN_WIDTH_PX;
-    console.log('printPositionButtonLeftsPX before: ',  this.printPositionButtonLeftsPX);
-    this.printPositionButtonLeftsPX = this.printPositionOriginsMM.map(coordinate =>
-      this.toPX(coordinate.x - this.printPositionButtonWidthPX / 2)
-    );
-    console.log('printPositionButtonLeftsPX after: ',  this.printPositionButtonLeftsPX);
-    this.printPositionButtonTopsPX = this.printPositionOriginsMM.map(coordinate =>
-      this.toPX(coordinate.y - this.printPositionButtonWidthPX / 2)
-    );
-    return {
-      widthPX: this.printPositionButtonWidthPX,
-      leftsPX: this.printPositionButtonLeftsPX,
-      topsPX: this.printPositionButtonTopsPX
+    // Check if the printPositionButtonWidthPX array length is at least (printHeadIndex + 1)
+    if (this.printPositionButtonWidthPX.length <= printHead.printHeadIndex) {
+      // Extend the array
+      this.printPositionButtonWidthPX.length = printHead.printHeadIndex + 1;
+      this.printPositionButtonWidthPX_PlateMap.length = printHead.printHeadIndex + 1;
     }
+
+    // Set the value for the printHeadIndex
+    this.printPositionButtonWidthPX[printHead.printHeadIndex] = calculatedButtonWidthPX < this.BUTTON_MIN_WIDTH_PX ? this.BUTTON_MIN_WIDTH_PX : calculatedButtonWidthPX;
+    this.printPositionButtonWidthPX_PlateMap[printHead.printHeadIndex] = printPositionButtonWidthPX_PlateMap;
+    this.toScale = calculatedButtonWidthPX > this.BUTTON_MIN_WIDTH_PX;
+
+    printHead.printPositionButtons.forEach(button => {
+      button.widthPX = this.printPositionButtonWidthPX[printHead.printHeadIndex];
+    });
+    console.log('this.printPositionButtonWidthPX: ', this.printPositionButtonWidthPX);
+    console.log('this.printPositionButtonWidthPX_PlateMap: ', this.printPositionButtonWidthPX_PlateMap);
+    this.buttonWidthChanged.next();
   }
+
   toPX(size_in_mm: number, message?: string) {
     return this.screenUtils.convertMMToPX(size_in_mm, message);
   }
-
 
 }

@@ -52,4 +52,29 @@
   transform: scale(0.6);
 }
 
+.print-position-picker-position-button.custom-button-toggle {
+  position: absolute;
+  border: 1px solid black;
+  border-radius: 50%;
+  background-color: white;
+  aspect-ratio: 1 / 1;
+  box-sizing: border-box;
+  z-index: 10;
+}
+
+.magnifier {
+  position: absolute;
+  overflow: hidden;
+  border: 2px solid #333;
+  border-radius: 50%;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  pointer-events: none;
+  /* Add a glass effect */
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(4px);
+}
+
+.magnified-content {
+  position: relative;
+}
 

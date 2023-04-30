@@ -34,12 +34,6 @@ export class PrintHeadStateService implements OnDestroy {
   private selectedPlateSubscription!: Subscription;
   private currentSelectedPlate: PlateFormat;
 
-
-  private _printPositionCoordinates = new BehaviorSubject<Coordinates[]>([]);
-  public printPositionCoordinates$ = this._printPositionCoordinates.asObservable();
-
-  private printPositionOriginsMM: Coordinates[] = [];
-
   public needles:Needle[] = [
     {name: '27ga', odMM: 0.42, color: 'white'},
     {name: '25ga', odMM: 0.53, color: 'red'},
@@ -65,7 +59,7 @@ export class PrintHeadStateService implements OnDestroy {
 
       this.selectedPlateSubscription = this.plateFormatService.selectedPlate$.subscribe((plate) => {
         this.currentSelectedPlate = plate;
-        // this.onSelectedPlateChange(plate);
+        this.onSelectedPlateChange(plate);
       });
   }
 
@@ -91,11 +85,13 @@ export class PrintHeadStateService implements OnDestroy {
     if (numPrintHeads > currentPrintHeadCount) {
       while (this.currentPrintHeads.length < numPrintHeads) {
         const createPrintHead = this.createPrintHead(this.currentPrintHeads.length);
+        this.printPositionService.getNewButtonsSize('print-head', createPrintHead, this.currentSelectedPlate.well_sizeMM, createPrintHead.needle.odMM);
         this.currentPrintHeads.push(createPrintHead);
       }
     } else if (numPrintHeads < currentPrintHeadCount) {
       while (this.currentPrintHeads.length > numPrintHeads ) {
         this.currentPrintHeads.pop();
+        this.printPositionService.printPositionButtonWidthPX.pop();
       }
     }
 
@@ -108,9 +104,9 @@ export class PrintHeadStateService implements OnDestroy {
     newPrintHead.printHeadIndex = printHeadIndex;
     newPrintHead.color = this.styleService.THEME_COLORS.defaultLightTheme[printHeadIndex % this.styleService.THEME_COLORS.defaultLightTheme.length];
 
-    console.log('Calling loadPrintPositionButtons with args:', 'print-head', this.currentSelectedPlate.well_sizeMM, this.needles[0].odMM);
     newPrintHead.printPositionButtons = this.printPositionService.loadPrintPositionButtons(
       'print-head',
+      printHeadIndex,
       this.currentSelectedPlate.well_sizeMM,
       this.needles[0].odMM);
 
@@ -200,7 +196,15 @@ export class PrintHeadStateService implements OnDestroy {
     }
   }
 
-
+  onSelectedPlateChange(plate: PlateFormat) {
+    if (plate) {
+      for(let printHead of this.currentPrintHeads) {
+        this.printPositionService.getNewButtonsSize('print-head', printHead, plate.well_sizeMM,printHead.needle.odMM);
+      }
+    } else {
+      console.warn('printhead state service has no idea what plate youre talking about');
+    }
+  }
   // Update print depth properties
   updatePrintDepth(printHeadIndex: number, printDepthStart: number, printDepthEnd: number): void {
     // Implement the functionality to update print depth properties
@@ -220,17 +224,7 @@ export class PrintHeadStateService implements OnDestroy {
 //   public printHeads$ = this._printHeads.asObservable();
 
 //
-//   onSelectedPlateChange(plate: PlateFormat) {
-//
-//     // if (plate) {
-//     //   // console.log('print-head-state-service plate: ', plate);
-//     //   this.printPositionCoordinates = this.printPositionService.getPrintPositionCoordinates('Well', plate.printPositionSizeMM);
-//     //   this._printPositionCoordinates.next(this.printPositionCoordinates);
-//     // } else {
-//     //   console.warn('printhead state service has no idea what plate youre talking about');
-//     //   this.printPositionCoordinates = [];
-//     // }
-//   }
+
 //
 //   updatePrintHeadButtons(printHead: PrintHead, buttonIndex?: number, updateAll: boolean = false): void {
 //     if (updateAll) {

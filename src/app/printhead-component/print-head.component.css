@@ -50,6 +50,7 @@
   align-items: center;
   aspect-ratio: 1 / 1;
   margin-right: 16px;
+  box-sizing: border-box;
 }
 
 .print-position-picker {
@@ -60,6 +61,7 @@
   aspect-ratio: 1 / 1;
   justify-content: center;
   align-items: center;
+  box-sizing: border-box;
 }
 
 .print-position-picker-position-button.custom-button-toggle {

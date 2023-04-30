@@ -57,6 +57,36 @@ export class PlateMapComponent implements OnInit, AfterViewInit, OnDestroy {
 
   printPositionOriginsMM: Coordinates[][] = [];
 
+  magnifierSize = 135;
+  magnificationFactor = 2;
+  magnifierStyle: {
+    display: string;
+    left: string;
+    top: string;
+    visibility: string;
+    width: number;
+    height: number;
+  } = {
+    display: 'none',
+    left: '0px',
+    top: '0px',
+    visibility: 'hidden',
+    width: this.magnifierSize,
+    height: this.magnifierSize
+  };
+
+  magnifiedContentStyle: {
+    transform: string;
+    left: string;
+    top: string;
+    backgroundPosition: string;
+  } = {
+    transform: `scale(${this.magnificationFactor})`,
+    left: '0px',
+    top: '0px',
+    backgroundPosition: '0px 0px',
+  };
+
   constructor(
     private gcodeService: GcodeService,
     private screenUtils: ScreenUtils,
@@ -66,7 +96,7 @@ export class PlateMapComponent implements OnInit, AfterViewInit, OnDestroy {
     private styleService: StyleService,
     private calibrationService: CalibrationService,
     private wellsStateService: WellsStateService,
-    private printPositionService: PrintPositionService,
+    public printPositionService: PrintPositionService,
   ) {
     this.renderer = rendererFactory.createRenderer(null, null);
     this.initializePlateFormats();
@@ -124,7 +154,6 @@ export class PlateMapComponent implements OnInit, AfterViewInit, OnDestroy {
 
   onSelectedPlateChanged(event: MatSelectChange): void {
     const newSelectedPlate = event.value;
-    console.log('newSelectedPlate: ', newSelectedPlate);
     if (newSelectedPlate !== this.prevSelectedPlate) {
       this.prevSelectedPlate = newSelectedPlate;
       this.selectedPlate = newSelectedPlate;
@@ -179,49 +208,59 @@ export class PlateMapComponent implements OnInit, AfterViewInit, OnDestroy {
     return this.screenUtils.convertMMToPX(size_in_mm);
   }
 
-  getButtonWidthPX(printHead: PrintHead) {
-    const buttonWidthMM = printHead.buttonWidthPX;
-    return this.toPX(buttonWidthMM);
+  onMouseMove(event: MouseEvent) {
+
+    const scaleFactor = 1.5;
+
+    this.magnifierStyle.display = 'block';
+    this.magnifierStyle.left = event.clientX - this.magnifierSize / 2 + 'px';
+    this.magnifierStyle.top = event.clientY - this.magnifierSize / 2 + 'px';
+
+    this.magnifiedContentStyle.left = -event.clientX * (scaleFactor - 1) + this.magnifierSize / 2 + 'px';
+    this.magnifiedContentStyle.top = -event.clientY * (scaleFactor - 1) + this.magnifierSize / 2 + 'px';
   }
 
-  getPrintPositionOriginsMM() {
-    return this.printPositionService.getPrintPositionOriginsMM("plate-map", this.selectedPlate.well_sizeMM);
+  onMouseLeave() {
+    this.magnifierStyle.display = 'none';
   }
 
-
-  getStylePrintPositionButton(printHead: PrintHead, printHeadButton: PrintHeadButton) {
-    const buttonOrigins = this.printPositionOriginsMM[printHead.printHeadIndex];
-    const buttonSizePX = this.getPrintPositionButtonWidthPX(printHead.needle.odMM);
-    let topPX = this.getButtonTopPX(buttonOrigins, printHeadButton.position) - (buttonSizePX/2);
-    let lfPX = this.getButtonLeftPX(buttonOrigins, printHeadButton.position) - (buttonSizePX/2);
-    const buttonColor = printHead.active? (printHeadButton.selected ? printHead.color : 'white') : '#f1f1f1';
-
+  getMagnifierStyle() {
     return {
-      ...this.customButtonToggleStyle,
-      'width': buttonSizePX + 'px',
-      'top': topPX + 'px',
-      'left': lfPX + 'px',
-      'background-color': buttonColor,
-      border:'none',
-    };
+      ...this.magnifierStyle,
+      height: this.magnifierSize + 'px',
+      width: this.magnifierSize + 'px'
+    }
+  }
+  toggleMagnifier(visible: boolean, event?: MouseEvent, wellElement?: HTMLElement): void {
+    if (visible && event && wellElement) {
+      const magnifierSize = this.magnifierSize; // Change this value to match the size of your magnifier element
+      const halfMagnifierSize = magnifierSize / 2;
+
+      // Set magnifierStyle's 'top' and 'left' properties to center the magnifier under the cursor
+      this.magnifierStyle = {
+        ...this.magnifierStyle,
+        display: 'block',
+        top: event.clientY - halfMagnifierSize + 'px',
+        left: event.clientX - halfMagnifierSize + 'px',
+        visibility: 'visible'
+      };
+
+      // Update magnifiedContentStyle to show the correct content
+      const wellRect = wellElement.getBoundingClientRect();
+      const scaleX = (wellRect.width / this.toPX(this.selectedPlate.well_sizeMM))*this.magnificationFactor;
+      const scaleY = (wellRect.height / this.toPX(this.selectedPlate.well_sizeMM))*this.magnificationFactor;
+      this.magnifiedContentStyle = {
+        transform: `scale(${scaleX}, ${scaleY})`,
+        top: -wellRect.top * scaleY + 'px',
+        left: -wellRect.left * scaleX + 'px',
+        backgroundPosition: '0px 0px'
+      };
+    } else {
+      // Hide the magnifier
+      this.magnifierStyle = {
+        ...this.magnifierStyle,
+        display: 'none' };
+    }
   }
 
-  getPrintPositionButtonWidthPX(needleOdMM: number) {
-    const plateMapWellDiamMM = this.selectedPlate.well_sizeMM;
-    console.log('plate-map-component plateMapWellDiamMM: ', plateMapWellDiamMM);
-    return this.toPX(this.printPositionService.getButtonWidthMM('plate-map', plateMapWellDiamMM, needleOdMM));
-  }
-  getButtonLeftPX(buttonOrigins: Coordinates[], printHeadButtonPosition: number) {
-    const buttonLeftMM = this.printPositionService.getButtonLeftMM(buttonOrigins, printHeadButtonPosition);
-    return this.toPX(buttonLeftMM);
-  }
-
-  getButtonTopPX(buttonOrigins: Coordinates[], printHeadButtonPosition: number) {
-    const buttonTopMM = this.printPositionService.getButtonTopMM(
-      buttonOrigins, printHeadButtonPosition);
-    return this.toPX(buttonTopMM);
-  }
-  logState() {
-    this.gcodeService.formatExperimentDetails();
-  }
 }

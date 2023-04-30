@@ -2,7 +2,7 @@ import {
   Component, OnChanges,
   OnDestroy,
   OnInit, SimpleChanges,
-  ChangeDetectionStrategy
+  ChangeDetectionStrategy, ChangeDetectorRef
 } from '@angular/core';
 import { PlateFormat } from "../../types/PlateFormat";
 import { ScreenUtils } from "../_services/screen-utils";
@@ -43,6 +43,7 @@ export class PrintHeadComponent implements OnInit, OnDestroy, OnChanges {
     private styleService: StyleService,
     private plateFormatService: PlateFormatService,
     public printPositionService: PrintPositionService,
+    private changeDetectorRef: ChangeDetectorRef,
     ) {
 
     this.subscriptions.push(
@@ -54,6 +55,11 @@ export class PrintHeadComponent implements OnInit, OnDestroy, OnChanges {
     this.subscriptions.push(
       this.printHeadStateService.printHeads$.subscribe((printHeads: PrintHead[]) => {
         this.printHeads = printHeads;
+      })
+    );
+    this.subscriptions.push(
+      this.printPositionService.buttonWidthChanged.subscribe(() => {
+        this.changeDetectorRef.markForCheck();
       })
     );
     this.printPositionButtonBaseStyle = this.styleService.getBaseStyle('print-position-button');
@@ -122,7 +128,7 @@ export class PrintHeadComponent implements OnInit, OnDestroy, OnChanges {
 
   updateButtonsSize(printHead: PrintHead, plateMapWellSize: number, needleOdMM: number) {
     console.log('updateButtonsSize called with printHead: ', printHead, ' plateMapWellSize: ', plateMapWellSize, 'needleOdMM: ', needleOdMM);
-    this.printPositionService.getNewButtonsSize('print-head',printHead, plateMapWellSize, needleOdMM);
+    this.printPositionService.getNewButtonsSize('print-head', printHead, plateMapWellSize, needleOdMM);
   }
 
   onPrintHeadCountChange() {
@@ -145,9 +151,9 @@ export class PrintHeadComponent implements OnInit, OnDestroy, OnChanges {
 
   getStylePrintPositionButton(printHead: PrintHead, buttonIndex: number) {
     const baseStyle = this.styleService.getBaseStyle('print-position-button');
-    console.log('new printPositionButtonWidthPX: ', this.printPositionService.printPositionButtonWidthPX + 'px');
-    console.log('new printPositionButtonTopsPX[buttonIndex]: ', this.printPositionService.printPositionButtonTopsPX[buttonIndex] + 'px');
-    console.log('new printPositionButtonLeftsPX[buttonIndex]: ', this.printPositionService.printPositionButtonLeftsPX[buttonIndex] + 'px');
+    // console.log('new printPositionButtonWidthPX: ', this.printPositionService.printPositionButtonWidthPX + 'px');
+    // console.log('new printPositionButtonTopsPX[buttonIndex]: ', this.printPositionService.printPositionButtonTopsPX[buttonIndex] + 'px');
+    // console.log('new printPositionButtonLeftsPX[buttonIndex]: ', this.printPositionService.printPositionButtonLeftsPX[buttonIndex] + 'px');
     return {
       ...baseStyle,
       'width': this.printPositionService.printPositionButtonWidthPX + 'px',
