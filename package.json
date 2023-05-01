@@ -8,7 +8,6 @@
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "docs": "typedoc --out docs --exclude \"**/*.spec.ts\" --exclude \"**/*.test.ts\" --entryPoints src/main.ts\n"
-
   },
   "private": true,
   "dependencies": {
@@ -25,6 +24,8 @@
     "@types/file-saver": "^2.0.5",
     "bootstrap": "^5.2.3",
     "file-saver": "^2.0.5",
+    "highcharts": "^11.0.0",
+    "highcharts-angular": "^3.1.2",
     "html2canvas": "^1.4.1",
     "jspdf": "^2.5.1",
     "ngx-color-picker": "^14.0.0",

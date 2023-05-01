@@ -52,7 +52,7 @@ export class WellsStateService {
     const cols = selectedPlate.cols;
 
     const wellDiameterPX = this.toPX(selectedPlate.well_sizeMM); // pixels
-    const wellSpacingPX = this.toPX(selectedPlate.well_spacing_x_MM - selectedPlate.well_sizeMM) // pixels
+    const wellSpacingPX = this.toPX(selectedPlate.well_pitch_x_MM - selectedPlate.well_sizeMM) // pixels
     const a1_xPX = this.toPX(selectedPlate.a1_centerMM.x) // pixels
     const a1_yPX = this.toPX(selectedPlate.a1_centerMM.y) // pixels
     const colHeaderHeightPX = this.toPX(selectedPlate.a1_centerMM.y - (selectedPlate.well_sizeMM/2));
@@ -64,8 +64,8 @@ export class WellsStateService {
       selectedPlate.a1_centerMM.y,
       rows,
       cols,
-      selectedPlate.well_spacing_x_MM,
-      selectedPlate.well_spacing_y_MM);
+      selectedPlate.well_pitch_x_MM,
+      selectedPlate.well_pitch_y_MM);
 
       plateMap.wells = Array.from({length: rows}, (_, row) => {
         return Array.from({length: cols}, (_, col) => {

@@ -35,6 +35,7 @@
 
 .well-row {
   display: contents;
+  z-index: 10;
 }
 
 .plate {
@@ -78,3 +79,18 @@
   position: relative;
 }
 
+.plate-origin-marker {
+  position: absolute;
+}
+
+.major-tick {
+  stroke-width: 2;
+}
+
+.minor-tick {
+  stroke-width: 1;
+}
+
+.axes {
+  z-index: 100;
+}

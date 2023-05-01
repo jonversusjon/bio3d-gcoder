@@ -9,7 +9,8 @@ import {
   OnDestroy,
   OnInit,
   Renderer2,
-  RendererFactory2
+  RendererFactory2,
+  ChangeDetectorRef,
 } from '@angular/core';
 import { Subscription } from "rxjs";
 import {ScreenUtils} from "../_services/screen-utils";
@@ -17,7 +18,6 @@ import {PlateFormatService} from '../_services/plate-format.service';
 import { PlateFormat } from "../../types/PlateFormat";
 import { PrintHeadStateService } from "../_services/print-head-state.service";
 import { PrintHead } from "../../types/PrintHead";
-import { PrintPosition } from "../../types/PrintPosition";
 import {MatSelectChange} from "@angular/material/select";
 import {StyleService} from "../_services/style.service";
 import {CalibrationService} from "../_services/calibration.service";
@@ -26,7 +26,6 @@ import {PlateMap} from "../../types/PlateMap";
 import { GcodeService } from "../_services/gcode.service";
 import {PrintPositionService} from "../_services/print-position.service";
 import {Coordinates} from "../../types/Coordinates";
-
 @Component({
   selector: 'app-plate-map',
   templateUrl: './plate-map.component.html',
@@ -35,6 +34,10 @@ import {Coordinates} from "../../types/Coordinates";
 
 })
 export class PlateMapComponent implements OnInit, AfterViewInit, OnDestroy {
+  majorTicks = Array.from({ length: 11 }, (_, i) => i * 10); // 0, 10, 20, ... , 100
+  minorTicks = Array.from({ length: 51 }, (_, i) => i * 2); // 0, 2, 4, ... , 100
+
+
   private renderer: Renderer2;
   printHeads!: PrintHead[];
 
@@ -46,16 +49,19 @@ export class PlateMapComponent implements OnInit, AfterViewInit, OnDestroy {
   plateFormats: PlateFormat[] = [];
   selectedPlate!: PlateFormat;
   prevSelectedPlate!: PlateFormat;
+  selectedPlateOrigin!: string;
 
-  plateHeight = 85.4;
-  plateWidth = 127.6;
-  plateHeightPX = this.toPX(this.plateHeight);
-  plateWidthPX = this.toPX(this.plateWidth);
+  plateHeightPX = this.toPX(this.plateFormatService.plateHeight);
+  plateWidthPX = this.toPX(this.plateFormatService.plateWidth);
 
   private customButtonToggleStyle: any;
   private printHeadStateSubscription!: Subscription;
 
   printPositionOriginsMM: Coordinates[][] = [];
+  widthMajorTicks: number[] = [];
+  widthMinorTicks: number[] = [];
+  lengthMajorTicks: number[] = [];
+  lengthMinorTicks: number[] = [];
 
   showMagnifier: boolean = false;
   magnifierSize = 135;
@@ -87,6 +93,18 @@ export class PlateMapComponent implements OnInit, AfterViewInit, OnDestroy {
     top: '0px',
     backgroundPosition: '0px 0px',
   };
+  xAxisOptions: Highcharts.XAxisOptions = {
+    categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+    title: {
+      text: 'Month'
+    }
+  };
+
+  yAxisOptions: Highcharts.YAxisOptions = {
+    title: {
+      text: 'Value'
+    }
+  };
 
   constructor(
     public gcodeService: GcodeService,
@@ -98,6 +116,7 @@ export class PlateMapComponent implements OnInit, AfterViewInit, OnDestroy {
     private calibrationService: CalibrationService,
     private wellsStateService: WellsStateService,
     public printPositionService: PrintPositionService,
+    private cd: ChangeDetectorRef,
   ) {
     this.renderer = rendererFactory.createRenderer(null, null);
     this.initializePlateFormats();
@@ -168,11 +187,17 @@ export class PlateMapComponent implements OnInit, AfterViewInit, OnDestroy {
 
       this.updatePlateMap(newSelectedPlate, this.plateMap);
 
-
       console.log('printPositionOriginsMM after: ', this.printPositionOriginsMM);
     }
+    this.widthMajorTicks = this.createTickPositions(this.selectedPlate.widthMM, this.selectedPlate.lengthMM, 10, 5);
+    this.widthMinorTicks = this.createTickPositions(this.selectedPlate.widthMM, this.selectedPlate.lengthMM, 10, 1);
+    this.lengthMajorTicks = this.createTickPositions(this.selectedPlate.lengthMM, this.selectedPlate.widthMM, 10, 5);
+    this.lengthMinorTicks = this.createTickPositions(this.selectedPlate.lengthMM, this.selectedPlate.widthMM, 10, 1);
   }
 
+  onSelectedPlateOriginChanged(event: MatSelectChange): void {
+    this.selectedPlateOrigin = event.value;
+  }
   updatePlateMap(selectedPlate: PlateFormat, plateMap: PlateMap, event?: MouseEvent) {
     if (this.selectedPlate) {
       this.wellsStateService.updatePlateMap(selectedPlate, plateMap, event);
@@ -230,7 +255,6 @@ export class PlateMapComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-
   onMouseLeave() {
     this.showMagnifier = false;
   }
@@ -274,5 +298,24 @@ export class PlateMapComponent implements OnInit, AfterViewInit, OnDestroy {
         display: 'none' };
     }
   }
+  createTickPositions(length: number, width: number, majorInterval: number, minorInterval: number): number[] {
+    const positions: number[] = [];
 
+    // Add major tick positions
+    for (let i = 0; i <= width; i += majorInterval) {
+      positions.push(i);
+    }
+
+    // Add minor tick positions
+    for (let i = minorInterval; i < width; i += minorInterval) {
+      if (!positions.includes(i)) {
+        positions.push(i);
+      }
+    }
+
+    // Sort tick positions
+    positions.sort((a, b) => a - b);
+
+    return positions;
+  }
 }
