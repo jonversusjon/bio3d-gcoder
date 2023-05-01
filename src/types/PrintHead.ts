@@ -1,12 +1,13 @@
-import { PrintHeadButton } from "./PrintHeadButton";
+import { PrintPosition } from "./PrintPosition";
 import {emptyNeedle, Needle} from "./Needle";
+import {Coordinates} from "./Coordinates";
 
 export interface PrintHead {
   printHeadIndex: number;
   description: string;
   color: string;
   active: boolean;
-  printPositionButtons: PrintHeadButton[];
+  printPositions: PrintPosition[];
   printPositionSizeMM: number;
   buttonWidthPX: number;
   pickerWell: {sizeMM: number};
@@ -20,7 +21,7 @@ export function emptyPrintHead(): PrintHead {
     description: '',
     color: 'white',
     active: true,
-    printPositionButtons: [],
+    printPositions: [],
     printPositionSizeMM: 0,
     buttonWidthPX: 0,
     pickerWell: {sizeMM: 0},

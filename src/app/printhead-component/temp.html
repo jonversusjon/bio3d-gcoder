@@ -1,4 +1,3 @@
-
 <mat-form-field class="printhead-number-input-wrapper" appearance="fill">
   <mat-label>Number of Print-heads</mat-label>
   <input matInput type="number" min="1" max="20" class="printhead-number-input" [(ngModel)]="printHeadCountInput" (change)="onPrintHeadCountChange()">
@@ -36,33 +35,9 @@
               <div class="watermark" *ngIf="!printPositionService.toScale">
                 NOT TO<br>SCALE
               </div>
-              <ng-container *ngFor="let printPosition of printhead.printPositions; let j = index">
+              <ng-container *ngFor="let printHeadButton of printhead.printPositions; let j = index">
                 <button class="print-position-picker-position-button custom-button-toggle" [ngStyle]="{
-                  'background-color': !printhead.active ? 'grey' : (printPosition.selected ? printhead.color : 'white'),
+                  'background-color': !printhead.active ? 'grey' : (printHeadButton.selected ? printhead.color : 'white'),
                   'width': printPositionService.printPositionButtonWidthPX[printHeadIndex] + 'px',
                   'top': 'calc(' + printPositionService.printPositionOriginsPct[j].y + '% - ' + (printPositionService.printPositionButtonWidthPX[printHeadIndex]/2) + 'px)',
-                  'left': 'calc(' + printPositionService.printPositionOriginsPct[j].x + '% - ' + (printPositionService.printPositionButtonWidthPX[printHeadIndex]/2) + 'px)'
-                }" [matTooltip]="'x: ' + ((printPosition?.originMM_absolute?.x || 0).toFixed(1)) + ', y: ' + ((printPosition?.originMM_absolute?.y || 0).toFixed(1))"
-
-                        (click)="togglePrintHeadButton(printhead, printPosition)"
-                ></button>
-              </ng-container>
-            </div>
-          </div>
-          <div class="print-depth-wrapper grid-item" style="align-content: center; display:grid;">
-            <app-print-depth></app-print-depth>
-          </div>
-        </mat-card-content>
-
-
-        <div class="footer-wrapper">
-
-          <div class="active-toggle-container flex-item" style="min-height: 32px;">
-            <mat-slide-toggle [(ngModel)]="printhead.active" class="active-toggle" (change)="onActiveToggleChange(printhead, $event)"></mat-slide-toggle>
-          </div>
-        </div>
-      </mat-card>
-    </div>
-  </div>
-</div>
-
+                  'left': 'calc(' + printPositionService.printPositionOrigins

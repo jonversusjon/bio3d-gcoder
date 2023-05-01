@@ -1,7 +1,7 @@
 
 import {Injectable, Renderer2, RendererFactory2} from '@angular/core';
 import { PlateFormat } from "../../types/PlateFormat";
-import { Well} from "../../types/Well";
+import { Well, emptyWell } from "../../types/Well";
 import { ScreenUtils } from "./screen-utils";
 import { UtilsService } from "./utils.service";
 import { PlateFormatService } from "./plate-format.service";
@@ -11,6 +11,7 @@ import { PlateMap } from "../../types/PlateMap";
 import { RectangleSelectionService } from "./rectangle-selection.service";
 import {BehaviorSubject} from "rxjs";
 import {PrintPositionService} from "./print-position.service";
+import {emptyPrintPosition} from "../../types/PrintPosition";
 
 @Injectable({
   providedIn: 'root'
@@ -82,20 +83,16 @@ export class WellsStateService {
 
           // Include the returned style in the final well object
           return {
+            ...emptyWell(),
             row: row,
             col: col,
-            selected: false,
-            printPositionButtons: Array.from({ length: this.printPositionService.PRINT_POSITIONS_COUNT }, (_, index) => ({
-              parentIndex: -1,
-              position: index,
-              color: 'this.getNextColor()',
-              selected: false,
-              originPX: { x: 0, y: 0 },
-              originMM: { x: 0, y: 0 },
-              topPX:0,
-              leftPX:0,
-              widthPX:0,
-              elementType: 'PrintHeadButton'
+            printPositions: Array.from({ length: this.printPositionService.PRINT_POSITIONS_COUNT }, (_, index) => ({
+              ...emptyPrintPosition(),
+              parentIndex: row*col,
+              index: index,
+              button: {
+                color: 'this.getNextColor()',
+              },
             })),
             style: {
               ...this.styleService.getBaseStyle('plate-headers'),
@@ -161,7 +158,7 @@ export class WellsStateService {
     this._wells.next(plateMap.wells);
   }
   toggleWellSelection(plateMap: PlateMap, row: number, col: number, shiftKey: boolean = false): void {
-    ;
+
     if (shiftKey && this.lastClicked) {
       this.rectangleSelectionService.selectionRectangleStart = {row, col};
       this.selectRegion(plateMap, row, col, this.lastClicked.row, this.lastClicked.col);

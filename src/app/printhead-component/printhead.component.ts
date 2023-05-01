@@ -8,7 +8,7 @@ import { PlateFormat } from "../../types/PlateFormat";
 import { ScreenUtils } from "../_services/screen-utils";
 import { PrintHeadStateService } from "../_services/print-head-state.service"
 import { PrintHead } from "../../types/PrintHead";
-import { PrintHeadButton } from "../../types/PrintHeadButton";
+import { PrintPosition } from "../../types/PrintPosition";
 import {Needle} from "../../types/Needle";
 import {StyleService} from "../_services/style.service";
 import { PlateFormatService } from "../_services/plate-format.service";
@@ -117,8 +117,8 @@ export class PrintHeadComponent implements OnInit, OnDestroy, OnChanges {
     this.printHeadStateService.updateColor(printHead.printHeadIndex, color);
   }
 
-  togglePrintHeadButton(printHead: PrintHead, printHeadButton:PrintHeadButton) {
-    this.printHeadStateService.toggleButtonStatus(printHead.printHeadIndex, printHeadButton.position);
+  togglePrintHeadButton(printHead: PrintHead, printHeadButton:PrintPosition) {
+    this.printHeadStateService.toggleButtonStatus(printHead.printHeadIndex, printHeadButton.index);
   }
 
   onNeedleChange(printHead: PrintHead, needle: Needle) {

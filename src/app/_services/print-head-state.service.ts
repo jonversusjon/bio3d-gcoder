@@ -104,12 +104,13 @@ export class PrintHeadStateService implements OnDestroy {
     newPrintHead.printHeadIndex = printHeadIndex;
     newPrintHead.color = this.styleService.THEME_COLORS.defaultLightTheme[printHeadIndex % this.styleService.THEME_COLORS.defaultLightTheme.length];
 
-    newPrintHead.printPositionButtons = this.printPositionService.loadPrintPositionButtons(
+    newPrintHead.printPositions = this.printPositionService.loadPrintPositionButtons(
       'print-head',
       printHeadIndex,
       this.currentSelectedPlate.well_sizeMM,
       this.needles[0].odMM);
 
+    console.log('created new printhead: ', newPrintHead);
     return newPrintHead;
   }
 
@@ -119,8 +120,8 @@ export class PrintHeadStateService implements OnDestroy {
     const currentPrintHeads = this._printHeads.value;
     const selectedPrintHead = currentPrintHeads[printHeadIndex];
 
-    if (selectedPrintHead && selectedPrintHead.printPositionButtons[buttonIndex]) {
-      const button = selectedPrintHead.printPositionButtons[buttonIndex];
+    if (selectedPrintHead && selectedPrintHead.printPositions[buttonIndex]) {
+      const button = selectedPrintHead.printPositions[buttonIndex];
       button.selected = !button.selected;
       this._printHeads.next(currentPrintHeads);
     } else {
@@ -135,7 +136,7 @@ export class PrintHeadStateService implements OnDestroy {
 
     if (currentPrintHeads[printHeadIndex]) {
       const selectedPrintHead = currentPrintHeads[printHeadIndex];
-      selectedPrintHead.printPositionButtons.forEach(button => {
+      selectedPrintHead.printPositions.forEach(button => {
         button.selected = false;
       });
       this._printHeads.next(currentPrintHeads);
@@ -174,8 +175,8 @@ export class PrintHeadStateService implements OnDestroy {
       selectedPrintHead.color = newColor;
 
       // Update the active state color of print position buttons
-      selectedPrintHead.printPositionButtons.forEach(button => {
-        button.color = newColor
+      selectedPrintHead.printPositions.forEach(printPosition => {
+        printPosition.button.color = newColor
       });
 
       this._printHeads.next(currentPrintHeads);

@@ -27,11 +27,12 @@ export class DataAggregatorService {
     });
   }
 
-  getAggregatedData() {
-    return  {
-      'well-snapshot': this.dataServiceWellsSnapshot,
-      'printhead-snapshot': this.dataServicePrintHeadsSnapshot
-    }
+  getAggregatedData(key?: string) {
+    const data: { [key: string]: any } = {
+        'well-snapshot': this.dataServiceWellsSnapshot,
+        'printhead-snapshot': this.dataServicePrintHeadsSnapshot
+      }
+    return key ? data[key] : data;
   }
   aggregateData() {
     // console.log('dataServicePrintHeadsSnapshot: ', this.dataServicePrintHeadsSnapshot);

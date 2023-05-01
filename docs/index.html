@@ -1,0 +1,125 @@
+<!DOCTYPE html><html class="default" lang="en"><head><meta charSet="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>gcodegeneratorajs</title><meta name="description" content="Documentation for gcodegeneratorajs"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="assets/style.css"/><link rel="stylesheet" href="assets/highlight.css"/><script defer src="assets/main.js"></script><script async src="assets/search.js" id="tsd-search-script"></script></head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os"</script><header class="tsd-page-toolbar">
+<div class="tsd-toolbar-contents container">
+<div class="table-cell" id="tsd-search" data-base=".">
+<div class="field"><label for="tsd-search-field" class="tsd-widget tsd-toolbar-icon search no-caption"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M15.7824 13.833L12.6666 10.7177C12.5259 10.5771 12.3353 10.499 12.1353 10.499H11.6259C12.4884 9.39596 13.001 8.00859 13.001 6.49937C13.001 2.90909 10.0914 0 6.50048 0C2.90959 0 0 2.90909 0 6.49937C0 10.0896 2.90959 12.9987 6.50048 12.9987C8.00996 12.9987 9.39756 12.4863 10.5008 11.6239V12.1332C10.5008 12.3332 10.5789 12.5238 10.7195 12.6644L13.8354 15.7797C14.1292 16.0734 14.6042 16.0734 14.8948 15.7797L15.7793 14.8954C16.0731 14.6017 16.0731 14.1267 15.7824 13.833ZM6.50048 10.499C4.29094 10.499 2.50018 8.71165 2.50018 6.49937C2.50018 4.29021 4.28781 2.49976 6.50048 2.49976C8.71001 2.49976 10.5008 4.28708 10.5008 6.49937C10.5008 8.70852 8.71314 10.499 6.50048 10.499Z" fill="var(--color-text)"></path></svg></label><input type="text" id="tsd-search-field" aria-label="Search"/></div>
+<div class="field">
+<div id="tsd-toolbar-links"></div></div>
+<ul class="results">
+<li class="state loading">Preparing search index...</li>
+<li class="state failure">The search index is not available</li></ul><a href="index.html" class="title">gcodegeneratorajs</a></div>
+<div class="table-cell" id="tsd-widgets"><a href="#" class="tsd-widget tsd-toolbar-icon menu no-caption" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1" y="3" width="14" height="2" fill="var(--color-text)"></rect><rect x="1" y="7" width="14" height="2" fill="var(--color-text)"></rect><rect x="1" y="11" width="14" height="2" fill="var(--color-text)"></rect></svg></a></div></div></header>
+<div class="container container-main">
+<div class="col-content">
+<div class="tsd-page-title">
+<h2>gcodegeneratorajs</h2></div>
+<div class="tsd-panel tsd-typography"><a id="md:warning-notice" class="tsd-anchor"></a><h3><a href="#md:warning-notice">:warning: Notice</a></h3><p>This app is currently under development and is not yet complete. Some features may not work as expected, and the app may contain bugs.</p>
+<a id="md:version" class="tsd-anchor"></a><h3><a href="#md:version">Version</a></h3><p>The current version of the app is 0.1.</p>
+<a id="md:getting-started" class="tsd-anchor"></a><h1><a href="#md:getting-started">Getting Started</a></h1><p>Follow these steps to set up and run the project on your local machine:</p>
+<ol>
+<li><strong>Clone the repository</strong> - Clone this repository to your local machine using the command:</li>
+</ol>
+<blockquote>
+<p><code>git clone https://github.com/jonversusjon/bio3d-gcoder.git</code></p>
+</blockquote>
+<ol start="2">
+<li><p><strong>Install Node.js</strong> - If you don&#39;t have Node.js installed, download and install it from the official <a href="https://nodejs.org/">Node.js website</a>.</p>
+</li>
+<li><p><strong>Navigate to the project folder</strong> - Change your current working directory to the project folder using the command:</p>
+</li>
+</ol>
+<blockquote>
+<p><code>cd bio3d-gcoder</code></p>
+</blockquote>
+<ol start="4">
+<li><strong>Install dependencies</strong> - Run the following command to install all required dependencies:This command will install <code>jspdf</code>, <code>html2canvas</code>, and other dependencies listed in the <code>package.json</code> file.</li>
+</ol>
+<blockquote>
+<p><code>npm install</code></p>
+</blockquote>
+<ol start="5">
+<li><strong>Run the application</strong> - Start the development server using the command:</li>
+</ol>
+<blockquote>
+<p><code>ng serve</code></p>
+</blockquote>
+<a id="md:real-world-print-test-calibration" class="tsd-anchor"></a><h2><a href="#md:real-world-print-test-calibration">Real-World Print Test Calibration</a></h2><p>To ensure the accuracy of the 3D bioprinter movements in the application, it is crucial to perform a real-world print test and calibrate the modeled plate dimensions. This section provides step-by-step instructions on how to perform a real-world print test and enter the calibration values into the program.</p>
+<a id="md:performing-the-real-world-print-test" class="tsd-anchor"></a><h3><a href="#md:performing-the-real-world-print-test">Performing the Real-World Print Test</a></h3><ol>
+<li><p><strong>Select a test plate</strong>: Choose a well-plate that you want to use for the calibration test. Make sure the plate is clean and free of any obstructions or contaminants.</p>
+</li>
+<li><p><strong>Position the plate on the 3D bioprinter</strong>: Place the well-plate on the 3D bioprinter&#39;s stage, making sure it is aligned correctly and securely fastened.</p>
+</li>
+<li><p><strong>Perform a test print</strong>: Using the 3D bioprinter&#39;s control software, perform a test print on the selected well-plate. Make sure to print a pattern that covers a significant area of the plate and involves movements in the X, Y, and Z axes. This will help ensure accurate calibration.</p>
+</li>
+<li><p><strong>Measure the printed pattern</strong>: After the test print is completed, carefully measure the dimensions of the printed pattern on the well-plate. Take measurements in the X, Y, and Z axes, and compare them to the expected dimensions based on the application&#39;s settings.</p>
+</li>
+</ol>
+<a id="md:entering-the-calibration-values-into-the-program" class="tsd-anchor"></a><h3><a href="#md:entering-the-calibration-values-into-the-program">Entering the Calibration Values into the Program</a></h3><ol>
+<li><p><strong>Calculate the calibration values</strong>: For each axis (X, Y, Z), divide the measured dimension by the expected dimension to obtain the calibration value.</p>
+<p>For example, if the measured X dimension is 98mm and the expected X dimension is 100mm, the calibration value for the X axis would be 98 / 100 = 0.98.</p>
+</li>
+<li><p><strong>Open the application</strong>: Launch the 3D bioprinter application and navigate to the plate-map component.</p>
+</li>
+<li><p><strong>Enter the calibration values</strong>: In the plate-map component, you will find input fields labeled &quot;X Calibration&quot;, &quot;Y Calibration&quot;, and &quot;Z Calibration&quot;. Enter the corresponding calibration values calculated in step 1.</p>
+</li>
+<li><p><strong>Apply the calibration values</strong>: Click the &quot;Apply&quot; button to update the application with the new calibration values. The program will now adjust the plate dimensions, positions, and movements based on the calibration values.</p>
+</li>
+<li><p><strong>Verify the calibration</strong>: After entering the calibration values, you can perform another real-world print test to verify the accuracy of the calibration. If the results are still not satisfactory, you can repeat the calibration process until the desired accuracy is achieved.</p>
+</li>
+</ol>
+<a id="md:for-contributors" class="tsd-anchor"></a><h1><a href="#md:for-contributors">For Contributors:</a></h1><a id="md:gcodegeneratorajs" class="tsd-anchor"></a><h2><a href="#md:gcodegeneratorajs">Gcodegeneratorajs</a></h2><p>This project was generated with <a href="https://github.com/angular/angular-cli">Angular CLI</a> version 15.2.5.</p>
+<a id="md:development-server" class="tsd-anchor"></a><h2><a href="#md:development-server">Development server</a></h2><p>Run <code>ng serve</code> for a dev server. Navigate to <code>http://localhost:4200/</code>. The application will automatically reload if you change any of the source files.</p>
+<a id="md:code-scaffolding" class="tsd-anchor"></a><h2><a href="#md:code-scaffolding">Code scaffolding</a></h2><p>Run <code>ng generate component component-name</code> to generate a new component. You can also use <code>ng generate directive|pipe|service|class|guard|interface|enum|module</code>.</p>
+<a id="md:build" class="tsd-anchor"></a><h2><a href="#md:build">Build</a></h2><p>Run <code>ng build</code> to build the project. The build artifacts will be stored in the <code>dist/</code> directory.</p>
+<a id="md:running-unit-tests" class="tsd-anchor"></a><h2><a href="#md:running-unit-tests">Running unit tests</a></h2><p>Run <code>ng test</code> to execute the unit tests via <a href="https://karma-runner.github.io">Karma</a>.</p>
+<a id="md:running-end-to-end-tests" class="tsd-anchor"></a><h2><a href="#md:running-end-to-end-tests">Running end-to-end tests</a></h2><p>Run <code>ng e2e</code> to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.</p>
+<a id="md:further-help" class="tsd-anchor"></a><h2><a href="#md:further-help">Further help</a></h2><p>To get more help on the Angular CLI use <code>ng help</code> or go check out the <a href="https://angular.io/cli">Angular CLI Overview and Command Reference</a> page.</p>
+</div></div>
+<div class="col-sidebar">
+<div class="page-menu">
+<div class="tsd-navigation settings">
+<details class="tsd-index-accordion"><summary class="tsd-accordion-summary">
+<h3><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M4.93896 8.531L12 15.591L19.061 8.531L16.939 6.409L12 11.349L7.06098 6.409L4.93896 8.531Z" fill="var(--color-text)"></path></svg>Settings</h3></summary>
+<div class="tsd-accordion-details">
+<div class="tsd-filter-visibility">
+<h4 class="uppercase">Member Visibility</h4><form>
+<ul id="tsd-filter-options">
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-protected" name="protected"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Protected</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-private" name="private"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Private</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-external" name="external"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>External</span></label></li></ul></form></div>
+<div class="tsd-theme-toggle">
+<h4 class="uppercase">Theme</h4><select id="tsd-theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div>
+<details open class="tsd-index-accordion tsd-page-navigation"><summary class="tsd-accordion-summary">
+<h3><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M4.93896 8.531L12 15.591L19.061 8.531L16.939 6.409L12 11.349L7.06098 6.409L4.93896 8.531Z" fill="var(--color-text)"></path></svg>On This Page</h3></summary>
+<div class="tsd-accordion-details">
+<ul>
+<li>
+<ul>
+<li><a href="#md:warning-notice"><span>:warning: <wbr/>Notice</span></a></li>
+<li>
+<ul>
+<li><a href="#md:version"><span>Version</span></a></li></ul></li>
+<li><a href="#md:getting-started"><span>Getting <wbr/>Started</span></a></li>
+<li>
+<ul>
+<li><a href="#md:real-world-print-test-calibration"><span>Real-<wbr/>World <wbr/>Print <wbr/>Test <wbr/>Calibration</span></a></li>
+<li>
+<ul>
+<li><a href="#md:performing-the-real-world-print-test"><span>Performing the <wbr/>Real-<wbr/>World <wbr/>Print <wbr/>Test</span></a></li>
+<li><a href="#md:entering-the-calibration-values-into-the-program"><span>Entering the <wbr/>Calibration <wbr/>Values into the <wbr/>Program</span></a></li></ul></li></ul></li>
+<li><a href="#md:for-contributors"><span>For <wbr/>Contributors:</span></a></li>
+<li>
+<ul>
+<li><a href="#md:gcodegeneratorajs"><span>Gcodegeneratorajs</span></a></li>
+<li><a href="#md:development-server"><span>Development server</span></a></li>
+<li><a href="#md:code-scaffolding"><span>Code scaffolding</span></a></li>
+<li><a href="#md:build"><span>Build</span></a></li>
+<li><a href="#md:running-unit-tests"><span>Running unit tests</span></a></li>
+<li><a href="#md:running-end-to-end-tests"><span>Running end-<wbr/>to-<wbr/>end tests</span></a></li>
+<li><a href="#md:further-help"><span>Further help</span></a></li></ul></li></ul></li></ul></div></details></div>
+<div class="site-menu">
+<nav class="tsd-navigation"><a href="modules.html" class="current"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><rect fill="var(--color-icon-background)" stroke="var(--color-ts-namespace)" stroke-width="1.5" x="1" y="1" width="22" height="22" rx="6" id="icon-4-path"></rect><path d="M9.33 16V7.24H10.77L13.446 14.74C13.43 14.54 13.41 14.296 13.386 14.008C13.37 13.712 13.354 13.404 13.338 13.084C13.33 12.756 13.326 12.448 13.326 12.16V7.24H14.37V16H12.93L10.266 8.5C10.282 8.692 10.298 8.936 10.314 9.232C10.33 9.52 10.342 9.828 10.35 10.156C10.366 10.476 10.374 10.784 10.374 11.08V16H9.33Z" fill="var(--color-text)" id="icon-4-text"></path></svg><span>gcodegeneratorajs</span></a>
+<ul class="tsd-small-nested-navigation"></ul></nav></div></div></div>
+<div class="tsd-generator">
+<p>Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p></div>
+<div class="overlay"></div></body></html>

@@ -1,9 +1,10 @@
 // TODO: need a way to code for the coordinates of the plate map
 // TODO: need a way to code for calibrations - well_well_x, well_well_y, a1_center_left_edge, a1_center_top_edge, plate_height, well_depth
-import { Injectable, ApplicationRef } from '@angular/core';
-import {BehaviorSubject, Observable, Subject} from 'rxjs';
+import {Injectable} from '@angular/core';
+import {Subject} from 'rxjs';
 import {emptyPlateFormat, PlateFormat} from "../../types/PlateFormat";
-import {emptyCoordinates} from "../../types/Coordinates";
+import {Coordinates} from "../../types/Coordinates";
+import {DataAggregatorService} from "./data-aggregator.service";
 
 @Injectable({
   providedIn: 'root',
@@ -81,16 +82,17 @@ export class PlateFormatService {
   selectedPlate$ = this._selectedPlateSubject.asObservable();
   private _latestSelectedPlate: PlateFormat = emptyPlateFormat();
 
-  constructor(private appRef: ApplicationRef) {
+  printPositionCoordinates:Coordinates[][] = [];
 
+  constructor() {
   }
 
   getPlateFormats() {
     return this.plateFormats;
   }
 
-  getWellOrigins(startingX: number, startingY: number, rows: number, cols: number, spacingX: number, spacingY: number): { x: number, y: number }[][] {
-    const coordinates: { x: number, y: number }[][] = [];
+  getWellOrigins(startingX: number, startingY: number, rows: number, cols: number, spacingX: number, spacingY: number): Coordinates[][] {
+    const coordinates: Coordinates[][] = [];
 
     for (let i = 0; i < rows; i++) {
       const rowCoordinates: { x: number, y: number }[] = [];

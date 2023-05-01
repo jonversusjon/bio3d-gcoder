@@ -1,5 +1,5 @@
-import {Coordinates} from "./Coordinates";
-import {PrintHeadButton} from "./PrintHeadButton";
+import {Coordinates, emptyCoordinates} from "./Coordinates";
+import {PrintPosition} from "./PrintPosition";
 
 
 export interface Well {
@@ -8,7 +8,7 @@ export interface Well {
   originPX: Coordinates;
   originMM: Coordinates;
   selected: boolean;
-  printPositionButtons: PrintHeadButton[];
+  printPositionButtons: PrintPosition[];
   style: {
     height: string;
     width: string;
@@ -19,4 +19,25 @@ export interface Well {
   };
   elementType: 'Well';
   element: HTMLElement;
+}
+
+export function emptyWell(): Well {
+  return {
+    row: 0,
+    col: 0,
+    originPX: emptyCoordinates(),
+    originMM: emptyCoordinates(),
+    selected: false,
+    printPositionButtons: [],
+    style: {
+      height: '0px',
+      width: '0px',
+      top: '0px',
+      left: '0px',
+      borderRadius: '50%',
+      border: '1px solid black',
+    },
+    elementType: 'Well',
+    element: document.createElement('div'),
+  }
 }

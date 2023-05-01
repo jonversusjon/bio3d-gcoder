@@ -17,7 +17,7 @@ import {PlateFormatService} from '../_services/plate-format.service';
 import { PlateFormat } from "../../types/PlateFormat";
 import { PrintHeadStateService } from "../_services/print-head-state.service";
 import { PrintHead } from "../../types/PrintHead";
-import { PrintHeadButton } from "../../types/PrintHeadButton";
+import { PrintPosition } from "../../types/PrintPosition";
 import {MatSelectChange} from "@angular/material/select";
 import {StyleService} from "../_services/style.service";
 import {CalibrationService} from "../_services/calibration.service";
@@ -57,6 +57,7 @@ export class PlateMapComponent implements OnInit, AfterViewInit, OnDestroy {
 
   printPositionOriginsMM: Coordinates[][] = [];
 
+  showMagnifier: boolean = false;
   magnifierSize = 135;
   magnificationFactor = 2;
   magnifierStyle: {
@@ -88,9 +89,9 @@ export class PlateMapComponent implements OnInit, AfterViewInit, OnDestroy {
   };
 
   constructor(
-    private gcodeService: GcodeService,
+    public gcodeService: GcodeService,
     private screenUtils: ScreenUtils,
-    private plateFormatService: PlateFormatService,
+    public plateFormatService: PlateFormatService,
     private printHeadStateService: PrintHeadStateService,
     private rendererFactory: RendererFactory2,
     private styleService: StyleService,
@@ -124,7 +125,7 @@ export class PlateMapComponent implements OnInit, AfterViewInit, OnDestroy {
     this.selectedPlate = this.plateFormats[0];
     this.prevSelectedPlate = this.selectedPlate;
     this.plateFormatService.setSelectedPlate(this.selectedPlate);
-    this.printPositionOriginsMM[0] = this.printPositionService.getPrintPositionOriginsMM('plate-map', this.selectedPlate.well_sizeMM);
+    this.printPositionOriginsMM[0] = this.printPositionService.getPrintPositionOriginsMM('plate-map', 'parent-element', this.selectedPlate.well_sizeMM);
   }
 
   initializePrintHeadStateSubscription() {
@@ -142,7 +143,7 @@ export class PlateMapComponent implements OnInit, AfterViewInit, OnDestroy {
 
   onGetPrintHeadChanges(printHeads: PrintHead[]) {
     if(printHeads.length > 0) {
-      this.printPositionOriginsMM = printHeads.map(() => this.printPositionService.getPrintPositionOriginsMM('plate-map', this.selectedPlate.well_sizeMM));
+      // this.printPositionOriginsMM = printHeads.map(() => this.printPositionService.getPrintPositionOriginsMM('plate-map', this.selectedPlate.well_sizeMM));
     }
   }
 
@@ -161,7 +162,7 @@ export class PlateMapComponent implements OnInit, AfterViewInit, OnDestroy {
       this.printPositionOriginsMM = [];
       for(let printHead of this.printHeads) {
         this.printPositionOriginsMM.push(
-          this.printPositionService.getPrintPositionOriginsMM('plate-map', this.selectedPlate.well_sizeMM)
+          this.printPositionService.getPrintPositionOriginsMM('plate-map', 'parent-element', this.selectedPlate.well_sizeMM)
         );
       }
 
@@ -209,20 +210,31 @@ export class PlateMapComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   onMouseMove(event: MouseEvent) {
+    const target = event.target as HTMLElement;
 
-    const scaleFactor = 1.5;
+    // Check if the cursor is over a header or column row
+    const isHeader = target.classList.contains("rowHeader") || target.classList.contains("colHeader");
 
-    this.magnifierStyle.display = 'block';
-    this.magnifierStyle.left = event.clientX - this.magnifierSize / 2 + 'px';
-    this.magnifierStyle.top = event.clientY - this.magnifierSize / 2 + 'px';
+    if (!isHeader) {
+      // Show the magnifier if the cursor is not over a header or column row
+      this.showMagnifier = true;
 
-    this.magnifiedContentStyle.left = -event.clientX * (scaleFactor - 1) + this.magnifierSize / 2 + 'px';
-    this.magnifiedContentStyle.top = -event.clientY * (scaleFactor - 1) + this.magnifierSize / 2 + 'px';
+      this.magnifierStyle = {
+        ...this.magnifierStyle,
+        left: event.pageX - this.magnifierSize / 2 + 'px',
+        top: event.pageY - this.magnifierSize / 2 + 'px',
+      };
+    } else {
+      // Hide the magnifier if the cursor is over a header or column row
+      this.showMagnifier = false;
+    }
   }
+
 
   onMouseLeave() {
-    this.magnifierStyle.display = 'none';
+    this.showMagnifier = false;
   }
+
 
   getMagnifierStyle() {
     return {
