@@ -42,33 +42,33 @@ export class VerticalSliderComponent {
     return Math.round(((thumbPosition / 100) * (this.max - this.min)) + this.min);
   }
 
-  // @HostListener('document:mousemove', ['$event'])
-  // onMouseMove(event: MouseEvent) {
-  //   if (this.draggingThumb) {
-  //     const sliderRect = this.el.nativeElement.querySelector('.vertical-slider').getBoundingClientRect();
-  //     const sliderHeight = sliderRect.height;
-  //     const mouseY = event.clientY;
-  //     let thumbPosition = ((sliderRect.bottom - mouseY) / sliderHeight) * 100;
-  //
-  //     // Keep the start thumb below the end thumb and vice versa
-  //     if (this.draggingThumb === 'start' && thumbPosition >= this.endThumbPosition) {
-  //       thumbPosition = this.endThumbPosition - this.tickSpacing;
-  //     } else if (this.draggingThumb === 'end' && thumbPosition <= this.startThumbPosition) {
-  //       thumbPosition = this.startThumbPosition + this.tickSpacing;
-  //     }
-  //
-  //     // Keep the thumb inside the slider
-  //     thumbPosition = Math.min(Math.max(thumbPosition, 0), 100);
-  //
-  //     if (this.draggingThumb === 'start') {
-  //       this.startThumbPosition = thumbPosition;
-  //       this.startValue = this.calculateValue(this.startThumbPosition);
-  //     } else if (this.draggingThumb === 'end') {
-  //       this.endThumbPosition = thumbPosition;
-  //       this.endValue = this.calculateValue(this.endThumbPosition);
-  //     }
-  //   }
-  // }
+  @HostListener('document:mousemove', ['$event'])
+  onMouseMove(event: MouseEvent) {
+    if (this.draggingThumb) {
+      const sliderRect = this.el.nativeElement.querySelector('.vertical-slider').getBoundingClientRect();
+      const sliderHeight = sliderRect.height;
+      const mouseY = event.clientY;
+      let thumbPosition = ((sliderRect.bottom - mouseY) / sliderHeight) * 100;
+
+      // Keep the start thumb below the end thumb and vice versa
+      if (this.draggingThumb === 'start' && thumbPosition >= this.endThumbPosition) {
+        thumbPosition = this.endThumbPosition - this.tickSpacing;
+      } else if (this.draggingThumb === 'end' && thumbPosition <= this.startThumbPosition) {
+        thumbPosition = this.startThumbPosition + this.tickSpacing;
+      }
+
+      // Keep the thumb inside the slider
+      thumbPosition = Math.min(Math.max(thumbPosition, 0), 100);
+
+      if (this.draggingThumb === 'start') {
+        this.startThumbPosition = thumbPosition;
+        this.startValue = this.calculateValue(this.startThumbPosition);
+      } else if (this.draggingThumb === 'end') {
+        this.endThumbPosition = thumbPosition;
+        this.endValue = this.calculateValue(this.endThumbPosition);
+      }
+    }
+  }
 
   @HostListener('document:mouseup', ['$event'])
   onMouseUp() {

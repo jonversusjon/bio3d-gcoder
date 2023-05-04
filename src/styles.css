@@ -5,8 +5,17 @@ html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
 body {
-  background-color: #aaaaaa; /* set your desired background color here */
+  /*background: rgb(235,45,170);*/
+  /*background: linear-gradient(74deg, rgba(235,45,170,1) 0%, rgba(187,11,127,1) 39%, rgba(187,11,127,1) 76%, rgba(235,45,170,1) 100%);*/
+  /*background-image: linear-gradient(*/
+  /*  120deg,*/
+  /*  rgba(180, 180, 242, 1) 0%,*/
+  /*  rgba(0, 172, 193, 1) 50%,*/
+  /*  rgba(84, 58, 183, 1) 100%*/
+  /*);*/
+  background: linear-gradient(to left, #b417c3, #f79f7b)
 }
+
 
 .flex-container {
   display: flex;

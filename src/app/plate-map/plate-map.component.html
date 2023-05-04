@@ -1,43 +1,63 @@
-<div class="culture-plate flex-container">
-  <div class="plate-input flex-item">
-    <h1>Cell Culture Plate Map</h1>
-    <mat-form-field appearance="fill" class="no-subscript-wrapper plate-format-select-wrapper">
-      <mat-label for="plateFormat">Select a plate format</mat-label>
-      <mat-select id="plateFormat" [value]="selectedPlate" (selectionChange)="onSelectedPlateChanged($event)" class="plate-format-select">
-        <mat-option *ngFor="let plate of plateFormats" [value]="plate">
-          {{ plate.name }}
-        </mat-option>
-      </mat-select>
-    </mat-form-field>
-    <mat-form-field appearance="fill" class="no-subscript-wrapper plate-format-select-wrapper">
-    <mat-label for="plateOrigin">Coordinate plane origin is</mat-label>
-    <mat-select id="plateOrigin" [value]="selectedPlateOrigin" (selectionChange)="onSelectedPlateOriginChanged($event)" class="plate-format-select">
-      <mat-option *ngFor="let origin of plateFormatService.plateOrigins" [value]="origin.value">
-        {{origin.description}}
-      </mat-option>
-    </mat-select>
-    </mat-form-field>
+<mat-card style="background-color: lightpink;">
+  <mat-card-header [ngStyle]="experimentSetupHeaderStyle" style="background-color: mediumvioletred"
+                   class="experiment-setup-header">
+    <div class="header-content">
+      <div class="title-container">
+        <mat-card-title style="margin: 0.9em 1em;">Cell Culture Plate Map</mat-card-title>
+      </div>
+    </div>
+  </mat-card-header>
+  <div class="inputs-container flex-container" style="background-color: lightpink;">
+    <div class="flex-item plate-input">
+      <mat-form-field appearance="fill" subscriptSizing="dynamic" class="plate-format-select-wrapper">
+        <mat-label for="plateFormat">Select a plate format</mat-label>
+        <mat-select id="plateFormat" [value]="selectedPlate" (selectionChange)="onSelectedPlateChanged($event)"
+                    class="plate-format-select">
+          <mat-option *ngFor="let plate of plateFormats" [value]="plate">
+            {{ plate.name }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+    <div class="flex-item plate-origin-input">
+      <mat-form-field appearance="fill" subscriptSizing="dynamic" class="plate-format-select-wrapper">
+        <mat-label for="plateOrigin">Coordinate plane origin is</mat-label>
+        <mat-select id="plateOrigin" [value]="selectedPlateOrigin"
+                    (selectionChange)="onSelectedPlateOriginChanged($event)" class="plate-format-select">
+          <mat-option *ngFor="let origin of plateFormatService.plateOrigins" [value]="origin.value">
+            {{origin.description}}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
   </div>
-  <div class="plate-map" (mousemove)="onMouseMove($event)" (mouseleave)="onMouseLeave()">
-    <div class="plate" [ngStyle]="plateStyle">
-      <div class="blankTitle"></div>
-      <div class="colHeader" *ngFor="let colHeader of plateMap.columnHeaders; let colIndex = index" [ngStyle]="colHeader.style"
+
+
+  <mat-card-content style="background-color: lightpink;">
+    <div class=""
+         [ngStyle]="{'height': (plateHeightPX+24) + 'px', 'width': (plateWidthPX+24) + 'px'}"
+         (mousemove)="onMouseMove($event)" (mouseleave)="onMouseLeave()">
+      <div class="plate" [ngStyle]="plateStyle">
+        <div class="blankTitle"></div>
+        <div class="colHeader" *ngFor="let colHeader of plateMap.columnHeaders; let colIndex = index"
+             [ngStyle]="colHeader.style"
              (click)="toggleColumnSelection(selectedPlate, plateMap, colIndex, $event)">
           {{colHeader.label}}
-      </div>
-      <div class="rowHeader" *ngFor="let rowHeader of plateMap.rowHeaders; let rowIndex = index" [ngStyle]="rowHeader.style"
-           (click)="toggleRowSelection(selectedPlate, plateMap, rowIndex, $event)">
-        {{rowHeader.label}}
-      </div>
-      <div class="plate-row" *ngFor="let plateRow of plateMap.wells; let i = index;">
-        <div *ngFor="let well of plateRow; let rw = index;"
-             class="print-position-picker"
-             [ngStyle]="well.style"
-             [ngClass]="{'selected-well': well.selected, 'unselected-well': !well.selected, 'base-well-style': true}"
-             (click)="toggleWellSelection(plateMap, i,rw)"
-             (mouseenter)="toggleMagnifier(true, $event, wellElement)"
-             (mouseleave)="toggleMagnifier(false)"
-             #wellElement>
+        </div>
+        <div class="rowHeader" *ngFor="let rowHeader of plateMap.rowHeaders; let rowIndex = index"
+             [ngStyle]="rowHeader.style"
+             (click)="toggleRowSelection(selectedPlate, plateMap, rowIndex, $event)">
+          {{rowHeader.label}}
+        </div>
+        <div class="plate-row" *ngFor="let plateRow of plateMap.wells; let i = index;">
+          <div *ngFor="let well of plateRow; let rw = index;"
+               class="print-position-picker"
+               [ngStyle]="well.style"
+               [ngClass]="{'selected-well': well.selected, 'unselected-well': !well.selected, 'base-well-style': true}"
+               (click)="toggleWellSelection(plateMap, i,rw)"
+               (mouseenter)="toggleMagnifier(true, $event, wellElement)"
+               (mouseleave)="toggleMagnifier(false)"
+               #wellElement>
             <svg width="100%" height="100%">
               <g *ngFor="let printHead of printHeads; let printHeadIndex = index;">
                 <g *ngFor="let printPosition of printHead.printPositions; let buttonIndex = index">
@@ -47,72 +67,62 @@
                           [attr.r]="printPositionService.printPositionButtonWidthPX_PlateMap[printHeadIndex] / 2"
                           [attr.fill]="printHead.color"
                           matTooltip="x: {{well.originMM.x + printPosition.originMM_absolute.x | number:'1.1-1'}} mm,
-                          y: {{well.originMM.y + printPosition.originMM_absolute.y | number:'1.1-1'}} mm">></circle>
+                            y: {{well.originMM.y + printPosition.originMM_absolute.y | number:'1.1-1'}} mm">>
+                  </circle>
                 </g>
               </g>
             </svg>
+          </div>
         </div>
       </div>
-      <svg class="axes" width="100%" height="100%">
+      <svg class="axes" [ngStyle]="axesStyle" width="100%" height="100%">
         <g>
           <!-- X-Axis -->
-          <line id="x-axis" x1="0" y1="50%" x2="100%" y2="50%" stroke="rgba(0,0,0,0.25)" />
+          <line id="x-axis" [attr.x1]="axesPosition['x-axis'].x1 + '%'" [attr.y1]="axesPosition['x-axis'].y1 + '%'"
+                [attr.x2]="axesPosition['x-axis'].x2 + '%'" [attr.y2]="axesPosition['x-axis'].y2 + '%'"
+                stroke="rgba(0,0,0,0.25)"/>
           <!-- X-Axis Major Ticks -->
           <line *ngFor="let tick of majorTicks"
                 [attr.x1]="tick + '%'"
-                [attr.y1]="50 - 1 + '%'"
+                [attr.y1]="axesPosition['x-axis'].y1 - 1 + '%'"
                 [attr.x2]="tick + '%'"
-                [attr.y2]="50 + 1 + '%'"
-                stroke="rgba(0,0,0,0.25)" />
+                [attr.y2]="axesPosition['x-axis'].y2 + 1 + '%'"
+                stroke="rgba(0,0,0,0.25)"/>
           <!-- X-Axis Minor Ticks -->
           <line *ngFor="let tick of minorTicks"
                 [attr.x1]="tick + '%'"
-                [attr.y1]="50 - 0.5 + '%'"
+                [attr.y1]="axesPosition['x-axis'].y1 - 0.5 + '%'"
                 [attr.x2]="tick + '%'"
-                [attr.y2]="50 + 0.5 + '%'"
-                stroke="rgba(0,0,0,0.15)" />
+                [attr.y2]="axesPosition['x-axis'].y2 + 0.5 + '%'"
+                stroke="rgba(0,0,0,0.15)"/>
 
           <!-- Y-Axis -->
-          <line id="y-axis" x1="50%" y1="0" x2="50%" y2="100%" stroke="rgba(0,0,0,0.25)" />
+          <line id="y-axis" [attr.x1]="axesPosition['y-axis'].x1 + '%'" [attr.y1]="axesPosition['y-axis'].y1 + '%'"
+                [attr.x2]="axesPosition['y-axis'].x2 + '%'" [attr.y2]="axesPosition['y-axis'].y2 + '%'"
+                stroke="rgba(0,0,0,0.25)"/>
           <!-- Y-Axis Major Ticks -->
           <line *ngFor="let tick of majorTicks"
-                [attr.x1]="0 + '%'"
+                [attr.x1]="axesPosition['y-axis'].x1 + '%'"
                 [attr.y1]="tick + '%'"
-                [attr.x2]="1 + '%'"
+                [attr.x2]="axesPosition['y-axis'].x2 + 1 + '%'"
                 [attr.y2]="tick + '%'"
-                stroke="rgba(0,0,0,0.25)" />
+                stroke="rgba(0,0,0,0.25)"/>
           <!-- Y-Axis Minor Ticks -->
           <line *ngFor="let tick of minorTicks"
-                [attr.x1]="0 + '%'"
+                [attr.x1]="axesPosition['y-axis'].x1 + '%'"
                 [attr.y1]="tick + '%'"
-                [attr.x2]="0.5 + '%'"
+                [attr.x2]="axesPosition['y-axis'].x2 + 0.5 + '%'"
                 [attr.y2]="tick + '%'"
-                stroke="rgba(0,0,0,0.15)" />
+                stroke="rgba(0,0,0,0.15)"/>
         </g>
+        <text class="origin-label" [attr.x]="getOriginLabelPosition().x + '%'"
+              [attr.y]="getOriginLabelPosition().y + '%'">
+          (0,0)
+        </text>
       </svg>
     </div>
-  </div>
-  <div class="plate-calibration-container">
-    <div class="calibration-form flex-item">
-      <div class="calibration-controls">
-        <mat-card>
-          <mat-form-field appearance="fill" class="calibration-control no-subscript-wrapper">
-            <mat-label>X Calibration</mat-label>
-            <input matInput type="number" [(ngModel)]="xCalibration" step="0.0005">
-          </mat-form-field>
-          <mat-form-field appearance="fill" class="calibration-control no-subscript-wrapper">
-            <mat-label>Y Calibration</mat-label>
-            <input matInput type="number" [(ngModel)]="yCalibration" step="0.0005">
-          </mat-form-field>
-          <mat-form-field appearance="fill" class="calibration-control no-subscript-wrapper">
-            <mat-label>Z Calibration</mat-label>
-            <input matInput type="number" [(ngModel)]="zCalibration" step="0.0005">
-          </mat-form-field>
-          <button mat-raised-button (click)="updateCalibrationValues()">Apply</button>
-        </mat-card>
-      </div>
-    </div>
-  </div>
-</div>
-<button mat-raised-button (click)="gcodeService.calculatePrintPositionCoordinates()">Apply</button>
-
+  </mat-card-content>
+  <mat-card-footer style="background-color: rgba(0,0,0,0);">
+    <button mat-flat-button (click)="openExportGcodeForm()">Generate Gcode</button>
+  </mat-card-footer>
+</mat-card>

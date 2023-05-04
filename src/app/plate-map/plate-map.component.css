@@ -15,22 +15,13 @@
   padding: 0px;
   gap: 0px;
 }
+
 .plate-input.flex-item {
   flex: 4;
 }
 
 .plate-format-select-wrapper {
-  margin: 5px;
-}
-
-.calibration-form.flex-item {
-  flex: 1;
-  max-width: 200px;
-}
-
-.plate-map {
-  display: grid;
-  gap: 5px;
+  margin: 2px;
 }
 
 .well-row {
@@ -38,18 +29,40 @@
   z-index: 10;
 }
 
+
+.grid-container-plate-map {
+  display: grid;
+  grid-template-columns: [headerRowContainer] 40px [plateColumnContainer];/*[line2] 50px [line3] auto [col4-start] 50px [five] 40px [end];*/
+  grid-template-rows: [headerColumnContainer] 25% [plateRowContainer]; /*[row1-end] 100px [third-line] auto [last-line];*/
+
+}
+
+.grid-item-plate {
+  grid-column-start: 2;
+  grid-column-end: 16;
+  grid-row-start: 2;
+  grid-row-end: 11;
+}
 .plate {
-  margin: 5px;
+  position:absolute;
+
+}
+
+.axes {
+  position: relative;
+  z-index: 100;
+  pointer-events: none;
 }
 
 .plate-calibration-container {
   display: flex;
   flex-direction: row;
 }
+
 .calibration-form.flex-item {
   flex: 1;
   max-width: 200px;
-  margin: 5px; /* Adjust this value to create the desired spacing */
+  margin: 5px;
   transform: scale(0.6);
 }
 
@@ -70,7 +83,6 @@
   border-radius: 50%;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
   pointer-events: none;
-  /* Add a glass effect */
   background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(4px);
 }
@@ -91,6 +103,78 @@
   stroke-width: 1;
 }
 
-.axes {
-  z-index: 100;
+.mat-mdc-card {
+  border-top-left-radius: 9px;
+  border-top-right-radius: 9px;
 }
+
+.custom-mat-select-option {
+  font-size: 11px;
+  height: 1rem;
+}
+
+.mat-mdc-form-field .mat-mdc-select {
+  font-size: 12px;
+}
+
+.mat-form-field {
+  font-size: 9px;
+  height: 18px;
+  width: 65px;
+}
+
+.inputs-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  background-color: lavender;
+  padding: 12px 32px;
+}
+.label {
+  margin-bottom: 4px;
+}
+
+.printhead-number-input {
+  text-align: inherit;
+}
+
+.experiment-setup-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  text-align: left;
+}
+
+.header-content {
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.title-container {
+  text-align: left;
+}
+
+.plate-input, .plate-origin-input {
+  display: flex;
+  flex:1;
+}
+
+.grid-container-plate-map {
+  display: grid;
+  grid-template-columns: 60px 60px 60px 60px 60px;
+  grid-template-rows: 30px 30px;
+  grid-auto-flow: row;
+}
+
+.item-a {
+  grid-column: 1;
+  grid-row: 1 / 3;
+}
+.item-e {
+  grid-column: 5;
+  grid-row: 1 / 3;
+}
+
+
+

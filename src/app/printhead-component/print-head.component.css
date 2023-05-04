@@ -105,8 +105,7 @@
 }
 
 .printhead-number-input-wrapper {
-  flex: 1;
-  width: 150px;
+  --height: 1.5rem;
 }
 
 .printhead-setup-title {
@@ -152,8 +151,7 @@ printhead-setup .mat-card-tile {
 }
 
 .grid-list-container {
-  max-height: 400px;
-  min-height: 320px;
+  height: 455px;
   overflow-y: auto;
   direction: rtl;
   padding-left: 8px;
@@ -210,6 +208,10 @@ printhead-setup .mat-card-tile {
   height: 100%;
 }
 
+.mat-mdc-card {
+  border-top-left-radius: 9px;
+  border-top-right-radius: 9px;
+}
 .custom-mat-select-option {
   font-size: 11px;
   height: 1rem;
@@ -217,4 +219,36 @@ printhead-setup .mat-card-tile {
 
 .mat-mdc-form-field .mat-mdc-select {
   font-size: 12px;
+}
+
+.mat-form-field {
+  font-size: 9px; /* decrease the font size */
+  height: 18px; /* decrease the height */
+  width: 65px; /* decrease the width */
+}
+
+.printhead-number-input-wrapper > * {
+  padding: 0px !important;
+  margin: 0px !important;
+}
+.printhead-number-input {
+  font-size: 14px; /* decrease font size */
+  height: 24px; /* decrease height */
+  padding: 2px 4px; /* adjust padding as needed */
+}
+
+.input-wrapper {
+  flex-direction: column;
+  text-align: right;
+}
+
+.experiment-setup-header.flex-container {
+  padding: 0;
+}
+.label {
+  margin-bottom: 4px;
+}
+
+.printhead-number-input {
+  text-align: inherit;
 }

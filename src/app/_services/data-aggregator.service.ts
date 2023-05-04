@@ -35,8 +35,10 @@ export class DataAggregatorService {
     return key ? data[key] : data;
   }
   aggregateData() {
-    // console.log('dataServicePrintHeadsSnapshot: ', this.dataServicePrintHeadsSnapshot);
-    // console.log('dataServiceWellsSnapshot: ', this.dataServiceWellsSnapshot);
+    const activePrintHeads = this.dataServicePrintHeadsSnapshot.filter(
+      printHead => printHead.active);
+    console.log('activePrintHeads: ', activePrintHeads);
+
     /*
     This function needs to create a JSON with
       Plate Information:

@@ -1,9 +1,11 @@
 import { PrintPosition } from "./PrintPosition";
 import {emptyNeedle, Needle} from "./Needle";
 import {Coordinates} from "./Coordinates";
+import {PrintHeadBehavior, emptyPrintHeadBehavior} from "./PrintHeadBehavior";
 
 export interface PrintHead {
   printHeadIndex: number;
+  printHeadBehavior: PrintHeadBehavior;
   description: string;
   color: string;
   active: boolean;
@@ -18,6 +20,7 @@ export interface PrintHead {
 export function emptyPrintHead(): PrintHead {
   return {
     printHeadIndex: -1,
+    printHeadBehavior: emptyPrintHeadBehavior(),
     description: '',
     color: 'white',
     active: true,

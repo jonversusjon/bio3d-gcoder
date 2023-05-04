@@ -37,6 +37,8 @@ export class PrintHeadComponent implements OnInit, OnDestroy, OnChanges {
 
   printPositionButtonBaseStyle = {};
   _printPositionService: any;
+
+  public experimentSetupHeaderStyle: any;
   constructor(
     private screenUtils: ScreenUtils,
     private printHeadStateService: PrintHeadStateService,
@@ -73,6 +75,7 @@ export class PrintHeadComponent implements OnInit, OnDestroy, OnChanges {
       this.printHeads = printHeads;
       console.log('this.printHeads: ', this.printHeads);
     });
+    this.experimentSetupHeaderStyle = this.styleService.getBaseStyle('experiment-setup-header')
   }
 
   ngOnChanges(changes: SimpleChanges): void {

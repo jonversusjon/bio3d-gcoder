@@ -104,6 +104,8 @@ export class PrintHeadStateService implements OnDestroy {
     newPrintHead.printHeadIndex = printHeadIndex;
     newPrintHead.color = this.styleService.THEME_COLORS.defaultLightTheme[printHeadIndex % this.styleService.THEME_COLORS.defaultLightTheme.length];
 
+    newPrintHead.needle = this.needles[0];
+
     newPrintHead.printPositions = this.printPositionService.loadPrintPositionButtons(
       'print-head',
       printHeadIndex,

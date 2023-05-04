@@ -1,7 +1,10 @@
-.main-container {
-  display: flex;
-  justify-content: space-between;
+.app-container {
   padding: 24px;
-  background-color: #dedede;
   height:100%;
+}
+
+app-experiment-setup {
+  display: flex;
+  flex:2;
+  justify-content: center;
 }

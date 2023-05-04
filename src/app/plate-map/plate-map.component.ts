@@ -26,6 +26,10 @@ import {PlateMap} from "../../types/PlateMap";
 import { GcodeService } from "../_services/gcode.service";
 import {PrintPositionService} from "../_services/print-position.service";
 import {Coordinates} from "../../types/Coordinates";
+import {ExportGcodeFormComponent} from "../export-gcode-form/export-gcode-form.component";
+import {MatDialog} from "@angular/material/dialog";
+import {DataAggregatorService} from "../_services/data-aggregator.service";
+
 @Component({
   selector: 'app-plate-map',
   templateUrl: './plate-map.component.html',
@@ -34,9 +38,23 @@ import {Coordinates} from "../../types/Coordinates";
 
 })
 export class PlateMapComponent implements OnInit, AfterViewInit, OnDestroy {
-  majorTicks = Array.from({ length: 11 }, (_, i) => i * 10); // 0, 10, 20, ... , 100
-  minorTicks = Array.from({ length: 51 }, (_, i) => i * 2); // 0, 2, 4, ... , 100
+  majorTicks = Array.from({length: 11}, (_, i) => i * 10); // 0, 10, 20, ... , 100
+  minorTicks = Array.from({length: 51}, (_, i) => i * 2); // 0, 2, 4, ... , 100
 
+  public axesPosition = {
+    'x-axis': {
+      x1: 0,
+      x2: 0,
+      y1: 0,
+      y2: 0
+    },
+    'y-axis': {
+      x1: 0,
+      x2: 0,
+      y1: 0,
+      y2: 0
+    }
+  }
 
   private renderer: Renderer2;
   printHeads!: PrintHead[];
@@ -45,7 +63,7 @@ export class PlateMapComponent implements OnInit, AfterViewInit, OnDestroy {
   yCalibration = 1;
   zCalibration = 1;
 
-  plateMap: PlateMap = { wells: [], columnHeaders: [], rowHeaders: [] };
+  plateMap: PlateMap = {wells: [], columnHeaders: [], rowHeaders: []};
   plateFormats: PlateFormat[] = [];
   selectedPlate!: PlateFormat;
   prevSelectedPlate!: PlateFormat;
@@ -55,6 +73,7 @@ export class PlateMapComponent implements OnInit, AfterViewInit, OnDestroy {
   plateWidthPX = this.toPX(this.plateFormatService.plateWidth);
 
   private customButtonToggleStyle: any;
+  public experimentSetupHeaderStyle: any;
   private printHeadStateSubscription!: Subscription;
 
   printPositionOriginsMM: Coordinates[][] = [];
@@ -116,7 +135,8 @@ export class PlateMapComponent implements OnInit, AfterViewInit, OnDestroy {
     private calibrationService: CalibrationService,
     private wellsStateService: WellsStateService,
     public printPositionService: PrintPositionService,
-    private cd: ChangeDetectorRef,
+    public dialog: MatDialog,
+    public dataService: DataAggregatorService,
   ) {
     this.renderer = rendererFactory.createRenderer(null, null);
     this.initializePlateFormats();
@@ -127,6 +147,9 @@ export class PlateMapComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnInit(): void {
     this.customButtonToggleStyle = this.styleService.getBaseStyle('custom-button-toggle');
+    this.experimentSetupHeaderStyle = this.styleService.getBaseStyle('experiment-setup-header');
+    this.selectedPlateOrigin = this.plateFormatService.plateOrigins[2].value;
+
   }
 
   ngAfterViewInit() {
@@ -161,7 +184,7 @@ export class PlateMapComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   onGetPrintHeadChanges(printHeads: PrintHead[]) {
-    if(printHeads.length > 0) {
+    if (printHeads.length > 0) {
       // this.printPositionOriginsMM = printHeads.map(() => this.printPositionService.getPrintPositionOriginsMM('plate-map', this.selectedPlate.well_sizeMM));
     }
   }
@@ -172,14 +195,14 @@ export class PlateMapComponent implements OnInit, AfterViewInit, OnDestroy {
 
   }
 
-  onSelectedPlateChanged(event: MatSelectChange): void {
+  onSelectedPlateChanged(event: any): void {
     const newSelectedPlate = event.value;
     if (newSelectedPlate !== this.prevSelectedPlate) {
       this.prevSelectedPlate = newSelectedPlate;
       this.selectedPlate = newSelectedPlate;
       this.plateFormatService.setSelectedPlate(newSelectedPlate);
       this.printPositionOriginsMM = [];
-      for(let printHead of this.printHeads) {
+      for (let printHead of this.printHeads) {
         this.printPositionOriginsMM.push(
           this.printPositionService.getPrintPositionOriginsMM('plate-map', 'parent-element', this.selectedPlate.well_sizeMM)
         );
@@ -198,6 +221,7 @@ export class PlateMapComponent implements OnInit, AfterViewInit, OnDestroy {
   onSelectedPlateOriginChanged(event: MatSelectChange): void {
     this.selectedPlateOrigin = event.value;
   }
+
   updatePlateMap(selectedPlate: PlateFormat, plateMap: PlateMap, event?: MouseEvent) {
     if (this.selectedPlate) {
       this.wellsStateService.updatePlateMap(selectedPlate, plateMap, event);
@@ -206,16 +230,22 @@ export class PlateMapComponent implements OnInit, AfterViewInit, OnDestroy {
 
   get plateStyle() {
     return {
-      position: 'relative',
       border: '1px solid #000',
       height: `${this.plateHeightPX}px`,
       width: `${this.plateWidthPX}px`,
-      marginTop: '1em',
       backgroundColor: '#efefef',
       borderRadius: '12px'
     };
   }
 
+  get axesStyle() {
+    return {
+      height: `${this.plateHeightPX}px`,
+      width: `${this.plateWidthPX}px`,
+      position: 'absolute',
+      top: 0,
+    };
+  }
   toggleWellSelection(plateMap: PlateMap, wellIndex: number, row: number) {
     this.wellsStateService.toggleWellSelection(plateMap, wellIndex, row);
   }
@@ -317,5 +347,160 @@ export class PlateMapComponent implements OnInit, AfterViewInit, OnDestroy {
     positions.sort((a, b) => a - b);
 
     return positions;
+  }
+
+  setAxesPosition(): void {
+    switch (this.selectedPlateOrigin) {
+      case 'plate-center':
+        this.axesPosition = {
+          'x-axis': {
+            x1: 0,
+            x2: 100,
+            y1: 0,
+            y2: 0
+          },
+          'y-axis': {
+            x1: 0,
+            x2: 100,
+            y1: 0,
+            y2: 0
+          }
+        }
+        break;
+      case 'top-right':
+        this.axesPosition = {
+          'x-axis': {
+            x1: 0,
+            x2: 100,
+            y1: 0,
+            y2: 0
+          },
+          'y-axis': {
+            x1: 0,
+            x2: 100,
+            y1: 0,
+            y2: 0
+          }
+        }
+        break;
+      case 'top-left':
+        this.axesPosition = {
+          'x-axis': {
+            x1: 0,
+            x2: 100,
+            y1: 0,
+            y2: 0
+          },
+          'y-axis': {
+            x1: 0,
+            x2: 0,
+            y1: 0,
+            y2: 0
+          }
+        }
+        break;
+      case 'bottom-right':
+        this.axesPosition = {
+          'x-axis': {
+            x1: 0,
+            x2: 100,
+            y1: 0,
+            y2: 0
+          },
+          'y-axis': {
+            x1: 0,
+            x2: 0,
+            y1: 0,
+            y2: 0
+          }
+        }
+        break;
+      case 'bottom-left':
+        this.axesPosition = {
+          'x-axis': {
+            x1: 0,
+            x2: 0,
+            y1: 0,
+            y2: 0
+          },
+          'y-axis': {
+            x1: 0,
+            x2: 0,
+            y1: 0,
+            y2: 0
+          }
+        }
+        break;
+      default:
+        this.axesPosition = {
+          'x-axis': {
+            x1: 0,
+            x2: 0,
+            y1: 0,
+            y2: 0
+          },
+          'y-axis': {
+            x1: 0,
+            x2: 0,
+            y1: 0,
+            y2: 0
+          }
+        }
+        break;
+    }
+  }
+
+
+
+// <line id="x-axis" x1="0" [attr.y1]="getAxisPosition().y + '%'" x2="100%" [attr.y2]="getAxisPosition().y + '%'" stroke="rgba(0,0,0,0.25)" />
+//     <!-- X-Axis Major Ticks -->
+// <line *ngFor="let tick of majorTicks"
+//   [attr.x1]="tick + '%'"
+//     [attr.y1]="getAxisPosition().y - 1 + '%'"
+//     [attr.x2]="tick + '%'"
+//     [attr.y2]="getAxisPosition().y + 1 + '%'"
+//   stroke="rgba(0,0,0,0.25)" />
+//     <!-- X-Axis Minor Ticks -->
+// <line *ngFor="let tick of minorTicks"
+//   [attr.x1]="tick + '%'"
+//     [attr.y1]="getAxisPosition().y - 0.5 + '%'"
+//     [attr.x2]="tick + '%'"
+//     [attr.y2]="getAxisPosition().y + 0.5 + '%'"
+//   stroke="rgba(0,0,0,0.15)" />
+  getOriginLabelPosition() {
+    const origin = this.selectedPlateOrigin;
+    let x = 0;
+    let y = 0;
+
+    if (origin === 'plate-center') {
+      x = 74;
+      y = 50;
+    } else if (origin === 'top-right') {
+      x = 100;
+      y = 0;
+    } else if (origin === 'top-left') {
+      x = 0;
+      y = 0;
+    } else if (origin === 'bottom-right') {
+      x = 100;
+      y = 100;
+    } else if (origin === 'bottom-left') {
+      x = 0;
+      y = 100;
+    }
+
+    // Adjust the position to make sure the label is not overlapping with the axes
+    x -= 2;
+    y -= 2;
+
+    return { x, y };
+  }
+  openExportGcodeForm(): void {
+    this.dataService.aggregateData();
+    // const dialogRef = this.dialog.open(ExportGcodeFormComponent);
+    //
+    // dialogRef.afterClosed().subscribe(result => {
+    //   console.log(`Dialog result: ${result}`);
+    // });
   }
 }
