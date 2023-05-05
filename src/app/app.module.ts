@@ -24,7 +24,7 @@ import {MatButtonModule} from "@angular/material/button";
 import { RectangleSelectionComponent } from './rectangle-selection/rectangle-selection.component';
 import { ExportGcodeFormComponent } from './export-gcode-form/export-gcode-form.component';
 import {MAT_DIALOG_DATA, MatDialogModule, MatDialogRef} from "@angular/material/dialog";
-import { HighchartsChartModule } from 'highcharts-angular';
+
 
 @Pipe({
   name: 'range'
@@ -63,7 +63,6 @@ export class RangePipe implements PipeTransform {
         NgOptimizedImage,
         MatDialogModule,
         MatButtonModule,
-        HighchartsChartModule
     ],
   providers: [
     ScreenUtils,

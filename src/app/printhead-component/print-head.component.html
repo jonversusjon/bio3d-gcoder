@@ -50,47 +50,46 @@
                   <input *ngIf="printhead.active" matInput type="color" [(ngModel)]="printhead.color" (change)="onPrintPositionColorChange(printhead, printhead.color)">
                   <input *ngIf="!printhead.active" matInput type="color" [(ngModel)]="inactiveColor" [disabled]="true">
                 </mat-form-field>
-<!--                <div *ngIf="selectedPrintHeadType.hasTemperatureControl" class="printhead-temperature-toggle-input-combo grid-item">-->
-<!--                  <div class="toggle-input-combo">-->
-<!--                    <mat-button-toggle-->
-<!--                      *ngIf="printhead.active"-->
-<!--                      class="printhead-temperature-label-toggle toggle-label"-->
-<!--                      (change)="temperatureEnabled = !temperatureEnabled"-->
-<!--                      [checked]="temperatureEnabled"-->
-<!--                    >-->
-<!--                      Temp-->
-<!--                    </mat-button-toggle>-->
-<!--                    <mat-button-toggle-->
-<!--                      *ngIf="!printhead.active"-->
-<!--                      class="printhead-temperature-label-toggle toggle-label"-->
-<!--                      [disabled]="true"-->
-<!--                    >-->
-<!--                      Temperature-->
-<!--                    </mat-button-toggle>-->
+                <div *ngIf="selectedPrintHeadType.hasTemperatureControl" class="printhead-temperature-toggle-input-combo grid-item">
+                  <mat-form-field appearance="fill" class="input">
+                  <mat-button-toggle
+                      *ngIf="printhead.active"
+                      class="printhead-temperature-label-toggle toggle-label"
+                      (change)="temperatureEnabled = !temperatureEnabled"
+                      [checked]="temperatureEnabled"
+                    >
+                      Temp
+                    </mat-button-toggle>
+                    <mat-button-toggle
+                      *ngIf="!printhead.active"
+                      class="printhead-temperature-label-toggle toggle-label"
+                      [disabled]="true"
+                    >
+                      Temperature
+                    </mat-button-toggle>
 
-<!--                    <mat-form-field appearance="fill" class="input">-->
-<!--                      <input-->
-<!--                        *ngIf="printhead.active"-->
-<!--                        matInput-->
-<!--                        type="number"-->
-<!--                        class="printhead-temperature-label-input"-->
-<!--                        [(ngModel)]="printhead.temperature"-->
-<!--                        [disabled]="!temperatureEnabled"-->
-<!--                        (change)="onPrintHeadTemperatureChange(printhead, printhead.temperature)"-->
-<!--                      >-->
-<!--                      <input-->
-<!--                        *ngIf="!printhead.active"-->
-<!--                        matInput-->
-<!--                        type="number"-->
-<!--                        class="printhead-temperature-label-input"-->
-<!--                        [(ngModel)]="inactiveColor"-->
-<!--                        [disabled]="true"-->
-<!--                      >-->
-<!--                    </mat-form-field>-->
-<!--                  </div>-->
-<!--                </div>-->
 
-              </div>
+                      <input
+                        *ngIf="printhead.active"
+                        matInput
+                        type="number"
+                        class="printhead-temperature-label-input"
+                        [(ngModel)]="printhead.temperature"
+                        [disabled]="!temperatureEnabled"
+                        (change)="onPrintHeadTemperatureChange(printhead, printhead.temperature)"
+                      >
+                      <input
+                        *ngIf="!printhead.active"
+                        matInput
+                        type="number"
+                        class="printhead-temperature-label-input"
+                        [(ngModel)]="inactiveColor"
+                        [disabled]="true"
+                      >
+                    </mat-form-field>
+                  </div>
+                </div>
+
             </mat-card-title>
 
             <mat-card-content class="grid-container">

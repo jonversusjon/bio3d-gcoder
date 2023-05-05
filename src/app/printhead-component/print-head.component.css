@@ -258,6 +258,11 @@ printhead-setup .mat-card-tile {
 }
 
 .printhead-temperature-toggle-input-combo {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
   grid-row: 3;
   grid-column: 1 / 2;
 }
@@ -277,18 +282,11 @@ printhead-setup .mat-card-tile {
   grid-column: 1 / 3;
 }
 
-.toggle-input-combo {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-}
 
-.toggle-label {
+.printhead-temperature-label-toggle toggle-label {
   flex-grow: 1;
 }
 
-.input {
+.printhead-temperature-label-input {
   flex-grow: 1;
 }

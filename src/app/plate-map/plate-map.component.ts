@@ -112,21 +112,9 @@ export class PlateMapComponent implements OnInit, AfterViewInit, OnDestroy {
     top: '0px',
     backgroundPosition: '0px 0px',
   };
-  xAxisOptions: Highcharts.XAxisOptions = {
-    categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-    title: {
-      text: 'Month'
-    }
-  };
 
-  yAxisOptions: Highcharts.YAxisOptions = {
-    title: {
-      text: 'Value'
-    }
-  };
 
   constructor(
-    public gcodeService: GcodeService,
     private screenUtils: ScreenUtils,
     public plateFormatService: PlateFormatService,
     private printHeadStateService: PrintHeadStateService,
@@ -135,7 +123,6 @@ export class PlateMapComponent implements OnInit, AfterViewInit, OnDestroy {
     private calibrationService: CalibrationService,
     private wellsStateService: WellsStateService,
     public printPositionService: PrintPositionService,
-    public dialog: MatDialog,
     public dataService: DataAggregatorService,
   ) {
     this.renderer = rendererFactory.createRenderer(null, null);
