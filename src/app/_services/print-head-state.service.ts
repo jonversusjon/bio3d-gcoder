@@ -166,8 +166,6 @@ export class PrintHeadStateService implements OnDestroy {
     }
   }
 
-
-
   // Update color property and active state color of print position buttons
   updateColor(printHeadIndex: number, newColor: string): void {
     const currentPrintHeads = this._printHeads.value;
@@ -187,6 +185,18 @@ export class PrintHeadStateService implements OnDestroy {
     }
   }
 
+  updateTemperature(printHeadIndex: number, newTemperature: number): void {
+    const currentPrintHeads = this._printHeads.value;
+
+    if (currentPrintHeads[printHeadIndex]) {
+      const selectedPrintHead = currentPrintHeads[printHeadIndex];
+      selectedPrintHead.temperature = newTemperature;
+
+      this._printHeads.next(currentPrintHeads);
+    } else {
+      console.error(`Invalid printHeadIndex: ${printHeadIndex}`);
+    }
+  }
   updateDescription(printHeadIndex: number, newDescription: string): void {
     const currentPrintHeads = this._printHeads.value;
 

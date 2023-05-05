@@ -28,6 +28,7 @@ export class PrintHeadComponent implements OnInit, OnDestroy, OnChanges {
   private subscriptions: Subscription[] = [];
 
   inactiveColor = '#808080';
+  temperatureEnabled = false;
 
   needles:Needle[] = []
   printHeads: PrintHead[] = []
@@ -127,6 +128,9 @@ export class PrintHeadComponent implements OnInit, OnDestroy, OnChanges {
     this.printHeadStateService.updateColor(printHead.printHeadIndex, color);
   }
 
+  onPrintHeadTemperatureChange(printHead: PrintHead, temperature: number) {
+    this.printHeadStateService.updateTemperature(printHead.printHeadIndex, temperature);
+  }
   togglePrintHeadButton(printHead: PrintHead, printHeadButton:PrintPosition) {
     this.printHeadStateService.toggleButtonStatus(printHead.printHeadIndex, printHeadButton.index);
   }

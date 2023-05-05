@@ -15,6 +15,7 @@ export interface PrintHead {
   pickerWell: {sizeMM: number};
   needle: Needle;
   elementType: 'PrintHead';
+  temperature: number;
 }
 
 export function emptyPrintHead(): PrintHead {
@@ -30,5 +31,6 @@ export function emptyPrintHead(): PrintHead {
     pickerWell: {sizeMM: 0},
     needle: emptyNeedle(),
     elementType: 'PrintHead',
+    temperature: 0,
   }
 }

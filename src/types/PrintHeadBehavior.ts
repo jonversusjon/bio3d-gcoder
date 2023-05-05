@@ -57,7 +57,7 @@ export function emptyPrintHeadBehavior(): PrintHeadBehavior {
 export function getPneumaticPrintHeadBehavior() {
   return {
     ...emptyPrintHeadBehavior(),
-    printHeadDescription: "Pneumatic Printhead",
+    printHeadDescription: "Pneumatic",
     hasPneumaticControl: true,
     hasTemperatureControl: true,
     temperatureRange: {
@@ -72,7 +72,7 @@ export function getPneumaticPrintHeadBehavior() {
 export function getEMDPrintHeadBehavior() {
   return {
     ...emptyPrintHeadBehavior(),
-    printHeadDescription: "Electro-magnetic Droplet Printhead",
+    printHeadDescription: "Electro-magnetic Droplet (EMD)",
     hasTemperatureControl: true,
     temperatureRange: {
       min: 30,
@@ -86,7 +86,7 @@ export function getEMDPrintHeadBehavior() {
 export function getSyringePumpPrintHeadBehavior() {
   return {
     ...emptyPrintHeadBehavior(),
-    printHeadDescription: "Syringe Pump Printhead",
+    printHeadDescription: "Syringe Pump",
     hasTemperatureControl: true,
     temperatureRange: {
       min: 30,
@@ -100,7 +100,7 @@ export function getSyringePumpPrintHeadBehavior() {
 export function getPhotocuringToolhead() {
   return {
     ...emptyPrintHeadBehavior(),
-    printHeadDescription: "Syringe Pump Printhead",
+    printHeadDescription: "Syringe Pump",
     hasPhotocuring: true,
     suggestedInk: ["GELMA", "GELXA", "START X"],
     wavelengths: ["365nm","405nm","450nm","485nm","520nm","custom"],
