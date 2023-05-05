@@ -15,6 +15,7 @@ import { PlateFormatService } from "../_services/plate-format.service";
 import {MatSlideToggleChange} from "@angular/material/slide-toggle";
 import {PrintPositionService} from "../_services/print-position.service";
 import {Subscription} from "rxjs";
+import {availablePrintHeads, PrintHeadBehavior} from "../../types/PrintHeadBehavior";
 
 @Component({
   selector: 'app-print-head-component',
@@ -23,6 +24,7 @@ import {Subscription} from "rxjs";
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PrintHeadComponent implements OnInit, OnDestroy, OnChanges {
+  public availablePrintHeads: PrintHeadBehavior[] = [];
   private subscriptions: Subscription[] = [];
 
   inactiveColor = '#808080';
@@ -39,6 +41,8 @@ export class PrintHeadComponent implements OnInit, OnDestroy, OnChanges {
   _printPositionService: any;
 
   public experimentSetupHeaderStyle: any;
+
+  selectedPrintHeadType: PrintHeadBehavior;
   constructor(
     private screenUtils: ScreenUtils,
     private printHeadStateService: PrintHeadStateService,
@@ -67,6 +71,8 @@ export class PrintHeadComponent implements OnInit, OnDestroy, OnChanges {
     this.printPositionButtonBaseStyle = this.styleService.getBaseStyle('print-position-button');
     this._printPositionService = printPositionService;
     this.needles = this.printHeadStateService.needles;
+
+    this.selectedPrintHeadType = availablePrintHeads[0];
   }
 
   ngOnInit() {
@@ -75,7 +81,8 @@ export class PrintHeadComponent implements OnInit, OnDestroy, OnChanges {
       this.printHeads = printHeads;
       console.log('this.printHeads: ', this.printHeads);
     });
-    this.experimentSetupHeaderStyle = this.styleService.getBaseStyle('experiment-setup-header')
+    this.experimentSetupHeaderStyle = this.styleService.getBaseStyle('experiment-setup-header');
+    this.availablePrintHeads = availablePrintHeads;
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -163,6 +170,11 @@ export class PrintHeadComponent implements OnInit, OnDestroy, OnChanges {
       'top': this.printPositionService.printPositionButtonTopsPX[buttonIndex] + 'px',
       'left': this.printPositionService.printPositionButtonLeftsPX[buttonIndex] + 'px'
     };
+  }
+
+  onPrintHeadTypeChange(printhead: PrintHead, newPrintHeadType: PrintHeadBehavior): void {
+    // Add your logic here to handle the change in the selected print head type
+    console.log('Selected Print Head Type:', newPrintHeadType);
   }
 
 }

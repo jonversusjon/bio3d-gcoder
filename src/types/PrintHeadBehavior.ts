@@ -83,7 +83,7 @@ export function getEMDPrintHeadBehavior() {
   }
 }
 
-export function getSyringPumpPrintHeadBehavior() {
+export function getSyringePumpPrintHeadBehavior() {
   return {
     ...emptyPrintHeadBehavior(),
     printHeadDescription: "Syringe Pump Printhead",
@@ -208,9 +208,11 @@ export const M810: PrintCode = {
   }
 }
 
-export const availablePrintHeads: { [key: string]: PrintHeadBehavior } = {
-  pneumatic: getPneumaticPrintHeadBehavior(),
-  emd: getEMDPrintHeadBehavior(),
-  syringe: getSyringPumpPrintHeadBehavior(),
-};
+
+
+export const availablePrintHeads = [
+  getPneumaticPrintHeadBehavior(),
+  getEMDPrintHeadBehavior(),
+  getSyringePumpPrintHeadBehavior(),
+];
 

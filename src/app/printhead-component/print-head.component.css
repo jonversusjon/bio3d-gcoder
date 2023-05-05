@@ -250,5 +250,31 @@ printhead-setup .mat-card-tile {
 }
 
 .printhead-number-input {
-  text-align: inherit;
+  text-align: center;
+}
+
+.grid-item {
+  grid-row: 1;
+}
+
+.print-head-type-field,
+.needle-od-field,
+.color-field {
+  grid-row: 2;
+}
+
+
+.printhead-setup-title {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  grid-gap: 0px;
+  font-size: 0.74rem;
+}
+
+.printhead-description-input {
+  grid-column: 1 / 5;
+}
+
+.print-head-type-select-input {
+  grid-column: 1 / 3;
 }
