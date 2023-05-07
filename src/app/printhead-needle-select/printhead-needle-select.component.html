@@ -1,0 +1,8 @@
+<mat-form-field subscriptSizing="dynamic" appearance="outline" class="needle-od-field grid-item">
+  <mat-label class="custom-mat-label">Needle</mat-label>
+  <mat-select class="needle-select custom-mat-select" [(ngModel)]="printhead.needle"
+              [disabled]="!printhead.active">
+    <mat-option *ngFor="let needle of availableNeedles" [value]="needle"
+                class="custom-mat-select-option">{{needle.name}}</mat-option>
+  </mat-select>
+</mat-form-field>

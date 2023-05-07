@@ -1,4 +1,5 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
+import {PrintHead} from "../../types/PrintHead";
 
 @Component({
   selector: 'app-print-depth',
@@ -8,6 +9,7 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 export class PrintDepthComponent {
   @Input() wellDepthMM: number = 16.5;
   @Input() activeToggle: boolean = false;
+  @Input() printhead!: PrintHead;
   @Output() startDepthChange = new EventEmitter<number>();
   @Output() endDepthChange = new EventEmitter<number>();
 

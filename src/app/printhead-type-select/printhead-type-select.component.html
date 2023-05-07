@@ -1,0 +1,60 @@
+<mat-form-field
+  subscriptSizing="dynamic"
+  appearance="outline"
+  class="print-head-type-field grid-item print-head-type-select-input"
+>
+  <mat-label>Print Head Type</mat-label>
+  <mat-select
+    class="print-head-type-select custom-mat-select"
+    [(ngModel)]="selectedPrintHeadType"
+    (selectionChange)="onPrintheadTypeChanged($event.value)"
+    [disabled]="!printhead.active"
+  >
+    <mat-option
+      *ngFor="let printHeadType of availablePrintHeads"
+      [value]="printHeadType"
+      class="custom-mat-select-option"
+    >
+      {{ printHeadType.printHeadDescription }}
+    </mat-option>
+  </mat-select>
+</mat-form-field>
+<div *ngIf="selectedPrintHeadType.hasTemperatureControl"
+     class="toggle-input-grid-item grid-item">
+  <mat-form-field class="toggle-input-wrapper toggle-input-grid-item" subscriptSizing="dynamic" appearance="fill">
+    <div class="printhead-temperature-toggle-input-combo">
+      <mat-button-toggle
+        *ngIf="printhead.active"
+        class="centered-text-toggle"
+        (change)="temperatureEnabled = !temperatureEnabled"
+        [checked]="temperatureEnabled"
+      >
+        Temp
+      </mat-button-toggle>
+      <mat-button-toggle
+        *ngIf="!printhead.active"
+        class="centered-text-toggle"
+        [disabled]="true"
+      >
+        Temperature
+      </mat-button-toggle>
+      <input
+        *ngIf="printhead.active"
+        matInput
+        type="number"
+        min="selectedPrintHeadType.temperatureRange.min"
+        max="selectedPrintHeadType.temperatureRange.max"
+        [(ngModel)]="printhead.temperature"
+        [disabled]="!temperatureEnabled"
+      >
+      <input
+        *ngIf="!printhead.active"
+        matInput
+        type="number"
+        class="printhead-temperature-label-input"
+        [(ngModel)]="inactiveColor"
+        [disabled]="true"
+      >
+    </div>
+  </mat-form-field>
+</div>

@@ -11,7 +11,7 @@
       (mousedown)="onMouseDown($event, 'start')"
       [class.active]="currentThumb === 'start'"
     >
-      <div class="tooltip" [style.bottom]="startThumbPosition + 30 + 'px'">{{ startValue }}</div>
+<!--      <div class="tooltip" [style.bottom]="startThumbPosition + 30 + 'px'">{{ startValue }}</div>-->
     </div>
     <div
       class="vertical-thumb"
@@ -19,7 +19,7 @@
       (mousedown)="onMouseDown($event, 'end')"
       [class.active]="currentThumb === 'end'"
     >
-      <div class="tooltip" [style.bottom]="endThumbPosition + 30 + 'px'">{{ endValue }}</div>
+<!--      <div class="tooltip" [style.bottom]="endThumbPosition + 30 + 'px'">{{ endValue }}</div>-->
     </div>
     <ng-container *ngFor="let tick of ticks">
       <div class="tick-container" [style.bottom]="tick.bottom">
@@ -35,7 +35,5 @@
         ></div>
       </div>
     </ng-container>
-
-
   </div>
 </div>

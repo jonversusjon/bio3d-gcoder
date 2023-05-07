@@ -1,5 +1,7 @@
 import { Injectable } from '@angular/core';
 
+export const INACTIVE_COLOR = '#808080';
+
 @Injectable({
   providedIn: 'root'
 })
@@ -8,7 +10,6 @@ export class StyleService {
     'colorblindSafeDefault' : ['#4477AA','#CCBB44','#AA3377','#66CCEE','#EE6677','#228833','#BBBBBB'],
     'defaultLightTheme' : ['#FF1F5B','#00CD6C','#009ADE','#AF58BA','#FFC61E','#F28522','#A0B1BA','#A6761D'],
   }
-
   private _baseStyles: { [key: string]: any } = {
     'well': {
       position: 'relative',

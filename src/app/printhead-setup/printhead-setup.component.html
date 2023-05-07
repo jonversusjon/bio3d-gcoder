@@ -1,0 +1,23 @@
+<mat-card>
+  <mat-card-header [ngStyle]="experimentSetupHeaderStyle" style="background-color: coral;"
+                   class="experiment-setup-header flex-container">
+    <mat-card-title style="margin: 0 0 0 1em;" class="flex-item">Printhead Setup</mat-card-title>
+    <div class="input-wrapper flex-item">
+      <div class="label" style="margin: 0.5em 1em 0.25em 0;">No of printheads:</div>
+      <input style="margin: 0 1em 1em 0;" type="number" min="1" max="20" class="printhead-number-input"
+             [(ngModel)]="printHeadCountInput" (change)="onPrintHeadCountChange()">
+    </div>
+  </mat-card-header>
+  <mat-card-content style="background-color: mistyrose;">
+    <div class="grid-list-container">
+      <div class="flex-container" style="justify-content: center; padding-right: 0; padding-left: 0;">
+        <div *ngFor="let printhead of printHeads; let printHeadIndex = index" class="flex-item">
+          <app-printhead-card-component
+            [printhead]="printhead"
+            [printheadIndex]="printHeadIndex"
+            ></app-printhead-card-component>
+        </div>
+      </div>
+    </div>
+  </mat-card-content>
+</mat-card>

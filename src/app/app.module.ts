@@ -9,7 +9,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatCardModule } from '@angular/material/card';
 import { FloorPipe } from '../types/floor.pipe';
-import { PrintHeadComponent } from './printhead-component/printhead.component';
+import { PrintHeadCardComponent } from './printhead-card/print-head-card.component';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
@@ -24,6 +24,11 @@ import {MatButtonModule} from "@angular/material/button";
 import { RectangleSelectionComponent } from './rectangle-selection/rectangle-selection.component';
 import { ExportGcodeFormComponent } from './export-gcode-form/export-gcode-form.component';
 import {MAT_DIALOG_DATA, MatDialogModule, MatDialogRef} from "@angular/material/dialog";
+import { PrintPositionPickerComponent } from './print-position-picker/print-position-picker.component';
+import { PrintheadSetupComponent } from './printhead-setup/printhead-setup.component';
+import { PrintheadNeedleSelectComponent } from './printhead-needle-select/printhead-needle-select.component';
+import { PrintheadColorPickerComponent } from './printhead-color-picker/printhead-color-picker.component';
+import { PrintheadTypeSelectComponent } from './printhead-type-select/printhead-type-select.component';
 
 
 @Pipe({
@@ -41,12 +46,17 @@ export class RangePipe implements PipeTransform {
         PlateMapComponent,
         RangePipe,
         FloorPipe,
-        PrintHeadComponent,
+        PrintHeadCardComponent,
         ExperimentSetupComponent,
         PrintDepthComponent,
         VerticalSliderComponent,
         RectangleSelectionComponent,
-        ExportGcodeFormComponent
+        ExportGcodeFormComponent,
+        PrintPositionPickerComponent,
+        PrintheadSetupComponent,
+        PrintheadNeedleSelectComponent,
+        PrintheadColorPickerComponent,
+        PrintheadTypeSelectComponent
     ],
     imports: [
         BrowserModule,

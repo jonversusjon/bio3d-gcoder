@@ -2,56 +2,44 @@ import {
   Component, OnChanges,
   OnDestroy,
   OnInit, SimpleChanges,
-  ChangeDetectionStrategy, ChangeDetectorRef
+  ChangeDetectionStrategy, ChangeDetectorRef,
+  Input, Output, EventEmitter
 } from '@angular/core';
 import { PlateFormat } from "../../types/PlateFormat";
 import { ScreenUtils } from "../_services/screen-utils";
 import { PrintHeadStateService } from "../_services/print-head-state.service"
 import { PrintHead } from "../../types/PrintHead";
-import { PrintPosition } from "../../types/PrintPosition";
 import {Needle} from "../../types/Needle";
 import {StyleService} from "../_services/style.service";
 import { PlateFormatService } from "../_services/plate-format.service";
 import {MatSlideToggleChange} from "@angular/material/slide-toggle";
-import {PrintPositionService} from "../_services/print-position.service";
 import {Subscription} from "rxjs";
 import {availablePrintHeads, PrintHeadBehavior} from "../../types/PrintHeadBehavior";
+import {PrintPositionService} from "../_services/print-position.service";
 
 @Component({
-  selector: 'app-print-head-component',
-  templateUrl: './print-head.component.html',
-  styleUrls: ['./print-head.component.css'],
+  selector: 'app-printhead-card-component',
+  templateUrl: './print-head-card.component.html',
+  styleUrls: ['./print-head-card.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class PrintHeadComponent implements OnInit, OnDestroy, OnChanges {
-  public availablePrintHeads: PrintHeadBehavior[] = [];
+export class PrintHeadCardComponent implements OnInit, OnDestroy, OnChanges {
+  @Input() printhead!: PrintHead;
+  @Input() printheadIndex!: number;
+
   private subscriptions: Subscription[] = [];
 
-  inactiveColor = '#808080';
-  temperatureEnabled = false;
-
-  needles:Needle[] = []
-  printHeads: PrintHead[] = []
-  printHeadCountInput: number = 1;
-
+  selectedNeedle!: any;
+  selectedColor!: any;
   _selectedPlate!: PlateFormat;
 
   activeToggle: boolean = false;
-
-  printPositionButtonBaseStyle = {};
-  _printPositionService: any;
-
-  public experimentSetupHeaderStyle: any;
-
-  selectedPrintHeadType: PrintHeadBehavior;
   constructor(
     private screenUtils: ScreenUtils,
     private printHeadStateService: PrintHeadStateService,
     private styleService: StyleService,
     private plateFormatService: PlateFormatService,
-    public printPositionService: PrintPositionService,
-    private changeDetectorRef: ChangeDetectorRef,
-    ) {
+    private printPositionService: PrintPositionService) {
 
     this.subscriptions.push(
       this.plateFormatService.selectedPlate$.subscribe((plate) => {
@@ -59,31 +47,12 @@ export class PrintHeadComponent implements OnInit, OnDestroy, OnChanges {
         this.onGetSelectedPlateChange(plate);
       })
     );
-    this.subscriptions.push(
-      this.printHeadStateService.printHeads$.subscribe((printHeads: PrintHead[]) => {
-        this.printHeads = printHeads;
-      })
-    );
-    this.subscriptions.push(
-      this.printPositionService.buttonWidthChanged.subscribe(() => {
-        this.changeDetectorRef.markForCheck();
-      })
-    );
-    this.printPositionButtonBaseStyle = this.styleService.getBaseStyle('print-position-button');
-    this._printPositionService = printPositionService;
-    this.needles = this.printHeadStateService.needles;
 
-    this.selectedPrintHeadType = availablePrintHeads[0];
+
   }
 
   ngOnInit() {
-    this.printHeadStateService.printHeads$.subscribe(printHeads => {
-      console.log('printhead-component notified of printheads change');
-      this.printHeads = printHeads;
-      console.log('this.printHeads: ', this.printHeads);
-    });
-    this.experimentSetupHeaderStyle = this.styleService.getBaseStyle('experiment-setup-header');
-    this.availablePrintHeads = availablePrintHeads;
+
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -91,31 +60,11 @@ export class PrintHeadComponent implements OnInit, OnDestroy, OnChanges {
       const change = changes[propName];
       const previousValue = JSON.stringify(change.previousValue);
       const currentValue = JSON.stringify(change.currentValue);
-
-      console.log(`Property '${propName}' changed:`, {
-        previousValue: previousValue,
-        currentValue: currentValue,
-      });
     }
   }
 
   ngOnDestroy() {
     this.subscriptions.forEach((subscription) => subscription.unsubscribe());
-  }
-
-
-  onGetSelectedPlateChange(selectedPlate: PlateFormat) {
-    if(this.printHeads.length < 1) {
-      this.printHeadStateService.loadDefaultPrintHeads(1);
-      this.printHeadStateService.updateNeedle(this.printHeads[0].printHeadIndex, this.needles[0]);
-      for(let printHead of this.printHeads) {
-        this.updateButtonsSize(printHead, selectedPlate.well_sizeMM, printHead.needle.odMM);
-      }
-    } else {
-      for(let printHead of this.printHeads) {
-        this.updateButtonsSize(printHead, selectedPlate.well_sizeMM, printHead.needle.odMM);
-      }
-    }
   }
 
   onActiveToggleChange(printHead: PrintHead, event: MatSlideToggleChange) {
@@ -128,25 +77,26 @@ export class PrintHeadComponent implements OnInit, OnDestroy, OnChanges {
     this.printHeadStateService.updateColor(printHead.printHeadIndex, color);
   }
 
-  onPrintHeadTemperatureChange(printHead: PrintHead, temperature: number) {
-    this.printHeadStateService.updateTemperature(printHead.printHeadIndex, temperature);
-  }
-  togglePrintHeadButton(printHead: PrintHead, printHeadButton:PrintPosition) {
-    this.printHeadStateService.toggleButtonStatus(printHead.printHeadIndex, printHeadButton.index);
+  onPrintHeadTemperatureChange(selectedTemperature: number) {
+    // this.printHeadStateService.updateTemperature(printHeadIndex, temperature);
   }
 
   onNeedleChange(printHead: PrintHead, needle: Needle) {
     this.printHeadStateService.updateNeedle(printHead.printHeadIndex, needle);
     this.updateButtonsSize(printHead, this._selectedPlate.well_sizeMM, printHead.needle.odMM);
   }
+  onGetSelectedPlateChange(selectedPlate: PlateFormat) {
+    if (!this.printhead) { // Replace this.printHeads.length < 1 with !this.printhead
+      this.printHeadStateService.loadDefaultPrintHeads(1);
 
-  updateButtonsSize(printHead: PrintHead, plateMapWellSize: number, needleOdMM: number) {
-    console.log('updateButtonsSize called with printHead: ', printHead, ' plateMapWellSize: ', plateMapWellSize, 'needleOdMM: ', needleOdMM);
-    this.printPositionService.getNewButtonsSize('print-head', printHead, plateMapWellSize, needleOdMM);
+      this.updateButtonsSize(this.printhead, selectedPlate.well_sizeMM, this.selectedNeedle.odMM); // Replace printHead with this.printhead
+    } else {
+      this.updateButtonsSize(this.printhead, selectedPlate.well_sizeMM, this.printhead.needle.odMM); // Replace printHead with this.printhead
+    }
   }
 
-  onPrintHeadCountChange() {
-    this.printHeadStateService.onPrintHeadCountChange(this.printHeadCountInput);
+  updateButtonsSize(printHead: PrintHead, plateMapWellSize: number, needleOdMM: number) {
+    this.printPositionService.getNewButtonsSize('print-head', printHead, plateMapWellSize, needleOdMM);
   }
 
   toPX(size_in_mm:number): number {
@@ -155,12 +105,6 @@ export class PrintHeadComponent implements OnInit, OnDestroy, OnChanges {
 
   getPrintPickerWidthPX() {
     return (this.toPX(this.printPositionService.PRINT_PICKER_DIAM_MM));
-  }
-
-  getStylePrintPositionPicker() {
-    return {
-        ...this.styleService.getBaseStyle('well')
-      };
   }
 
   getStylePrintPositionButton(printHead: PrintHead, buttonIndex: number) {
@@ -180,6 +124,13 @@ export class PrintHeadComponent implements OnInit, OnDestroy, OnChanges {
     // Add your logic here to handle the change in the selected print head type
     console.log('Selected Print Head Type:', newPrintHeadType);
   }
+  onNeedleChanged(needle: any) {
+    this.selectedNeedle = needle;
+    // You can pass the needle to other child components through input bindings
+  }
 
+  onColorChanged(selectedColor: string) {
+    this.selectedColor = selectedColor;
+  }
 }
 

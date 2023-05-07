@@ -4,6 +4,13 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
+html, body {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
 body {
   /*background: rgb(235,45,170);*/
   /*background: linear-gradient(74deg, rgba(235,45,170,1) 0%, rgba(187,11,127,1) 39%, rgba(187,11,127,1) 76%, rgba(235,45,170,1) 100%);*/
@@ -22,10 +29,6 @@ body {
   flex-wrap: wrap;
   gap: 8px; /* You can adjust the gap between flex items */
   padding: 8px;
-}
-
-.no-subscript-wrapper {
-  margin-bottom: -1.4em;
 }
 
 html, body { height: 100%; }

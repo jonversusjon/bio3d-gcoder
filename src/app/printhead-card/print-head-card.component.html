@@ -1,0 +1,45 @@
+<mat-card [ngClass]="{'disabled': !printhead.active}">
+  <mat-card-title>
+    <div class="printhead-setup-title" style="font-size: 0.74rem;">
+      <mat-form-field appearance="outline"
+                      class="printhead-description-field grid-item printhead-description-input">
+        <mat-label>Printhead Description</mat-label>
+        <input class="printhead-description-input" matInput [(ngModel)]="printhead.description"
+               [disabled]="!printhead.active">
+      </mat-form-field>
+      <app-printhead-type-select
+        [printhead]="printhead"
+        [printheadIndex]="printheadIndex"
+        (temperatureChanged)="onPrintHeadTemperatureChange($event)"></app-printhead-type-select>
+      <app-printhead-needle-select (needleChanged)="onNeedleChanged($event)"></app-printhead-needle-select>
+      <app-printhead-color-picker
+        [printhead]="printhead"
+        [printheadIndex]="printheadIndex"
+        (colorChanged)="onColorChanged($event)"></app-printhead-color-picker>
+    </div>
+  </mat-card-title>
+
+  <mat-card-content class="grid-container">
+    <div class="print-position-picker-wrapper">
+      <app-print-position-picker
+        [printhead]="printhead"
+        [selectedNeedle]="selectedNeedle ? selectedNeedle : null"
+        [selectedColor]="selectedColor ? selectedColor : null"></app-print-position-picker>
+    </div>
+    <div class="print-depth-wrapper grid-item">
+      <app-print-depth [printhead]="printhead" ></app-print-depth>
+    </div>
+  </mat-card-content>
+
+  <div class="footer-wrapper">
+    <div class="active-toggle-container flex-item">
+      <div class="toggle-text">
+        <div *ngIf="printhead.active">active</div>
+        <div *ngIf="!printhead.active">inactive</div>
+      </div>
+      <mat-slide-toggle [(ngModel)]="printhead.active" class="active-toggle"
+                        (change)="onActiveToggleChange(printhead, $event)"></mat-slide-toggle>
+    </div>
+  </div>
+</mat-card>
+

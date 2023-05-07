@@ -34,16 +34,15 @@
 
 /* Grid container */
 .grid-container {
-  display: flex;
-  width: 100%;
-}
-
-.grid-item {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-gap: 10px;
+  justify-content: center;
 }
 
 /* Print position picker */
 .print-position-picker-wrapper {
-  flex: 3;
+  grid-column: 1;
   position: relative;
   display: flex;
   justify-content: center;
@@ -92,7 +91,8 @@
 
 /* Print depth */
 .print-depth-wrapper {
-  flex: 2;
+  grid-column: 2;
+
 }
 
 /* Other styles */
@@ -117,19 +117,24 @@
 .active-toggle-container.flex-item {
   flex: 1;
   display: flex;
-  justify-content: center;
+  justify-content: flex-end;
   align-items: center;
   background-color: inherit;
-  height: 100%;
+  margin: 1em;
+  gap: 5px;
 }
 
 .footer-wrapper {
   margin-bottom: 0;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-end;
   flex-grow: 1;
   height: 100%;
+}
+
+.toggle-text {
+  display: inline-block;
 }
 
 .mat-mdc-card-title {
@@ -156,7 +161,6 @@ printhead-setup .mat-card-tile {
   direction: rtl;
   padding-left: 8px;
   overflow-x: hidden;
-  width: 340px;
   flex: 5;
   margin: 0;
 }
@@ -173,10 +177,6 @@ printhead-setup .mat-card-tile {
 
 .mat-mdc-form-field-hint-wrapper {
   display: none;
-}
-
-.active-toggle {
-  margin-left: auto;
 }
 
 .mat-mdc-form-field-bottom-align::before {
@@ -201,12 +201,7 @@ printhead-setup .mat-card-tile {
   box-shadow: 0 0 5px 5px rgba(255, 255, 0, 0.5) !important;
 }
 
-.active-toggle-container {
-  display: flex;
-  align-items: center;
-  background-color: inherit;
-  height: 100%;
-}
+
 
 .mat-mdc-card {
   border-top-left-radius: 9px;
@@ -258,13 +253,9 @@ printhead-setup .mat-card-tile {
 }
 
 .printhead-temperature-toggle-input-combo {
-  display: flex;
-  flex-direction: row;
   align-items: center;
-  justify-content: space-between;
-  width: 100%;
   grid-row: 3;
-  grid-column: 1 / 2;
+  grid-column: 1 / 3;
 }
 
 .printhead-setup-title {
@@ -282,11 +273,17 @@ printhead-setup .mat-card-tile {
   grid-column: 1 / 3;
 }
 
-
-.printhead-temperature-label-toggle toggle-label {
-  flex-grow: 1;
+.toggle-input-wrapper {
+  display: flex;
+  flex-direction: row;
 }
 
-.printhead-temperature-label-input {
-  flex-grow: 1;
+.toggle-input-grid-item ::ng-deep .mdc-text-field {
+  padding-left: 0 !important;
 }
+.toggle-input-grid-item ::ng-deep .mdc-text-field--no-label:not(.mdc-text-field--outlined):not(.mdc-text-field--textarea) .mat-mdc-form-field-infix {
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+

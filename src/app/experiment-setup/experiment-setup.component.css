@@ -1,22 +1,35 @@
 .experiment-setup-container {
   display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  align-items: flex-start;
 }
+
 .printhead-container {
-  flex: 1;
   margin-right: 16px;
   padding: 12px;
+  width: 450px;
 }
 
 .plate-map-container {
-  flex: 2;
   padding: 12px;
+  min-width: 200px; /* minimum width for the right card */
+  max-width: 600px; /* maximum width for the right card */
+  flex-grow: 1; /* allow the right card to grow to fill available space */
 }
 
-.well {
-  border: 1px solid #ccc;
-  background-color: #eee;
-  border-radius: 50%; /* Add this property to make wells circles */
+@media (max-width: 900px) {
+  .printhead-container, .plate-map-container {
+    width: 100%; /* set the width of both cards to 100% on smaller screens */
+  }
 }
+
+/*.well {*/
+/*  border: 1px solid #ccc;*/
+/*  background-color: #eee;*/
+/*  border-radius: 50%; !* Add this property to make wells circles *!*/
+/*}*/
 
 
 
