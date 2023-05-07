@@ -32,6 +32,7 @@ export class PrintheadSetupComponent implements OnDestroy, OnInit {
       console.log('printhead-card notified of printheads change');
       this.printHeads = printHeads;
       console.log('this.printHeads: ', this.printHeads);
+      console.log('this.printHeads[0]: ', this.printHeads[0]); // Add this line
     });
   }
   ngOnDestroy() {

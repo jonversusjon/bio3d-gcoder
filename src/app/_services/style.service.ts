@@ -36,19 +36,7 @@ export class StyleService {
         color: '#555',
         textShadow: '1px 1px 2px rgba(0,0,0,0.4)',
         backgroundClip: 'text',
-      },
-    'experiment-setup-header': {
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      padding: '0',
-
-
-      color: 'white',
-      borderTopLeftRadius: '8px',
-      borderTopRightRadius: '8px',
-    }
-
+      }
   };
 
   constructor() {}

@@ -52,7 +52,7 @@ export class PrintHeadCardComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   ngOnInit() {
-
+    console.warn('Printhead in app-printhead-card-component:', this.printhead);
   }
 
   ngOnChanges(changes: SimpleChanges): void {

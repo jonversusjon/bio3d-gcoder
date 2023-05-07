@@ -1,0 +1,7 @@
+.toggle-input-grid-item ::ng-deep .mdc-text-field {
+  padding-left: 0 !important;
+}
+.toggle-input-grid-item ::ng-deep .mdc-text-field--no-label:not(.mdc-text-field--outlined):not(.mdc-text-field--textarea) .mat-mdc-form-field-infix {
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}

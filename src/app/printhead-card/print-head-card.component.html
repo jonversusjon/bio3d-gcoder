@@ -1,6 +1,7 @@
+<ng-container *ngIf="printhead">
 <mat-card [ngClass]="{'disabled': !printhead.active}">
-  <mat-card-title>
-    <div class="printhead-setup-title" style="font-size: 0.74rem;">
+<mat-card-title>
+    <div class="printhead-card-title">
       <mat-form-field appearance="outline"
                       class="printhead-description-field grid-item printhead-description-input">
         <mat-label>Printhead Description</mat-label>
@@ -42,4 +43,4 @@
     </div>
   </div>
 </mat-card>
-
+</ng-container>

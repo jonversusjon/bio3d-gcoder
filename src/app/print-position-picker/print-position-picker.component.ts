@@ -1,4 +1,4 @@
-import {ChangeDetectorRef, Input, Component, Output, OnDestroy} from '@angular/core';
+import {ChangeDetectorRef, Input, Component, OnDestroy} from '@angular/core';
 import {StyleService} from "../_services/style.service";
 import {PrintPositionService} from "../_services/print-position.service";
 import {Subscription} from "rxjs";
