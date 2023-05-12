@@ -5,10 +5,11 @@ import {PrintPosition} from "./PrintPosition";
 export interface Well {
   row: number;
   col: number;
+  index: number;
   originPX: Coordinates;
   originMM: Coordinates;
   selected: boolean;
-  printPositionButtons: PrintPosition[];
+  printPositions: PrintPosition[];
   style: {
     height: string;
     width: string;
@@ -25,10 +26,11 @@ export function emptyWell(): Well {
   return {
     row: 0,
     col: 0,
+    index: 0,
     originPX: emptyCoordinates(),
     originMM: emptyCoordinates(),
     selected: false,
-    printPositionButtons: [],
+    printPositions: [],
     style: {
       height: '0px',
       width: '0px',

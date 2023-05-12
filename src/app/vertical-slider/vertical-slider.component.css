@@ -105,3 +105,8 @@
   z-index: 1000;
   width: 16px;
 }
+
+.slider-inactive {
+  opacity: 0.5; /* Reduce the opacity to make it appear greyed out */
+  pointer-events: none; /* Disable pointer events to make it unselectable */
+}

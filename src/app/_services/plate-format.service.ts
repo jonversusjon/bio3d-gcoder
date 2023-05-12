@@ -109,6 +109,12 @@ export class PlateFormatService {
   constructor() {
   }
 
+  setNextPlate(plate: any): void {
+    // Handle the received data in the WellsStateService
+    // Perform any necessary actions based on the received data
+    console.log('Received data in WellsStateService:', plate);
+    // ...
+  }
   getPlateFormats() {
     return this.plateFormats;
   }

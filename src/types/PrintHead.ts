@@ -4,7 +4,7 @@ import {Coordinates} from "./Coordinates";
 import {PrintHeadBehavior, emptyPrintHeadBehavior} from "./PrintHeadBehavior";
 
 export interface PrintHead {
-  printHeadIndex: number;
+  index: number;
   printHeadBehavior: PrintHeadBehavior;
   description: string;
   color: string;
@@ -20,7 +20,7 @@ export interface PrintHead {
 
 export function emptyPrintHead(): PrintHead {
   return {
-    printHeadIndex: -1,
+    index: -1,
     printHeadBehavior: emptyPrintHeadBehavior(),
     description: '',
     color: 'white',

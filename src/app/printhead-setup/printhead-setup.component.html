@@ -1,5 +1,5 @@
 <mat-card>
-  <mat-card-header class="printhead-setup-header flex-container">
+  <mat-card-header class="printhead-setup-header">
     <mat-card-title class="printhead-setup-title flex-item">Printhead Setup</mat-card-title>
     <div class="input-wrapper flex-item">
       <div class="label" style="margin: 0.5em 1em 0.25em 0;">No of printheads:</div>
@@ -7,9 +7,9 @@
              [(ngModel)]="printHeadCountInput" (change)="onPrintHeadCountChange()">
     </div>
   </mat-card-header>
-  <mat-card-content style="background-color: mistyrose;">
+  <mat-card-content class="printhead-cards-container">
     <div class="grid-list-container">
-      <div class="flex-container" style="justify-content: center; padding-right: 0; padding-left: 0;">
+<!--      <div class="flex-container" style="justify-content: center; padding-right: 0; padding-left: 0;">-->
         <div *ngFor="let printhead of printHeads; let printHeadIndex = index" class="flex-item">
           <app-printhead-card-component
             [printhead]="printhead"
@@ -17,6 +17,6 @@
             ></app-printhead-card-component>
         </div>
       </div>
-    </div>
+<!--    </div>-->
   </mat-card-content>
 </mat-card>

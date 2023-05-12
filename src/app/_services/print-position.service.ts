@@ -37,6 +37,8 @@ import {PrintPosition, emptyPrintPosition} from "../../types/PrintPosition";
 import {PlateFormatService} from "./plate-format.service";
 import {StyleService} from "./style.service";
 import {PrintHead} from "../../types/PrintHead";
+import {PrintHeadStateService} from "./print-head-state.service";
+import {Well} from "../../types/Well";
 
 @Injectable({
   providedIn: 'root',
@@ -65,7 +67,7 @@ export class PrintPositionService {
   public printPositionButtonWidthPX_PlateMap: number[] = [9];
   public toScale: boolean = false;
 
-  buttonWidthChanged = new Subject<void>();
+  printPositionsChanged = new Subject<PrintPosition[]>();
 
   /**
    * Creates a new instance of the PrintPositionService.
@@ -93,11 +95,11 @@ export class PrintPositionService {
    * @param {number} needleOdMM - The outer diameter of the needle in millimeters.
    * @returns {number} The calculated button width in millimeters.
    */
-  getButtonWidthMM(forWhichElement: 'plate-map' | 'print-head', selectedPlateWellDiamMM: number, needleOdMM: number) {
+  getButtonWidthMM(forWhichElement: 'Well' | 'PrintHead', selectedPlateWellDiamMM: number, needleOdMM: number) {
     switch (forWhichElement) {
-      case 'plate-map':
+      case 'Well':
         return needleOdMM;
-      case 'print-head':
+      case 'PrintHead':
           const scalar = selectedPlateWellDiamMM / this.PRINT_PICKER_DIAM_MM;
           return needleOdMM / scalar;
       default:
@@ -137,12 +139,12 @@ export class PrintPositionService {
         const x = centerX_MM + (radiusMM * Math.cos(angle));
         const y = centerY_MM + (radiusMM * Math.sin(angle));
         if(centerRelativeTo === 'xy-plane') {
-          console.log(`angle: ${angle}, x: ${x}, y: ${y}`);
+          // console.log(`angle: ${angle}, x: ${x}, y: ${y}`);
         }
         return { x, y };
       });
 
-      console.log('printPositionOriginsMM[', forWhichElement, ': ', printPositionOriginsMM);
+      // console.log('printPositionOriginsMM[', forWhichElement, ': ', printPositionOriginsMM);
       let adjustedPrintPositionOriginsMM: Coordinates[] = [{
         x: centerX_MM + adj_x,
         y: centerY_MM + adj_y,
@@ -155,7 +157,7 @@ export class PrintPositionService {
           'y': (printPositionOriginsMM[i].y  + adj_y)
         });
       }
-      console.log('adjustedPrintPositionOriginsMM[', forWhichElement, ': ', adjustedPrintPositionOriginsMM);
+      // console.log('adjustedPrintPositionOriginsMM[', forWhichElement, ': ', adjustedPrintPositionOriginsMM);
       return adjustedPrintPositionOriginsMM;
     } else {
       console.warn("Print position service couldn't determine print position coordinates; could not determine well size (MM)");
@@ -188,17 +190,17 @@ export class PrintPositionService {
  * @param {number} [adj_y=0] - The y adjustment.
  * @returns {PrintPosition[]} An array of loaded print position buttons.
  * */
-  loadPrintPositionButtons(forWhichElement: 'plate-map' | 'print-head',
-                           parentIndex: number,
-                           selectedPlateWellDiamMM: number,
-                           needleOdMM: number,
-                           adj_x = 0, adj_y = 0): PrintPosition[] {
+loadPrintPositionButtons(forWhichElement: 'plate-map' | 'print-head',
+                         parentIndex: number,
+                         selectedPlateWellDiamMM: number,
+                         needleOdMM: number,
+                         adj_x = 0, adj_y = 0): PrintPosition[] {
   const printPositionOriginsMM_display = this.getPrintPositionOriginsMM(forWhichElement, 'parent-element', selectedPlateWellDiamMM, adj_x, adj_y);
   const printPositionOriginsMM_absolute = this.getPrintPositionOriginsMM(
     forWhichElement,
     'xy-plane',
     selectedPlateWellDiamMM, adj_x, adj_y);
-  return printPositionOriginsMM_display.map((coordinates, index) => {
+  const printPositions = printPositionOriginsMM_display.map((coordinates, index) => {
     const printPosition = emptyPrintPosition();
 
     // add the properties that don't change
@@ -209,42 +211,40 @@ export class PrintPositionService {
 
     return printPosition;
   });
+
+  // Emit the new print positions
+  this.printPositionsChanged.next(printPositions);
+  return printPositions;
 }
+  updatePrintPositionsBasedOnNeedle(component: PrintHead | Well, wellSizeMM: number, needleODMM: number): PrintPosition[] {
+    // Get the current print positions
+    const currentPrintPositions:PrintPosition[] = component.printPositions;
 
-  /**
-
-   Calculate and set the new button size.
-   @param {'plate-map' | 'print-head'} forWhichElement - The element for which the new button size is being calculated.
-   @param {PrintHead} printHead - The PrintHead object.
-   @param {number} plateMapWellSize - The size of the plate map well.
-   @param {number} needleOdMM - The outer diameter of the needle in millimeters.
-   */
-  getNewButtonsSize(forWhichElement: 'plate-map' | 'print-head', printHead: PrintHead, plateMapWellSize: number, needleOdMM: number) {
-    // Calculate the new button width, top, and width based on the needle selection
-    const printPositionButtonWidthMM = this.getButtonWidthMM('print-head', plateMapWellSize, needleOdMM);
-    const printPositionButtonWidthMM_PlateMap = this.getButtonWidthMM('plate-map', plateMapWellSize, needleOdMM)
-    const calculatedButtonWidthPX = this.toPX(printPositionButtonWidthMM);
-    const printPositionButtonWidthPX_PlateMap = this.toPX(printPositionButtonWidthMM_PlateMap);
-
-    // Check if the printPositionButtonWidthPX array length is at least (printHeadIndex + 1)
-    if (this.printPositionButtonWidthPX.length <= printHead.printHeadIndex) {
-      // Extend the array
-      this.printPositionButtonWidthPX.length = printHead.printHeadIndex + 1;
-      this.printPositionButtonWidthPX_PlateMap.length = printHead.printHeadIndex + 1;
+    // If there's no current print positions, return an empty array
+    if (!currentPrintPositions) {
+      console.error(`No current print positions for component ${component} index ${component.index}`);
+      return [];
     }
 
-    // Set the value for the printHeadIndex
-    this.printPositionButtonWidthPX[printHead.printHeadIndex] = calculatedButtonWidthPX < this.BUTTON_MIN_WIDTH_PX ? this.BUTTON_MIN_WIDTH_PX : calculatedButtonWidthPX;
-    this.printPositionButtonWidthPX_PlateMap[printHead.printHeadIndex] = printPositionButtonWidthPX_PlateMap;
-    this.toScale = calculatedButtonWidthPX > this.BUTTON_MIN_WIDTH_PX;
+    // Create a new array for the updated print positions
+    const updatedPrintPositions: PrintPosition[] = [];
 
-    printHead.printPositions.forEach(printPosition => {
-      printPosition.button.widthPX = this.printPositionButtonWidthPX[printHead.printHeadIndex];
-    });
-    console.log('this.printPositionButtonWidthPX: ', this.printPositionButtonWidthPX);
-    console.log('this.printPositionButtonWidthPX_PlateMap: ', this.printPositionButtonWidthPX_PlateMap);
-    this.buttonWidthChanged.next();
+    // For each current print position...
+    for (let i = 0; i < currentPrintPositions.length; i++) {
+      // Copy the current print position
+      const updatedPrintPosition = {...currentPrintPositions[i]};
+
+      // Update the size of the print position based on the needle outer diameter
+      updatedPrintPosition.button.widthPX = this.toPX(this.getButtonWidthMM(component.elementType, wellSizeMM, needleODMM));
+
+      // Add the updated print position to the array
+      updatedPrintPositions.push(updatedPrintPosition);
+    }
+
+    // Return the updated print positions
+    return updatedPrintPositions;
   }
+
   /**
    Convert a size in millimeters to pixels.
    @param {number} size_in_mm - The size in millimeters.

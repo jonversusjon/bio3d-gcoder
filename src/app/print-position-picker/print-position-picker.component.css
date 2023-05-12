@@ -1,21 +1,15 @@
 /* Print position picker */
 .print-position-picker-wrapper {
-  grid-column: 1;
   position: relative;
   display: flex;
   justify-content: center;
   align-items: center;
-  aspect-ratio: 1 / 1;
-  margin-right: 16px;
   box-sizing: border-box;
 }
 
 .print-position-picker {
-  position: absolute;
   top: 0;
   left: 0;
-  width: 100%;
-  aspect-ratio: 1 / 1;
   justify-content: center;
   align-items: center;
   box-sizing: border-box;

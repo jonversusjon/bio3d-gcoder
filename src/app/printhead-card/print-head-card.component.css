@@ -1,52 +1,32 @@
-/* Print depth */
-.print-depth-wrapper {
-  grid-column: 2;
 
-}
-
+/* printhead card header */
 .printhead-card-title {
-  display: grid;
-  grid-template-columns: 3fr 2fr 2fr;
-  font-size: 0.5em;
-  margin: 0 0 0 1em;
+  display: flex;
+  flex-direction: column;
 }
 
 .printhead-description-field {
-  font-size: 1rem;
+  margin: 6px 0px;
+}
+.printhead-card-title-row-2-wrapper {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  grid-gap: 0px; /* Adjust this value according to your needs */
+  /*width: 40%;*/
 }
 
-.footer-wrapper {
-  margin-bottom: 0;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  flex-grow: 1;
-  height: 100%;
+app-printhead-type-select,
+app-printhead-needle-select,
+app-printhead-color-picker {
+  box-sizing: border-box;
 }
 
-.toggle-text {
-  display: inline-block;
-}
-
-.mat-mdc-card-title {
-  top: 0px;
-  margin: 0;
-  align-items: center;
-  justify-content: left;
-}
+/* printhead card content */
 
 .mat-mdc-card-title > .mat-mdc-text-field {}
 .mat-mdc-card-title > * {
   border-radius: 0;
 }
-
-printhead-setup .mat-card-tile {
-  box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12), 0 3px
-  1px -2px rgba(0, 0, 0, 0.2);
-  margin: 4px;
-}
-
-
 
 .mat-mdc-form-field-subscript-wrapper {
   margin: 0;
@@ -80,8 +60,6 @@ printhead-setup .mat-card-tile {
   box-shadow: 0 0 5px 5px rgba(255, 255, 0, 0.5) !important;
 }
 
-
-
 .mat-mdc-card {
   border-top-left-radius: 9px;
   border-top-right-radius: 9px;
@@ -89,16 +67,6 @@ printhead-setup .mat-card-tile {
 .custom-mat-select-option {
   font-size: 11px;
   height: 1rem;
-}
-
-.mat-mdc-form-field .mat-mdc-select {
-  font-size: 12px;
-}
-
-.mat-form-field {
-  font-size: 9px; /* decrease the font size */
-  height: 18px; /* decrease the height */
-  width: 65px; /* decrease the width */
 }
 
 .printhead-number-input-wrapper > * {
@@ -116,17 +84,8 @@ printhead-setup .mat-card-tile {
   text-align: right;
 }
 
-
-.label {
-  margin-bottom: 4px;
-}
 .printhead-number-input {
   text-align: center;
-}
-.print-head-type-field,
-.needle-od-field,
-.color-field {
-  grid-row: 2;
 }
 
 .printhead-temperature-toggle-input-combo {
@@ -135,31 +94,45 @@ printhead-setup .mat-card-tile {
   grid-column: 1 / 3;
 }
 
-.printhead-setup-title {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr;
-  grid-gap: 0px;
-  font-size: 0.74rem;
-}
-
-.printhead-description-input {
-  grid-column: 1 / 5;
-}
-
-.print-head-type-select-input {
-  grid-column: 1 / 3;
-}
-
 .toggle-input-wrapper {
   display: flex;
   flex-direction: row;
 }
 
-.grid-item {
-  color: red;
+.mat-card-content-wrapper {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
 }
 
-.printhead-description-input {
-  color: blue;
+.print-position-picker-wrapper {
+  display: grid;
+  grid-column: 1;
+  padding: 16px;
+  align-content: center;
 }
 
+/* Print depth */
+.print-depth-wrapper {
+  display: grid;
+  grid-column: 2;
+  padding: 22px;
+  align-items: center;
+}
+
+/* printhead card footer */
+.footer-wrapper {
+  margin-bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-grow: 1;
+  height: 100%;
+}
+
+.toggle-text {
+  display: inline-block;
+}
+
+.active-toggle-container {
+  margin: 1rem;
+}

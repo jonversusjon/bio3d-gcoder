@@ -19,11 +19,11 @@ export class DataAggregatorService {
   {
     this.printHeadStateService.printHeads$.subscribe((printheads: PrintHead[]) => {
       this.dataServicePrintHeadsSnapshot = printheads;
-      // console.log('data-aggregator received printheads: ', printheads);
+      console.log('data-aggregator received printheads: ', printheads);
     });
     this.wellStateService.wells$.subscribe((wells: Well[][]) => {
       this.dataServiceWellsSnapshot = wells;
-      // console.log('data-aggregator received wells: ', wells);
+      console.log('data-aggregator received wells: ', wells);
     });
   }
 
@@ -54,5 +54,12 @@ export class DataAggregatorService {
         - array of which printPositions are selected
 
      */
+  }
+
+  receiveData(data: any): void {
+    // Handle the received data in the WellsStateService
+    // Perform any necessary actions based on the received data
+    console.log('Received data in WellsStateService:', data);
+    // ...
   }
 }

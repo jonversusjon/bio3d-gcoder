@@ -19,7 +19,7 @@
     </mat-option>
   </mat-select>
 </mat-form-field>
-<div *ngIf="selectedPrintHeadType.hasTemperatureControl"
+<div *ngIf="selectedPrintHeadType && selectedPrintHeadType.hasTemperatureControl"
      class="toggle-input-grid-item grid-item">
   <mat-form-field class="toggle-input-wrapper toggle-input-grid-item" subscriptSizing="dynamic" appearance="fill">
     <div class="printhead-temperature-toggle-input-combo">

@@ -10,6 +10,7 @@ export interface PrintPosition {
   };
   originMM_display: Coordinates;
   originMM_absolute: Coordinates;
+  originPCT_display: Coordinates;
   elementType: string;
 }
 
@@ -20,10 +21,11 @@ export function emptyPrintPosition(): PrintPosition {
     selected: false,
     button: {
       widthPX: 0,
-      color: 'white',
+      color: '#FFFFFF',
     },
     originMM_display: emptyCoordinates(),
     originMM_absolute: emptyCoordinates(),
+    originPCT_display: emptyCoordinates(),
     elementType: 'PrintHeadButton'
   }
 }

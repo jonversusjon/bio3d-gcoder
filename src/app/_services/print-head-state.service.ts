@@ -11,7 +11,6 @@ including:
 
 import {BehaviorSubject, Subscription} from 'rxjs';
 import {Injectable, OnDestroy} from "@angular/core";
-import { Coordinates } from "../../types/Coordinates";
 import { ScreenUtils } from "./screen-utils";
 import { PrintHead, emptyPrintHead } from "../../types/PrintHead";
 import { PlateFormat, emptyPlateFormat} from "../../types/PlateFormat";
@@ -19,6 +18,10 @@ import { Needle } from "../../types/Needle";
 import { PlateFormatService } from "./plate-format.service";
 import { PrintPositionService } from "./print-position.service";
 import {StyleService} from "./style.service";
+import {PrintPosition} from "../../types/PrintPosition";
+import { switchMap } from 'rxjs/operators';
+import { of } from 'rxjs';
+import {WellsStateService} from "./wells-state.service";
 
 @Injectable({
   providedIn: 'root',
@@ -50,14 +53,55 @@ export class PrintHeadStateService implements OnDestroy {
     constructor(private screenUtils: ScreenUtils,
               private plateFormatService: PlateFormatService,
               private printPositionService: PrintPositionService,
-              private styleService: StyleService) {
+              private styleService: StyleService,
+                private wellsStateService: WellsStateService,
+                ) {
+      const printheadCreation$ = new BehaviorSubject<boolean>(false);
 
+      printheadCreation$
+        .pipe(
+          switchMap(created => {
+            if (created) {
+              // Perform actions and retrieve necessary data after printhead creation
+              // Return an observable that emits the required data for subsequent services
+
+              // Example:
+              // return this.someService.getDataForSubsequentServices(); // Replace with your actual service method
+              console.log('new thing was triggered');
+              return of(null);
+            } else {
+              // Return an empty observable if printhead is not created yet
+              return of(null);
+            }
+          })
+        )
+        .subscribe(data => {
+          // Handle the received data by the subsequent services
+          // This code block will be executed after the printhead creation and the data retrieval
+
+          if (data) {
+            // Perform actions with the received data
+            console.log('Received data for subsequent services:', data);
+
+            // Example: Notify the necessary services about the data
+            this.wellsStateService.notifyData(data);
+            this.plateFormatService.setNextPlate(data);
+            // ...
+          } else {
+            console.log('Printhead not created yet. Waiting for creation...');
+          }
+        });
+
+      // Trigger printhead creation and update the printheadCreation$ observable
+      this.loadDefaultPrintHeads(1); // Call this method when the printhead is created
+      printheadCreation$.next(true);
       const defaultPlateFormat: PlateFormat =  this.plateFormatService.plateFormats[0];
       this.currentSelectedPlate = defaultPlateFormat;
 
       // this.printPositionOriginsMM = this.printPositionService.getPrintPositionOriginsMM("print-head", defaultPlateFormat.well_sizeMM);
 
       this.selectedPlateSubscription = this.plateFormatService.selectedPlate$.subscribe((plate) => {
+        console.log('printhead state service received: ', plate);
         this.currentSelectedPlate = plate;
         this.onSelectedPlateChange(plate);
       });
@@ -85,7 +129,7 @@ export class PrintHeadStateService implements OnDestroy {
     if (numPrintHeads > currentPrintHeadCount) {
       while (this.currentPrintHeads.length < numPrintHeads) {
         const createPrintHead = this.createPrintHead(this.currentPrintHeads.length);
-        this.printPositionService.getNewButtonsSize('print-head', createPrintHead, this.currentSelectedPlate.well_sizeMM, createPrintHead.needle.odMM);
+        // this.printPositionService.getNewButtonsSize('print-head', createPrintHead, this.currentSelectedPlate.well_sizeMM, createPrintHead.needle.odMM);
         this.currentPrintHeads.push(createPrintHead);
       }
     } else if (numPrintHeads < currentPrintHeadCount) {
@@ -99,21 +143,25 @@ export class PrintHeadStateService implements OnDestroy {
   }
 
   private createPrintHead(printHeadIndex: number): PrintHead {
-    console.log('createPrintHead thinks well diam: ', this.currentSelectedPlate.well_sizeMM);
-    const newPrintHead: PrintHead = emptyPrintHead();
-    newPrintHead.printHeadIndex = printHeadIndex;
-    newPrintHead.color = this.styleService.THEME_COLORS.defaultLightTheme[printHeadIndex % this.styleService.THEME_COLORS.defaultLightTheme.length];
+      if(this.currentSelectedPlate) {
+        console.log('createPrintHead thinks well diam: ', this.currentSelectedPlate.well_sizeMM);
+        const newPrintHead: PrintHead = emptyPrintHead();
+        newPrintHead.index = printHeadIndex;
+        newPrintHead.color = this.styleService.THEME_COLORS.defaultLightTheme[printHeadIndex % this.styleService.THEME_COLORS.defaultLightTheme.length];
 
-    newPrintHead.needle = this.needles[0];
+        newPrintHead.needle = this.needles[0];
+        console.log("let's load some printPositions");
+        newPrintHead.printPositions = this.printPositionService.loadPrintPositionButtons(
+          'print-head',
+          printHeadIndex,
+          this.currentSelectedPlate.well_sizeMM,
+          this.needles[0].odMM);
+        this.printPositionService.printPositionsChanged.next(newPrintHead.printPositions);
 
-    newPrintHead.printPositions = this.printPositionService.loadPrintPositionButtons(
-      'print-head',
-      printHeadIndex,
-      this.currentSelectedPlate.well_sizeMM,
-      this.needles[0].odMM);
-
-    console.log('created new printhead: ', newPrintHead);
-    return newPrintHead;
+        return newPrintHead;
+      } else {
+        return emptyPrintHead();
+      }
   }
 
 
@@ -131,38 +179,22 @@ export class PrintHeadStateService implements OnDestroy {
     }
   }
 
-
-  // Set all buttons to inactive
-  setAllButtonsInactive(printHeadIndex: number): void {
-    const currentPrintHeads = this._printHeads.value;
-
-    if (currentPrintHeads[printHeadIndex]) {
-      const selectedPrintHead = currentPrintHeads[printHeadIndex];
-      selectedPrintHead.printPositions.forEach(button => {
-        button.selected = false;
-      });
-      this._printHeads.next(currentPrintHeads);
-    } else {
-      console.error(`Invalid printHeadIndex: ${printHeadIndex}`);
-    }
-  }
-
-
   // Update needle property and resize print position buttons
-  updateNeedle(printHeadIndex: number, newNeedle: Needle): void {
+  updateNeedle(printHead: PrintHead, newNeedle: Needle): void {
     const currentPrintHeads = this._printHeads.value;
 
-    if (currentPrintHeads[printHeadIndex]) {
-      const selectedPrintHead = currentPrintHeads[printHeadIndex];
-      selectedPrintHead.needle = newNeedle;
+    if (printHead) {
+      printHead.needle = newNeedle;
 
-      // Assuming the function `resizePrintPositionButtons` is already implemented
-      // to resize print position buttons based on the needle outer diameter.
-      // console.log('resizePrintPositionButtons called with selectedPrintHead.printHeadIndex: ', selectedPrintHead.printHeadIndex, ' newNeedle.odMM: ', newNeedle.odMM);
-      // this.resizePrintPositionButtons(selectedPrintHead.printHeadIndex, newNeedle.odMM);
+      const updatedPrintPositions: PrintPosition[] = this.printPositionService.updatePrintPositionsBasedOnNeedle(
+        printHead,
+        this.currentSelectedPlate.well_sizeMM,
+        newNeedle.odMM);
+      this.printPositionService.printPositionsChanged.next(updatedPrintPositions);
+
       this._printHeads.next(currentPrintHeads);
     } else {
-      console.error(`Invalid printHeadIndex: ${printHeadIndex}`);
+      console.error(`Invalid printHead`);
     }
   }
 
@@ -212,7 +244,7 @@ export class PrintHeadStateService implements OnDestroy {
   onSelectedPlateChange(plate: PlateFormat) {
     if (plate) {
       for(let printHead of this.currentPrintHeads) {
-        this.printPositionService.getNewButtonsSize('print-head', printHead, plate.well_sizeMM,printHead.needle.odMM);
+        // this.printPositionService.getNewButtonsSize('print-head', printHead, plate.well_sizeMM,printHead.needle.odMM);
       }
     } else {
       console.warn('printhead state service has no idea what plate youre talking about');
@@ -223,233 +255,3 @@ export class PrintHeadStateService implements OnDestroy {
     // Implement the functionality to update print depth properties
   }
 }
-
-
-
-
-
-
-//
-
-//
-//   printHeads: PrintHead[] = [];
-//   private _printHeads = new BehaviorSubject<PrintHead[]>([]);
-//   public printHeads$ = this._printHeads.asObservable();
-
-//
-
-//
-//   updatePrintHeadButtons(printHead: PrintHead, buttonIndex?: number, updateAll: boolean = false): void {
-//     if (updateAll) {
-//       if (!printHead.active) {
-//         printHead.printPositionButtons.forEach(button => (button.selected = false));
-//       } else {
-//         // if (this.selectedPlate) { // Add this check
-//         // this.printPositionService.repopulatePrintPositionButtons(this.selectedPlate.well_sizeMM, printHead, undefined);
-//         // }
-//       }
-//     } else if (buttonIndex !== undefined) {
-//       const button = printHead.printPositionButtons[buttonIndex];
-//       button.selected = !button.selected;
-//     }
-//
-//     this._printHeads.next(this._printHeads.value);
-//   }
-//
-//   initializePrintHeads(initialCount: number) {
-//     const initialPrintHeads: PrintHead[] = [];
-//
-//     for (let i = 0; i < initialCount; i++) {
-//       const colorIndex = i % this.colors.length;
-//       const newPrintHead = this.createPrintHeads(i);
-//       for(let b = 0; b < this.PRINT_POSITIONS_COUNT; b++) {
-//         const color = this.colors[colorIndex]
-//         const tempButton: PrintHeadButton = {
-//           printHead: i,
-//           position: b,
-//           selected: false,
-//           originPX: { x: 0, y: 0 },
-//           originMM: { x: 0, y: 0 },
-//           style: {
-//             color: this.colors[colorIndex],
-//           },
-//         };
-//         const addStyle = this.getStylePrintPositionButton(newPrintHead, tempButton);
-//         console.log('addStyle: ', addStyle);
-//         tempButton.style = addStyle;
-//       }
-//       initialPrintHeads.push(newPrintHead);
-//     }
-//
-//     this._printHeads.next(initialPrintHeads);
-//   }
-//
-//
-//   createPrintHeads(printHeadIndex: number) {
-//     const colorIndex = printHeadIndex % this.colors.length;
-//
-//     const newPrintHead: PrintHead = {
-//       printHeadIndex: this.printHeads.length,
-//       description: '',
-//       color: this.colors[colorIndex],
-//       active: true,
-//       printPositionButtons: Array.from({ length: this.PRINT_POSITIONS_COUNT }, (_, index) => {
-//         const tempButton = emptyPrintHeadButton();
-//         tempButton.printHead = this.printHeads.length;
-//         tempButton.position = index;
-//         tempButton.style = {
-//           ...tempButton.style,
-//           color: this.colors[colorIndex]
-//         };
-//         return tempButton;
-//       }),
-//       needle: this.needles[0],
-//       printPositionSizeMM: this.needles[0].odMM,
-//       buttonWidthPX: this.toPX(this.needles[0].odMM),
-//       pickerWell: { sizeMM: this.printPositionService.PRINT_PICKER_DIAM_MM },
-//       elementType: 'PrintHead'
-//     };
-//
-//     const updatedPrintHeads = [...this._printHeads.value];
-//
-//     if (printHeadIndex > updatedPrintHeads.length) {
-//       for (let i = updatedPrintHeads.length; i < printHeadIndex; i++) {
-//         const printHeadWithCorrectIndex = { ...newPrintHead, printHeadIndex: i };
-//         updatedPrintHeads.push(printHeadWithCorrectIndex);
-//       }
-//     } else {
-//       updatedPrintHeads.length = printHeadIndex;
-//     }
-//
-//     this._printHeads.next(updatedPrintHeads);
-//     return newPrintHead;
-//   }
-//
-//   togglePrintHeadButton(printHead: PrintHead, buttonIndex: number, isSelected: boolean): void {
-//     console.log('-- printHead state service togglePrintHeadButton called: ', printHead, buttonIndex, isSelected);
-//
-//     if (printHead) {
-//       printHead.printPositionButtons[buttonIndex].selected = !isSelected;
-//       // this.emitPrintHeads();
-//     } else {
-//       console.warn(`Warning(togglePrintHeadButton): printHead is undefined.`);
-//     }
-//     console.log('---- _printHeads.next: ', this.printHeads);
-//     this._printHeads.next(this.printHeads);
-//
-//   }
-//   toggleButton(printHead: PrintHead, printHeadButton: PrintHeadButton) {
-//     console.log('-- toggleButton');
-//     printHeadButton.selected = !printHeadButton.selected;
-//     // this.updateAllPrintHeadButtons(printHead);
-//     console.log('---- _printHeads.next: ', this.printHeads);
-//     this._printHeads.next(this.printHeads);
-//   }
-//   updatePrintHeadNeedle(printHead: PrintHead, needle: Needle): void {
-//     console.log('-- updatePrintHeadNeedle');
-//     // TODO: how to get platemap to update when needle changes
-//     //       right now changing the needle changes the button sizes on the plateamap
-//     //       but not their top and left properties
-//     const buttonWidthMM = this.printPositionService.getButtonWidthMM('print-head', needle.odMM, this._selectedPlate?.well_sizeMM);
-//     const updatedPrintHead = {
-//       ...printHead,
-//       needle: needle,
-//       buttonWidthMM: buttonWidthMM,
-//     };
-//
-//     // Find the index of the printHead to be updated in the _printHeads BehaviorSubject
-//     const index = this._printHeads.value.findIndex(ph => ph.printHeadIndex === printHead.printHeadIndex);
-//
-//     //Update the PrintHead in the _printHeads BehaviorSubject
-//     if (index !== -1) {
-//       const updatedPrintHeads = [...this._printHeads.value];
-//       updatedPrintHeads[index] = updatedPrintHead;
-//       console.log('---- _printHeads.next: ', updatedPrintHeads);
-//       this._printHeads.next(updatedPrintHeads); // emit the updated _printHeads array
-//     }
-//   }
-//
-//   updatePrintPositionColor(printHead: PrintHead, color: string): void {
-//     console.log('-- updatePrintPositionColor');
-//     const updatedPrintHead = {
-//       ...printHead,
-//       color: color,
-//     };
-//
-//     // Find the index of the printHead to be updated in the _printHeads BehaviorSubject
-//     const index = this._printHeads.value.findIndex(ph => ph.printHeadIndex === printHead.printHeadIndex);
-//
-//     //Update the PrintHead in the _printHeads BehaviorSubject
-//     if (index !== -1) {
-//       const updatedPrintHeads = [...this._printHeads.value];
-//       updatedPrintHeads[index] = updatedPrintHead;
-//       console.log('---- _printHeads.next: ', updatedPrintHeads);
-//       this._printHeads.next(updatedPrintHeads); // emit the updated _printHeads array
-//     }
-//   }
-//
-//
-//
-//   // Maybe try separate functions for each calculated style value
-//   getStylePrintPositionButton(printHead: PrintHead, printHeadButton: PrintHeadButton) {
-//     // console.log('getStylePrintPositionButton: needleOdMM:', printHead.needle.odMM);
-//     const buttonSizePX = this.getPrintPositionButtonWidthPX(printHead.needle.odMM);
-//     let topPX = this.getButtonTopPX(printHeadButton.position) - (buttonSizePX/2);
-//     let lfPX = this.getButtonLeftPX(printHeadButton.position) - (buttonSizePX/2);
-//     const buttonColor = printHead.active? (printHeadButton.selected ? printHead.color : 'white') : '#f1f1f1';
-//     const buttonStyle = {
-//       ...this.customButtonToggleStyle,
-//       'width': buttonSizePX + 'px',
-//       'top': topPX + 'px',
-//       'left': lfPX + 'px',
-//       'background-color': buttonColor,
-//     }
-//     console.log(buttonStyle);
-//     return buttonStyle;
-//
-//   }
-//
-//   getPrintPositionButtonWidthPX(needleOdMM: number) {
-//     // console.log('getPrintPositionButtonWidthPX: needleOdMM:', needleOdMM, 'plateMapWellDiamMM:', this._selectedPlate?.well_sizeMM)
-//     const plateMapWellDiamMM = this._selectedPlate?.well_sizeMM;
-//     return this.toPX(this.printPositionService.getButtonWidthMM('print-head', needleOdMM, plateMapWellDiamMM));
-//   }
-//   getButtonLeftPX(printHeadButtonPosition: number) {
-//     return this.toPX(this.printPositionService.getButtonLeftMM(this.printPositionOriginsMM, printHeadButtonPosition));
-//   }
-//
-//   getButtonTopPX(printHeadButtonPosition: number) {
-//     return this.toPX(this.printPositionService.getButtonTopMM(this.printPositionOriginsMM, printHeadButtonPosition));
-//   }
-//   updatePrintHeadButtonSelection(printHead: PrintHead, isActive: boolean): void {
-//     console.log('-- updatePrintHeadButtonSelection');
-//     if (printHead) {
-//       const updatedPrintHead = {
-//         ...printHead,
-//         printPositionButtons: printHead.printPositionButtons.map(button => ({
-//           ...button,
-//           selected: isActive
-//         }))
-//       };
-//
-//       // Find the index of the printHead to be updated in the _printHeads BehaviorSubject
-//       const index = this._printHeads.value.findIndex(ph => ph.printHeadIndex === printHead.printHeadIndex);
-//
-//       // Update the PrintHead in the _printHeads BehaviorSubject
-//       if (index !== -1) {
-//         const updatedPrintHeads = [...this._printHeads.value];
-//         updatedPrintHeads[index] = updatedPrintHead;
-//         console.log('---- _printHeads.next: ', updatedPrintHeads);
-//         this._printHeads.next(updatedPrintHeads); // emit the updated _printHeads array
-//       }
-//
-//     } else {
-//       console.warn(`Warning(updatePrintHeadButtonSelection): printHead is undefined.`);
-//     }
-//   }
-//
-//   scale(size: number, scalar: number) {
-//     return size*scalar;
-//   }
-//
-// }

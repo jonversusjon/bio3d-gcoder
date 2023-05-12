@@ -25,9 +25,10 @@ export class PrintPositionPickerComponent implements OnDestroy {
               private changeDetectorRef: ChangeDetectorRef,
               private printHeadStateService: PrintHeadStateService){
     this.subscriptions.push(
-      this.printPositionService.buttonWidthChanged.subscribe(() => {
-        this.changeDetectorRef.markForCheck();
+      this.printPositionService.printPositionsChanged.subscribe(printPositions => {
+        console.log('print-position-picker was just told the printPositions are now: ', printPositions);
       })
+
     );
     this.printPositionButtonBaseStyle = this.styleService.getBaseStyle('print-position-button');
     this._printPositionService = printPositionService;
@@ -45,9 +46,20 @@ export class PrintPositionPickerComponent implements OnDestroy {
 
 
   togglePrintHeadButton(printHead: PrintHead, printHeadButton:PrintPosition) {
-    this.printHeadStateService.toggleButtonStatus(printHead.printHeadIndex, printHeadButton.index);
+    this.printHeadStateService.toggleButtonStatus(printHead.index, printHeadButton.index);
   }
-
+  getStylePrintPositionButton(printHead: PrintHead, buttonIndex: number) {
+    const baseStyle = this.styleService.getBaseStyle('print-position-button');
+    // console.log('new printPositionButtonWidthPX: ', this.printPositionService.printPositionButtonWidthPX + 'px');
+    // console.log('new printPositionButtonTopsPX[buttonIndex]: ', this.printPositionService.printPositionButtonTopsPX[buttonIndex] + 'px');
+    // console.log('new printPositionButtonLeftsPX[buttonIndex]: ', this.printPositionService.printPositionButtonLeftsPX[buttonIndex] + 'px');
+    return {
+      ...baseStyle,
+      'width': this.printPositionService.printPositionButtonWidthPX + 'px',
+      'top': this.printPositionService.printPositionButtonTopsPX[buttonIndex] + 'px',
+      'left': this.printPositionService.printPositionButtonLeftsPX[buttonIndex] + 'px'
+    };
+  }
 
 }
 

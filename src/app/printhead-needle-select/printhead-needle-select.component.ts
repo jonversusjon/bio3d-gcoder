@@ -16,6 +16,14 @@ export class PrintheadNeedleSelectComponent {
   selectedNeedle!: Needle;
   constructor(private printHeadStateService: PrintHeadStateService) {
     this.availableNeedles = this.printHeadStateService.needles;
+  }
+
+  onNeedleChange(event: any) {
+    this.selectedNeedle = event.value;
     this.needleChanged.emit(this.selectedNeedle);
   }
+
+  protected readonly print = print;
 }
+
+

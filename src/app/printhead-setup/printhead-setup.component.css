@@ -41,7 +41,7 @@
 }
 
 .grid-list-container {
-  height: 455px;
+  height: 475px;
   overflow-y: auto;
   direction: rtl;
   padding-left: 8px;
@@ -55,7 +55,7 @@
 }
 
 .experiment-setup-header.flex-container {
-  padding: 0;
+  /*padding: 0;*/
 }
 
 .active-toggle-container.flex-item {
@@ -73,16 +73,14 @@
  align-items: center;
  justify-content: space-between;
  padding: 0;
- color: white;
+ color:#FFFFFF;
  border-top-left-radius: 8px;
  border-top-right-radius: 8px;
   background-color: coral;
 }
 
 .printhead-setup-title {
-  display: grid;
   grid-template-columns: 3fr 2fr 2fr;
-  font-size: 0.5em;
   margin: 0 0 0 1em;
 }
 
@@ -99,3 +97,8 @@
 .printhead-number-input-wrapper {
   --height: 1.5rem;
 }
+
+.printhead-cards-container {
+  background-color: mistyrose;
+  padding: 16px;
+ }

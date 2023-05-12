@@ -1,6 +1,6 @@
 .print-depth-container {
   display: flex;
-  height: 190px;
+  aspect-ratio: .95 / 1;
 }
 
 .print-depth-slider {
@@ -20,6 +20,7 @@
   height:100%;
   object-fit: cover;
   flex: 1;
+  aspect-ratio: 1 / 1.25;
 }
 
 app-vertical-slider {

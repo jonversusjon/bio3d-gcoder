@@ -1,4 +1,5 @@
-import { Component, ElementRef, HostListener } from '@angular/core';
+import {Component, ElementRef, HostListener, Input} from '@angular/core';
+import {PrintHead} from "../../types/PrintHead";
 
 @Component({
   selector: 'app-vertical-slider',
@@ -6,6 +7,7 @@ import { Component, ElementRef, HostListener } from '@angular/core';
   styleUrls: ['./vertical-slider.component.css'],
 })
 export class VerticalSliderComponent {
+  @Input() printhead!: PrintHead;
   startThumbPosition = 30;
   endThumbPosition = 60;
   startValue: number;
@@ -29,6 +31,8 @@ export class VerticalSliderComponent {
       bottom: (i * (1 / 15)) * 100 + '%'
     };
   });
+
+  isInactive: boolean = false;
 
   private draggingThumb: 'start' | 'end' | null = null;
 

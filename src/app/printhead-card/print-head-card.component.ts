@@ -43,16 +43,18 @@ export class PrintHeadCardComponent implements OnInit, OnDestroy, OnChanges {
 
     this.subscriptions.push(
       this.plateFormatService.selectedPlate$.subscribe((plate) => {
+        console.log('print-head-card-component received: ', plate);
         this._selectedPlate = plate;
         this.onGetSelectedPlateChange(plate);
       })
     );
 
+    // this.printHeadStateService.loadDefaultPrintHeads(1);
 
   }
 
   ngOnInit() {
-    console.warn('Printhead in app-printhead-card-component:', this.printhead);
+    // console.warn('Printhead in app-printhead-card-component:', this.printhead);
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -67,14 +69,8 @@ export class PrintHeadCardComponent implements OnInit, OnDestroy, OnChanges {
     this.subscriptions.forEach((subscription) => subscription.unsubscribe());
   }
 
-  onActiveToggleChange(printHead: PrintHead, event: MatSlideToggleChange) {
-    this.activeToggle = event.checked;
-    if (!this.activeToggle) {
-      this.printHeadStateService.setAllButtonsInactive(printHead.printHeadIndex);
-    }
-  }
   onPrintPositionColorChange(printHead: PrintHead, color: string){
-    this.printHeadStateService.updateColor(printHead.printHeadIndex, color);
+    this.printHeadStateService.updateColor(printHead.index, color);
   }
 
   onPrintHeadTemperatureChange(selectedTemperature: number) {
@@ -82,7 +78,7 @@ export class PrintHeadCardComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   onNeedleChange(printHead: PrintHead, needle: Needle) {
-    this.printHeadStateService.updateNeedle(printHead.printHeadIndex, needle);
+    this.printHeadStateService.updateNeedle(printHead, needle);
     this.updateButtonsSize(printHead, this._selectedPlate.well_sizeMM, printHead.needle.odMM);
   }
   onGetSelectedPlateChange(selectedPlate: PlateFormat) {
@@ -96,7 +92,7 @@ export class PrintHeadCardComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   updateButtonsSize(printHead: PrintHead, plateMapWellSize: number, needleOdMM: number) {
-    this.printPositionService.getNewButtonsSize('print-head', printHead, plateMapWellSize, needleOdMM);
+    // this.printPositionService.getNewButtonsSize('print-head', printHead, plateMapWellSize, needleOdMM);
   }
 
   toPX(size_in_mm:number): number {
@@ -105,19 +101,6 @@ export class PrintHeadCardComponent implements OnInit, OnDestroy, OnChanges {
 
   getPrintPickerWidthPX() {
     return (this.toPX(this.printPositionService.PRINT_PICKER_DIAM_MM));
-  }
-
-  getStylePrintPositionButton(printHead: PrintHead, buttonIndex: number) {
-    const baseStyle = this.styleService.getBaseStyle('print-position-button');
-    // console.log('new printPositionButtonWidthPX: ', this.printPositionService.printPositionButtonWidthPX + 'px');
-    // console.log('new printPositionButtonTopsPX[buttonIndex]: ', this.printPositionService.printPositionButtonTopsPX[buttonIndex] + 'px');
-    // console.log('new printPositionButtonLeftsPX[buttonIndex]: ', this.printPositionService.printPositionButtonLeftsPX[buttonIndex] + 'px');
-    return {
-      ...baseStyle,
-      'width': this.printPositionService.printPositionButtonWidthPX + 'px',
-      'top': this.printPositionService.printPositionButtonTopsPX[buttonIndex] + 'px',
-      'left': this.printPositionService.printPositionButtonLeftsPX[buttonIndex] + 'px'
-    };
   }
 
   onPrintHeadTypeChange(printhead: PrintHead, newPrintHeadType: PrintHeadBehavior): void {

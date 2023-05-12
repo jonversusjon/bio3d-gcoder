@@ -1,4 +1,4 @@
-<div class="vertical-slider-container">
+<div class="vertical-slider-container" [class.slider-inactive]="!printhead.active">
   <div class="vertical-slider">
     <div
       class="vertical-range"
@@ -10,16 +10,16 @@
       [style.bottom]="startThumbPosition + '%'"
       (mousedown)="onMouseDown($event, 'start')"
       [class.active]="currentThumb === 'start'"
+      [attr.disabled]="!printhead.active ? '' : null"
     >
-<!--      <div class="tooltip" [style.bottom]="startThumbPosition + 30 + 'px'">{{ startValue }}</div>-->
     </div>
     <div
       class="vertical-thumb"
       [style.bottom]="endThumbPosition + '%'"
       (mousedown)="onMouseDown($event, 'end')"
       [class.active]="currentThumb === 'end'"
+      [attr.disabled]="!printhead.active ? '' : null"
     >
-<!--      <div class="tooltip" [style.bottom]="endThumbPosition + 30 + 'px'">{{ endValue }}</div>-->
     </div>
     <ng-container *ngFor="let tick of ticks">
       <div class="tick-container" [style.bottom]="tick.bottom">

@@ -1,39 +1,3 @@
-<mat-card style="background-color: lightpink;">
-  <mat-card-header [ngStyle]="experimentSetupHeaderStyle" style="background-color: mediumvioletred"
-                   class="experiment-setup-header">
-    <div class="header-content">
-      <div class="title-container">
-        <mat-card-title style="margin: 0.9em 1em;">Cell Culture Plate Map</mat-card-title>
-      </div>
-    </div>
-  </mat-card-header>
-  <div class="inputs-container flex-container" style="background-color: lightpink;">
-    <div class="flex-item plate-input">
-      <mat-form-field appearance="fill" subscriptSizing="dynamic" class="plate-format-select-wrapper">
-        <mat-label for="plateFormat">Select a plate format</mat-label>
-        <mat-select id="plateFormat" [value]="selectedPlate" (selectionChange)="onSelectedPlateChanged($event)"
-                    class="plate-format-select">
-          <mat-option *ngFor="let plate of plateFormats" [value]="plate">
-            {{ plate.name }}
-          </mat-option>
-        </mat-select>
-      </mat-form-field>
-    </div>
-    <div class="flex-item plate-origin-input">
-      <mat-form-field appearance="fill" subscriptSizing="dynamic" class="plate-format-select-wrapper">
-        <mat-label for="plateOrigin">Coordinate plane origin is</mat-label>
-        <mat-select id="plateOrigin" [value]="selectedPlateOrigin"
-                    (selectionChange)="onSelectedPlateOriginChanged($event)" class="plate-format-select">
-          <mat-option *ngFor="let origin of plateFormatService.plateOrigins" [value]="origin.value">
-            {{origin.description}}
-          </mat-option>
-        </mat-select>
-      </mat-form-field>
-    </div>
-  </div>
-
-
-  <mat-card-content style="background-color: lightpink; display: flex;justify-content: center;">
     <div class=""
          [ngStyle]="{'height': (plateHeightPX+24) + 'px', 'width': (plateWidthPX+24) + 'px'}"
          (mousemove)="onMouseMove($event)" (mouseleave)="onMouseLeave()">
@@ -62,9 +26,9 @@
               <g *ngFor="let printHead of printHeads; let printHeadIndex = index;">
                 <g *ngFor="let printPosition of printHead.printPositions; let buttonIndex = index">
                   <circle *ngIf="well.selected && printPosition.selected"
-                          [attr.cx]="printPositionService.printPositionOriginsPct[buttonIndex].x + '%'"
-                          [attr.cy]="printPositionService.printPositionOriginsPct[buttonIndex].y + '%'"
-                          [attr.r]="printPositionService.printPositionButtonWidthPX_PlateMap[printHeadIndex] / 2"
+                          [attr.cx]="printPosition.originPCT_display.x + '%'"
+                          [attr.cy]="printPosition.originPCT_display.y + '%'"
+                          [attr.r]="printPosition.button.widthPX / 2"
                           [attr.fill]="printHead.color"
                           matTooltip="x: {{well.originMM.x + printPosition.originMM_absolute.x | number:'1.1-1'}} mm,
                             y: {{well.originMM.y + printPosition.originMM_absolute.y | number:'1.1-1'}} mm">>
@@ -121,8 +85,4 @@
         </text>
       </svg>
     </div>
-  </mat-card-content>
-  <mat-card-footer style="background-color: rgba(0,0,0,0);">
-    <button mat-flat-button (click)="openExportGcodeForm()">Generate Gcode</button>
-  </mat-card-footer>
-</mat-card>
+

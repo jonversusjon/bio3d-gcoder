@@ -1,8 +1,7 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import {ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';
 import {StyleService} from "../_services/style.service";
-import {PrintHead} from "../../types/PrintHead";
+import {emptyPrintHead, PrintHead} from "../../types/PrintHead";
 import {Subscription} from "rxjs";
-import {PlateFormat} from "../../types/PlateFormat";
 import {PrintHeadStateService} from "../_services/print-head-state.service";
 
 @Component({
@@ -13,13 +12,15 @@ import {PrintHeadStateService} from "../_services/print-head-state.service";
 export class PrintheadSetupComponent implements OnDestroy, OnInit {
   experimentSetupHeaderStyle: any;
   printHeadCountInput: number = 1;
-  printHeads: PrintHead[] = []
+  printHeads: PrintHead[] = [];
   private subscriptions: Subscription[] = [];
 
   constructor(private styleService: StyleService,
-              private printHeadStateService: PrintHeadStateService) {
+              private printHeadStateService: PrintHeadStateService,
+              private cd: ChangeDetectorRef) {
     this.subscriptions.push(
       this.printHeadStateService.printHeads$.subscribe((printHeads: PrintHead[]) => {
+        console.log('printhead-setup-component received: ', printHeads);
         this.printHeads = printHeads;
       })
     );
@@ -30,7 +31,7 @@ export class PrintheadSetupComponent implements OnDestroy, OnInit {
   ngOnInit() {
     this.printHeadStateService.printHeads$.subscribe(printHeads => {
       console.log('printhead-card notified of printheads change');
-      this.printHeads = printHeads;
+      this.printHeads = [emptyPrintHead()];
       console.log('this.printHeads: ', this.printHeads);
       console.log('this.printHeads[0]: ', this.printHeads[0]); // Add this line
     });
@@ -41,6 +42,7 @@ export class PrintheadSetupComponent implements OnDestroy, OnInit {
 
   onPrintHeadCountChange() {
     this.printHeadStateService.onPrintHeadCountChange(this.printHeadCountInput);
+    this.cd.detectChanges();
   }
 
 
