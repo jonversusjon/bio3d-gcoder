@@ -11,6 +11,8 @@
     <div class="grid-list-container">
 <!--      <div class="flex-container" style="justify-content: center; padding-right: 0; padding-left: 0;">-->
         <div *ngFor="let printhead of printHeads; let printHeadIndex = index" class="flex-item">
+          printHeadIndex:{{printHeadIndex}}
+          printHead.index:{{printhead.index}}
           <app-printhead-card-component
             [printhead]="printhead"
             [printheadIndex]="printHeadIndex"

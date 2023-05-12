@@ -18,7 +18,7 @@ import { Needle } from "../../types/Needle";
 import { PlateFormatService } from "./plate-format.service";
 import { PrintPositionService } from "./print-position.service";
 import {StyleService} from "./style.service";
-import {PrintPosition} from "../../types/PrintPosition";
+import {emptyPrintPosition, PrintPosition} from "../../types/PrintPosition";
 import { switchMap } from 'rxjs/operators';
 import { of } from 'rxjs';
 import {WellsStateService} from "./wells-state.service";
@@ -114,54 +114,122 @@ export class PrintHeadStateService implements OnDestroy {
   // Generate printheads with default values and buttons
  loadDefaultPrintHeads(numPrintHeads: number): void {
     const printHeads: PrintHead[] = [];
-
+    console.log('create default printhead');
     for (let i = 0; i < numPrintHeads; i++) {
       const createdPrintHead = this.createPrintHead(i);
       printHeads.push(createdPrintHead);
+      console.log('----------- printHeads: ', printHeads);
     }
     this.currentPrintHeads = printHeads;
+    console.log('finished loading default printheads: ', printHeads);
     this._printHeads.next(printHeads);
   }
 
+  /**
+   * Updates multiple properties of a PrintHead based on the provided printHeadIndex and key-value pairs.
+   *
+   * @param {number} printHeadIndex - The index of the PrintHead to be updated.
+   * @param {Partial<PrintHead>} properties - An object containing key-value pairs of the properties to be updated.
+   */
+  updatePrintHeadProperties(printHeadIndex: number, properties: Partial<PrintHead>): void {
+    const currentPrintHeads = this._printHeads.value;
+    console.log('currentPrintHeads: ', currentPrintHeads);
+    if (currentPrintHeads[printHeadIndex]) {
+      const selectedPrintHead = currentPrintHeads[printHeadIndex];
+
+      Object.keys(properties).forEach(key => {
+        if (key in selectedPrintHead && properties[key as keyof PrintHead] !== undefined) {
+          this.updatePrintHeadProperty(printHeadIndex, key as keyof PrintHead, properties[key as keyof PrintHead]!);
+        } else if (!(key in selectedPrintHead)) {
+          console.error(`Invalid property key: ${key} does not exist in the PrintHead object.`);
+        } else if (properties[key as keyof PrintHead] === undefined) {
+          console.error(`Undefined value error: The value for ${key} in the properties object is undefined.`);
+        }
+      });
+
+      this._printHeads.next(currentPrintHeads);
+    } else {
+      console.error(`updatePrintHeadProperties Invalid printHeadIndex: ${printHeadIndex}`);
+    }
+  }
+
+  /**
+   * Updates a single property of a PrintHead based on the provided printHeadIndex and key-value pair.
+   *
+   * @param {number} printHeadIndex - The index of the PrintHead to be updated.
+   * @param {keyof PrintHead} propertyKey - The key of the PrintHead property to be updated.
+   * @param {string | number | boolean | Needle | PrintHeadBehavior | PrintPosition[] | { sizeMM: number }} propertyValue - The new value for the PrintHead property.
+   */
+  updatePrintHeadProperty<K extends keyof PrintHead>(printHeadIndex: number, key: K, value: PrintHead[K]): void {
+    console.log('updating ', key, 'of printhead ', printHeadIndex, ' to ', value);
+    const currentPrintHeads = this._printHeads.value;
+
+    if (currentPrintHeads[printHeadIndex]) {
+      const selectedPrintHead = currentPrintHeads[printHeadIndex];
+
+      selectedPrintHead[key] = value;
+
+      this._printHeads.next(currentPrintHeads);
+    } else {
+      console.error(`updatePrintHeadProperty Invalid printHeadIndex: ${printHeadIndex}`);
+    }
+  }
+
+  /**
+   * Updates the number of PrintHeads based on the provided numPrintHeads value.
+   *
+   * @param {number} numPrintHeads - The new number of PrintHeads.
+   */
   onPrintHeadCountChange(numPrintHeads: number): void {
     const currentPrintHeadCount = this.currentPrintHeads.length;
-
+    console.log('numPrintHeads: ', numPrintHeads, ' currentPrintHeadCount: ', currentPrintHeadCount);
     if (numPrintHeads > currentPrintHeadCount) {
+      // Add new print heads
       while (this.currentPrintHeads.length < numPrintHeads) {
         const createPrintHead = this.createPrintHead(this.currentPrintHeads.length);
-        // this.printPositionService.getNewButtonsSize('print-head', createPrintHead, this.currentSelectedPlate.well_sizeMM, createPrintHead.needle.odMM);
         this.currentPrintHeads.push(createPrintHead);
       }
     } else if (numPrintHeads < currentPrintHeadCount) {
+      // Remove excess print heads
       while (this.currentPrintHeads.length > numPrintHeads ) {
         this.currentPrintHeads.pop();
-        this.printPositionService.printPositionButtonWidthPX.pop();
       }
     }
 
+    // Emit updated print heads
     this._printHeads.next(this.currentPrintHeads);
   }
 
   private createPrintHead(printHeadIndex: number): PrintHead {
-      if(this.currentSelectedPlate) {
-        console.log('createPrintHead thinks well diam: ', this.currentSelectedPlate.well_sizeMM);
-        const newPrintHead: PrintHead = emptyPrintHead();
-        newPrintHead.index = printHeadIndex;
-        newPrintHead.color = this.styleService.THEME_COLORS.defaultLightTheme[printHeadIndex % this.styleService.THEME_COLORS.defaultLightTheme.length];
+    console.log('---------------------- createPrintHead[', printHeadIndex, ']');
+    const newPrintHead: PrintHead = emptyPrintHead();
+    newPrintHead.index = printHeadIndex;
+    console.log('new printhead index: ', printHeadIndex);
+    newPrintHead.color = this.styleService.THEME_COLORS.defaultLightTheme[printHeadIndex % this.styleService.THEME_COLORS.defaultLightTheme.length];
 
-        newPrintHead.needle = this.needles[0];
-        console.log("let's load some printPositions");
-        newPrintHead.printPositions = this.printPositionService.loadPrintPositionButtons(
-          'print-head',
-          printHeadIndex,
-          this.currentSelectedPlate.well_sizeMM,
-          this.needles[0].odMM);
-        this.printPositionService.printPositionsChanged.next(newPrintHead.printPositions);
+    newPrintHead.needle = this.needles[0];
+    if(this.currentSelectedPlate) {
+      newPrintHead.printPositions = this.printPositionService.loadPrintPositionButtons(
+        'print-head',
+        printHeadIndex,
+        this.currentSelectedPlate.well_sizeMM,
+        this.needles[0].odMM);
+    } else {
+      newPrintHead.printPositions = [emptyPrintPosition()];
+    }
+    this.currentPrintHeads[printHeadIndex] = newPrintHead;
 
-        return newPrintHead;
-      } else {
-        return emptyPrintHead();
-      }
+    this.updatePrintHeadProperties(printHeadIndex, {
+      index: printHeadIndex,
+      color: newPrintHead.color,
+      needle: newPrintHead.needle,
+      printPositions: newPrintHead.printPositions,
+    });
+
+    this._printHeads.next(this.currentPrintHeads);
+
+    return newPrintHead;
+
   }
 
 
@@ -224,17 +292,6 @@ export class PrintHeadStateService implements OnDestroy {
       const selectedPrintHead = currentPrintHeads[printHeadIndex];
       selectedPrintHead.temperature = newTemperature;
 
-      this._printHeads.next(currentPrintHeads);
-    } else {
-      console.error(`Invalid printHeadIndex: ${printHeadIndex}`);
-    }
-  }
-  updateDescription(printHeadIndex: number, newDescription: string): void {
-    const currentPrintHeads = this._printHeads.value;
-
-    if (currentPrintHeads[printHeadIndex]) {
-      const selectedPrintHead = currentPrintHeads[printHeadIndex];
-      selectedPrintHead.description = newDescription;
       this._printHeads.next(currentPrintHeads);
     } else {
       console.error(`Invalid printHeadIndex: ${printHeadIndex}`);

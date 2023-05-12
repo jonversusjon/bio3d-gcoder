@@ -29,12 +29,7 @@ export class PrintheadSetupComponent implements OnDestroy, OnInit {
   }
 
   ngOnInit() {
-    this.printHeadStateService.printHeads$.subscribe(printHeads => {
-      console.log('printhead-card notified of printheads change');
-      this.printHeads = [emptyPrintHead()];
-      console.log('this.printHeads: ', this.printHeads);
-      console.log('this.printHeads[0]: ', this.printHeads[0]); // Add this line
-    });
+
   }
   ngOnDestroy() {
     this.subscriptions.forEach((subscription) => subscription.unsubscribe());

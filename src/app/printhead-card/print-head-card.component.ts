@@ -91,6 +91,9 @@ export class PrintHeadCardComponent implements OnInit, OnDestroy, OnChanges {
     }
   }
 
+  OnToggleChange(event: MatSlideToggleChange) {
+    this.printHeadStateService.updatePrintHeadProperty(this.printhead.index, 'active', event.checked);
+  }
   updateButtonsSize(printHead: PrintHead, plateMapWellSize: number, needleOdMM: number) {
     // this.printPositionService.getNewButtonsSize('print-head', printHead, plateMapWellSize, needleOdMM);
   }

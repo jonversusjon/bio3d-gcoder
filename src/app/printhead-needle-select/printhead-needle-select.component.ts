@@ -10,7 +10,6 @@ import {PrintHead} from "../../types/PrintHead";
 })
 export class PrintheadNeedleSelectComponent {
   @Input() printhead!: PrintHead;
-  @Output() needleChanged: EventEmitter<any> = new EventEmitter<any>()
   availableNeedles:Needle[] = [];
 
   selectedNeedle!: Needle;
@@ -20,7 +19,7 @@ export class PrintheadNeedleSelectComponent {
 
   onNeedleChange(event: any) {
     this.selectedNeedle = event.value;
-    this.needleChanged.emit(this.selectedNeedle);
+    this.printHeadStateService.updatePrintHeadProperty(this.printhead.index, "needle", event.value);
   }
 
   protected readonly print = print;

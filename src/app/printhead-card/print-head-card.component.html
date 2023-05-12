@@ -16,12 +16,11 @@
             [printhead]="printhead"
             [printheadIndex]="printheadIndex"
             (temperatureChanged)="onPrintHeadTemperatureChange($event)"></app-printhead-type-select>
-          <app-printhead-needle-select [printhead]="printhead"
-                                       (needleChanged)="onNeedleChanged($event)"></app-printhead-needle-select>
+          <app-printhead-needle-select [printhead]="printhead"></app-printhead-needle-select>
           <app-printhead-color-picker
             [printhead]="printhead"
             [printheadIndex]="printheadIndex"
-            (colorChanged)="onColorChanged($event)"></app-printhead-color-picker>
+            ></app-printhead-color-picker>
         </div>
       </div>
     </mat-card-title>
@@ -46,7 +45,7 @@
           <div *ngIf="printhead.active">active</div>
           <div *ngIf="!printhead.active">inactive</div>
         </div>
-        <mat-slide-toggle [(ngModel)]="printhead.active" class="active-toggle"></mat-slide-toggle>
+        <mat-slide-toggle [(ngModel)]="printhead.active" class="active-toggle" (ngModelChange)="OnToggleChange($event)""></mat-slide-toggle>
       </div>
     </div>
   </mat-card>

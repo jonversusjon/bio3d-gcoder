@@ -23,7 +23,7 @@ export function emptyPrintHead(): PrintHead {
     index: -1,
     printHeadBehavior: emptyPrintHeadBehavior(),
     description: '',
-    color: 'white',
+    color: '#FFFFFF',
     active: true,
     printPositions: [],
     printPositionSizeMM: 0,
