@@ -1,7 +1,7 @@
 import {Component, EventEmitter, Input, Output} from '@angular/core';
-import {Needle} from "../../types/Needle";
+import {Needle, needles} from "../../types/Needle";
 import {PrintHeadStateService} from "../_services/print-head-state.service";
-import {PrintHead} from "../../types/PrintHead";
+import {Printhead} from "../../types/Printhead";
 
 @Component({
   selector: 'app-printhead-needle-select',
@@ -9,12 +9,12 @@ import {PrintHead} from "../../types/PrintHead";
   styleUrls: ['./printhead-needle-select.component.css']
 })
 export class PrintheadNeedleSelectComponent {
-  @Input() printhead!: PrintHead;
+  @Input() printhead!: Printhead;
   availableNeedles:Needle[] = [];
 
   selectedNeedle!: Needle;
   constructor(private printHeadStateService: PrintHeadStateService) {
-    this.availableNeedles = this.printHeadStateService.needles;
+    this.availableNeedles = needles;
   }
 
   onNeedleChange(event: any) {

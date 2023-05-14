@@ -10,7 +10,7 @@ import {PlateFormatService} from "../_services/plate-format.service";
 import {MatSelectChange} from "@angular/material/select";
 import {Coordinates} from "../../types/Coordinates";
 import {Subject} from "rxjs";
-import {PrintHead} from "../../types/PrintHead";
+import {Printhead} from "../../types/Printhead";
 
 
 @Component({
@@ -27,8 +27,8 @@ export class ExperimentSetupComponent implements OnInit {
   prevSelectedPlate!: PlateFormat;
   selectedPlateOrigin!: string;
 
-  plateHeightPX!: number;
-  plateWidthPX!: number;
+  public plateHeightPX!: number;
+  public plateWidthPX!: number;
   printPositionOriginsMM: Coordinates[][] = [];
 
   constructor(private styleService: StyleService,

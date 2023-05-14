@@ -1,0 +1,21 @@
+<mat-form-field
+  subscriptSizing="dynamic"
+  appearance="fill"
+  class="print-head-type-field grid-item print-head-type-select-input"
+>
+  <mat-label>Print Head Tool</mat-label>
+  <mat-select
+    class="print-head-type-select custom-mat-select"
+    [(ngModel)]="selectedPrintheadTool"
+    (selectionChange)="onPrintheadToolChanged($event.value)"
+    [disabled]="!printhead.active"
+  >
+    <mat-option
+      *ngFor="let printHeadToolOption of printheadToolOptions"
+      [value]="printHeadToolOption"
+      class="custom-mat-select-option"
+    >
+      {{ printHeadToolOption.description }}
+    </mat-option>
+  </mat-select>
+</mat-form-field>

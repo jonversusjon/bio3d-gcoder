@@ -20,6 +20,11 @@
 }
 
 /* Main container */
+mat-card {
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+}
+
 .container {
   position: relative;
   width: 100%;
@@ -41,12 +46,13 @@
 }
 
 .grid-list-container {
+  display: grid;
+  grid-gap: 8px;
+  padding-left: 8px;
   height: 475px;
   overflow-y: auto;
   direction: rtl;
-  padding-left: 8px;
   overflow-x: hidden;
-  flex: 5;
   margin: 0;
 }
 

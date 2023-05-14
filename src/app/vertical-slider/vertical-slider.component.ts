@@ -1,5 +1,5 @@
 import {Component, ElementRef, HostListener, Input} from '@angular/core';
-import {PrintHead} from "../../types/PrintHead";
+import {Printhead} from "../../types/Printhead";
 
 @Component({
   selector: 'app-vertical-slider',
@@ -7,7 +7,7 @@ import {PrintHead} from "../../types/PrintHead";
   styleUrls: ['./vertical-slider.component.css'],
 })
 export class VerticalSliderComponent {
-  @Input() printhead!: PrintHead;
+  @Input() printhead!: Printhead;
   startThumbPosition = 30;
   endThumbPosition = 60;
   startValue: number;

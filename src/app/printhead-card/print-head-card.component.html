@@ -3,23 +3,41 @@
     <mat-card-title>
       <div class="printhead-card-title">
         <!-- row 1 -->
-        <mat-form-field appearance="outline"
-                        class="printhead-description-field grid-item printhead-description-input"
-                        subscriptSizing="dynamic">
-          <mat-label>Printhead Description</mat-label>
-          <input class="printhead-description-input" matInput [(ngModel)]="printhead.description"
-                 [disabled]="!printhead.active">
-        </mat-form-field>
+        <div class="printhead-card-title-row-1-wrapper">
+          <mat-form-field appearance="fill"
+                          class="printhead-description-field grid-item printhead-description-input"
+                          subscriptSizing="dynamic">
+            <mat-label>Printhead Description</mat-label>
+            <input class="printhead-description-input" matInput [(ngModel)]="printhead.description"
+                   [disabled]="!printhead.active" (ngModelChange)="onDescriptionChange(printheadIndex, $event)">
+          </mat-form-field>
+          <app-printhead-tool-select
+            [printhead]="printhead"
+            [selectedPrintheadTool]="selectedPrintheadTool"
+            (printheadToolChanged)="onPrintHeadToolChange($event)"
+            (temperatureChanged)="onPrintHeadTemperatureChange($event)"
+          ></app-printhead-tool-select>
+        </div>
         <!-- row 2 -->
         <div class="printhead-card-title-row-2-wrapper">
-          <app-printhead-type-select
-            [printhead]="printhead"
-            [printheadIndex]="printheadIndex"
-            (temperatureChanged)="onPrintHeadTemperatureChange($event)"></app-printhead-type-select>
-          <app-printhead-needle-select [printhead]="printhead"></app-printhead-needle-select>
+        </div>
+        <!-- row 3 -->
+        <div class="printhead-card-title-row-3-wrapper">
+          <mat-form-field *ngIf="selectedPrintheadTool && selectedPrintheadTool.behavior.hasPhotocuring" appearance="fill" class="printhead-wavelength-wrapper">
+            <mat-label class="custom-mat-label">Wavelength</mat-label>
+            <mat-select [(ngModel)]="wavelength"
+                        [disabled]="!printhead.active">
+              <mat-option *ngFor="let wavelength of selectedPrintheadTool.behavior.wavelengths"
+                          [value]="wavelength">
+                {{wavelength}}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+          <app-printhead-needle-select *ngIf="selectedPrintheadTool && selectedPrintheadTool.behavior.canExtrude" [printhead]="printhead"></app-printhead-needle-select>
           <app-printhead-color-picker
             [printhead]="printhead"
             [printheadIndex]="printheadIndex"
+            class="printhead-color-picker"
             ></app-printhead-color-picker>
         </div>
       </div>
@@ -30,8 +48,8 @@
         <div class="print-position-picker-wrapper">
           <app-print-position-picker
             [printhead]="printhead"
-            [selectedNeedle]="selectedNeedle ? selectedNeedle : null"
-            [selectedColor]="selectedColor ? selectedColor : null"></app-print-position-picker>
+            [selectedNeedle]="selectedNeedle"
+            [selectedColor]="selectedColor"></app-print-position-picker>
         </div>
         <div class="print-depth-wrapper grid-item">
           <app-print-depth [printhead]="printhead"></app-print-depth>
@@ -45,7 +63,7 @@
           <div *ngIf="printhead.active">active</div>
           <div *ngIf="!printhead.active">inactive</div>
         </div>
-        <mat-slide-toggle [(ngModel)]="printhead.active" class="active-toggle" (ngModelChange)="OnToggleChange($event)""></mat-slide-toggle>
+        <mat-slide-toggle [(ngModel)]="printhead.active" class="active-toggle" (ngModelChange)="OnToggleChange($event)"></mat-slide-toggle>
       </div>
     </div>
   </mat-card>

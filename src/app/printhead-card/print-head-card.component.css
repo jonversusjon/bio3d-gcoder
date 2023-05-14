@@ -1,18 +1,7 @@
 
-/* printhead card header */
-.printhead-card-title {
-  display: flex;
-  flex-direction: column;
-}
 
 .printhead-description-field {
   margin: 6px 0px;
-}
-.printhead-card-title-row-2-wrapper {
-  display: grid;
-  grid-template-columns: 2fr 1fr 1fr;
-  grid-gap: 0px; /* Adjust this value according to your needs */
-  /*width: 40%;*/
 }
 
 app-printhead-type-select,
@@ -21,6 +10,23 @@ app-printhead-color-picker {
   box-sizing: border-box;
 }
 
+app-printhead-color-picker {
+  width: 65px;
+}
+
+.printhead-wavelength-wrapper {
+  width: 125px;
+}
+app-printhead-tool-select {
+  margin: 6px 0px;
+  flex: 1;
+  max-width: 180px;
+}
+
+.printhead-description-input {
+  /*flex-grow: 1;*/
+  flex: 1;
+}
 /* printhead card content */
 
 .mat-mdc-card-title > .mat-mdc-text-field {}
@@ -135,4 +141,20 @@ app-printhead-color-picker {
 
 .active-toggle-container {
   margin: 1rem;
+}
+
+.printhead-card-title-row-1-wrapper {
+  display: flex;
+}
+.printhead-card-title-row-3-wrapper {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.printhead-card-title-row-3-wrapper mat-form-field {
+  margin-left: auto;
+}
+
+.printhead-card-title-row-3-wrapper mat-form-field input[type="color"] {
+  width: 60px; /* Use the width you want */
 }

@@ -36,7 +36,7 @@ import {ScreenUtils} from "./screen-utils";
 import {PrintPosition, emptyPrintPosition} from "../../types/PrintPosition";
 import {PlateFormatService} from "./plate-format.service";
 import {StyleService} from "./style.service";
-import {PrintHead} from "../../types/PrintHead";
+import {Printhead} from "../../types/Printhead";
 import {PrintHeadStateService} from "./print-head-state.service";
 import {Well} from "../../types/Well";
 
@@ -66,8 +66,6 @@ export class PrintPositionService {
   public printPositionButtonWidthPX: number[] = [9];
   public printPositionButtonWidthPX_PlateMap: number[] = [9];
   public toScale: boolean = false;
-
-  printPositionsChanged = new Subject<PrintPosition[]>();
 
   /**
    * Creates a new instance of the PrintPositionService.
@@ -192,10 +190,14 @@ export class PrintPositionService {
  * */
 loadPrintPositionButtons(forWhichElement: 'plate-map' | 'print-head',
                          parentIndex: number,
-                         selectedPlateWellDiamMM: number,
+                         selectedPlateWellDiamMM: number = 1,
                          needleOdMM: number,
                          adj_x = 0, adj_y = 0): PrintPosition[] {
-  const printPositionOriginsMM_display = this.getPrintPositionOriginsMM(forWhichElement, 'parent-element', selectedPlateWellDiamMM, adj_x, adj_y);
+
+  const printPositionOriginsMM_display = this.getPrintPositionOriginsMM(
+    forWhichElement,
+    'parent-element',
+    selectedPlateWellDiamMM, adj_x, adj_y);
   const printPositionOriginsMM_absolute = this.getPrintPositionOriginsMM(
     forWhichElement,
     'xy-plane',
@@ -212,11 +214,9 @@ loadPrintPositionButtons(forWhichElement: 'plate-map' | 'print-head',
     return printPosition;
   });
 
-  // Emit the new print positions
-  this.printPositionsChanged.next(printPositions);
   return printPositions;
 }
-  updatePrintPositionsBasedOnNeedle(component: PrintHead | Well, wellSizeMM: number, needleODMM: number): PrintPosition[] {
+  updatePrintPositionsBasedOnNeedle(component: Printhead | Well, wellSizeMM: number, needleODMM: number): PrintPosition[] {
     // Get the current print positions
     const currentPrintPositions:PrintPosition[] = component.printPositions;
 

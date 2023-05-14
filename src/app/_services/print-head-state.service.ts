@@ -12,9 +12,9 @@ including:
 import {BehaviorSubject, Subscription} from 'rxjs';
 import {Injectable, OnDestroy} from "@angular/core";
 import { ScreenUtils } from "./screen-utils";
-import { PrintHead, emptyPrintHead } from "../../types/PrintHead";
+import { Printhead, emptyPrinthead } from "../../types/Printhead";
 import { PlateFormat, emptyPlateFormat} from "../../types/PlateFormat";
-import { Needle } from "../../types/Needle";
+import { Needle, needles } from "../../types/Needle";
 import { PlateFormatService } from "./plate-format.service";
 import { PrintPositionService } from "./print-position.service";
 import {StyleService} from "./style.service";
@@ -28,27 +28,16 @@ import {WellsStateService} from "./wells-state.service";
 })
 
 export class PrintHeadStateService implements OnDestroy {
-  private _printHeads = new BehaviorSubject<PrintHead[]>([]);
+  private _printHeads = new BehaviorSubject<Printhead[]>([]);
   printHeads$ = this._printHeads.asObservable();
-  private currentPrintHeads:PrintHead[] = [];
+  private currentPrintHeads:Printhead[] = [];
 
   private _printPickerSizeMM: number = 34.8;
 
   private selectedPlateSubscription!: Subscription;
   private currentSelectedPlate: PlateFormat;
 
-  public needles:Needle[] = [
-    {name: '27ga', odMM: 0.42, color: 'white'},
-    {name: '25ga', odMM: 0.53, color: 'red'},
-    {name: '23ga', odMM: 0.63, color: 'orange'},
-    {name: '22ga', odMM: 0.70, color: 'blue'},
-    {name: '21ga', odMM: 0.83, color: 'purple'},
-    {name: '20ga', odMM: 0.91, color: 'pink'},
-    {name: '18ga', odMM: 1.27, color: 'green'},
-    {name: '16ga', odMM: 1.63, color: 'grey'},
-    {name: '15ga', odMM: 1.65, color: 'amber'},
-    {name: '14ga', odMM: 1.83, color: 'olive'}
-  ];
+  private needles!: Needle[];
 
     constructor(private screenUtils: ScreenUtils,
               private plateFormatService: PlateFormatService,
@@ -56,44 +45,45 @@ export class PrintHeadStateService implements OnDestroy {
               private styleService: StyleService,
                 private wellsStateService: WellsStateService,
                 ) {
+      this.needles = needles;
       const printheadCreation$ = new BehaviorSubject<boolean>(false);
 
-      printheadCreation$
-        .pipe(
-          switchMap(created => {
-            if (created) {
-              // Perform actions and retrieve necessary data after printhead creation
-              // Return an observable that emits the required data for subsequent services
-
-              // Example:
-              // return this.someService.getDataForSubsequentServices(); // Replace with your actual service method
-              console.log('new thing was triggered');
-              return of(null);
-            } else {
-              // Return an empty observable if printhead is not created yet
-              return of(null);
-            }
-          })
-        )
-        .subscribe(data => {
-          // Handle the received data by the subsequent services
-          // This code block will be executed after the printhead creation and the data retrieval
-
-          if (data) {
-            // Perform actions with the received data
-            console.log('Received data for subsequent services:', data);
-
-            // Example: Notify the necessary services about the data
-            this.wellsStateService.notifyData(data);
-            this.plateFormatService.setNextPlate(data);
-            // ...
-          } else {
-            console.log('Printhead not created yet. Waiting for creation...');
-          }
-        });
+      // printheadCreation$
+      //   .pipe(
+      //     switchMap(created => {
+      //       if (created) {
+      //         // Perform actions and retrieve necessary data after printhead creation
+      //         // Return an observable that emits the required data for subsequent services
+      //
+      //         // Example:
+      //         // return this.someService.getDataForSubsequentServices(); // Replace with your actual service method
+      //         console.log('new thing was triggered');
+      //         return of(null);
+      //       } else {
+      //         // Return an empty observable if printhead is not created yet
+      //         return of(null);
+      //       }
+      //     })
+      //   )
+      //   .subscribe(data => {
+      //     // Handle the received data by the subsequent services
+      //     // This code block will be executed after the printhead creation and the data retrieval
+      //
+      //     if (data) {
+      //       // Perform actions with the received data
+      //       console.log('Received data for subsequent services:', data);
+      //
+      //       // Example: Notify the necessary services about the data
+      //       this.wellsStateService.notifyData(data);
+      //       this.plateFormatService.setNextPlate(data);
+      //       // ...
+      //     } else {
+      //       console.log('Printhead not created yet. Waiting for creation...');
+      //     }
+      //   });
 
       // Trigger printhead creation and update the printheadCreation$ observable
-      this.loadDefaultPrintHeads(1); // Call this method when the printhead is created
+      this.createPrintHead(0); // Call this method when the printhead is created
       printheadCreation$.next(true);
       const defaultPlateFormat: PlateFormat =  this.plateFormatService.plateFormats[0];
       this.currentSelectedPlate = defaultPlateFormat;
@@ -101,7 +91,7 @@ export class PrintHeadStateService implements OnDestroy {
       // this.printPositionOriginsMM = this.printPositionService.getPrintPositionOriginsMM("print-head", defaultPlateFormat.well_sizeMM);
 
       this.selectedPlateSubscription = this.plateFormatService.selectedPlate$.subscribe((plate) => {
-        console.log('printhead state service received: ', plate);
+        // console.log('printhead state service received: ', plate);
         this.currentSelectedPlate = plate;
         this.onSelectedPlateChange(plate);
       });
@@ -111,45 +101,30 @@ export class PrintHeadStateService implements OnDestroy {
     this.selectedPlateSubscription.unsubscribe();
   }
 
-  // Generate printheads with default values and buttons
- loadDefaultPrintHeads(numPrintHeads: number): void {
-    const printHeads: PrintHead[] = [];
-    console.log('create default printhead');
-    for (let i = 0; i < numPrintHeads; i++) {
-      const createdPrintHead = this.createPrintHead(i);
-      printHeads.push(createdPrintHead);
-      console.log('----------- printHeads: ', printHeads);
-    }
-    this.currentPrintHeads = printHeads;
-    console.log('finished loading default printheads: ', printHeads);
-    this._printHeads.next(printHeads);
-  }
-
   /**
    * Updates multiple properties of a PrintHead based on the provided printHeadIndex and key-value pairs.
    *
-   * @param {number} printHeadIndex - The index of the PrintHead to be updated.
-   * @param {Partial<PrintHead>} properties - An object containing key-value pairs of the properties to be updated.
+   * @param {number} printHead - The PrintHead to be updated.
+   * @param {Partial<Printhead>} properties - An object containing key-value pairs of the properties to be updated.
    */
-  updatePrintHeadProperties(printHeadIndex: number, properties: Partial<PrintHead>): void {
-    const currentPrintHeads = this._printHeads.value;
-    console.log('currentPrintHeads: ', currentPrintHeads);
-    if (currentPrintHeads[printHeadIndex]) {
-      const selectedPrintHead = currentPrintHeads[printHeadIndex];
+  updatePrintHeadProperties(printHead: Printhead, properties: Partial<Printhead>): void {
+    console.log(' -- print-head-state-service -- this.currentPrintheads: ', this.currentPrintHeads);
+    if (this.currentPrintHeads[printHead.index]) {
+      const selectedPrintHead = this.currentPrintHeads[printHead.index];
 
       Object.keys(properties).forEach(key => {
-        if (key in selectedPrintHead && properties[key as keyof PrintHead] !== undefined) {
-          this.updatePrintHeadProperty(printHeadIndex, key as keyof PrintHead, properties[key as keyof PrintHead]!);
+        if (key in selectedPrintHead && properties[key as keyof Printhead] !== undefined) {
+          this.updatePrintHeadProperty(printHead.index, key as keyof Printhead, properties[key as keyof Printhead]!, false);
         } else if (!(key in selectedPrintHead)) {
           console.error(`Invalid property key: ${key} does not exist in the PrintHead object.`);
-        } else if (properties[key as keyof PrintHead] === undefined) {
+        } else if (properties[key as keyof Printhead] === undefined) {
           console.error(`Undefined value error: The value for ${key} in the properties object is undefined.`);
         }
       });
-
-      this._printHeads.next(currentPrintHeads);
+      console.log(' --print-head-state-service -- updatePrintHeadProperties -- next(printheads)');
+      this._printHeads.next(this.currentPrintHeads);
     } else {
-      console.error(`updatePrintHeadProperties Invalid printHeadIndex: ${printHeadIndex}`);
+      console.error(`updatePrintHeadProperties Invalid printHeadIndex: ${printHead.index}`);
     }
   }
 
@@ -157,19 +132,18 @@ export class PrintHeadStateService implements OnDestroy {
    * Updates a single property of a PrintHead based on the provided printHeadIndex and key-value pair.
    *
    * @param {number} printHeadIndex - The index of the PrintHead to be updated.
-   * @param {keyof PrintHead} propertyKey - The key of the PrintHead property to be updated.
+   * @param {keyof Printhead} propertyKey - The key of the PrintHead property to be updated.
    * @param {string | number | boolean | Needle | PrintHeadBehavior | PrintPosition[] | { sizeMM: number }} propertyValue - The new value for the PrintHead property.
    */
-  updatePrintHeadProperty<K extends keyof PrintHead>(printHeadIndex: number, key: K, value: PrintHead[K]): void {
-    console.log('updating ', key, 'of printhead ', printHeadIndex, ' to ', value);
-    const currentPrintHeads = this._printHeads.value;
-
-    if (currentPrintHeads[printHeadIndex]) {
-      const selectedPrintHead = currentPrintHeads[printHeadIndex];
+  updatePrintHeadProperty<K extends keyof Printhead>(printHeadIndex: number, key: K, value: Printhead[K], emitNext: Boolean = true): void {
+    if (this.currentPrintHeads[printHeadIndex]) {
+      const selectedPrintHead = this.currentPrintHeads[printHeadIndex];
 
       selectedPrintHead[key] = value;
-
-      this._printHeads.next(currentPrintHeads);
+      if(emitNext) {
+        this._printHeads.next(this.currentPrintHeads);
+        console.log(' --print-head-state-service -- updatePrintHeadProperty -- next(printheads)');
+      }
     } else {
       console.error(`updatePrintHeadProperty Invalid printHeadIndex: ${printHeadIndex}`);
     }
@@ -181,15 +155,16 @@ export class PrintHeadStateService implements OnDestroy {
    * @param {number} numPrintHeads - The new number of PrintHeads.
    */
   onPrintHeadCountChange(numPrintHeads: number): void {
+    console.log(' -- print-head-state-service -- onPrintheadCountChange');
     const currentPrintHeadCount = this.currentPrintHeads.length;
-    console.log('numPrintHeads: ', numPrintHeads, ' currentPrintHeadCount: ', currentPrintHeadCount);
     if (numPrintHeads > currentPrintHeadCount) {
       // Add new print heads
+      console.log(' ------------ add new printhead');
       while (this.currentPrintHeads.length < numPrintHeads) {
         const createPrintHead = this.createPrintHead(this.currentPrintHeads.length);
-        this.currentPrintHeads.push(createPrintHead);
       }
     } else if (numPrintHeads < currentPrintHeadCount) {
+      console.log(' ------------ remove printhead');
       // Remove excess print heads
       while (this.currentPrintHeads.length > numPrintHeads ) {
         this.currentPrintHeads.pop();
@@ -197,41 +172,37 @@ export class PrintHeadStateService implements OnDestroy {
     }
 
     // Emit updated print heads
-    this._printHeads.next(this.currentPrintHeads);
+    // console.log(' --print-head-state-service -- onPrintHeadCountChange -- next(printheads)');
+    // this._printHeads.next(this.currentPrintHeads);
   }
 
-  private createPrintHead(printHeadIndex: number): PrintHead {
-    console.log('---------------------- createPrintHead[', printHeadIndex, ']');
-    const newPrintHead: PrintHead = emptyPrintHead();
+  private createPrintHead(printHeadIndex: number): Printhead {
+    const newPrintHead: Printhead = emptyPrinthead();
+    this.currentPrintHeads.push(newPrintHead);
     newPrintHead.index = printHeadIndex;
-    console.log('new printhead index: ', printHeadIndex);
     newPrintHead.color = this.styleService.THEME_COLORS.defaultLightTheme[printHeadIndex % this.styleService.THEME_COLORS.defaultLightTheme.length];
 
     newPrintHead.needle = this.needles[0];
-    if(this.currentSelectedPlate) {
-      newPrintHead.printPositions = this.printPositionService.loadPrintPositionButtons(
-        'print-head',
-        printHeadIndex,
-        this.currentSelectedPlate.well_sizeMM,
-        this.needles[0].odMM);
-    } else {
-      newPrintHead.printPositions = [emptyPrintPosition()];
-    }
-    this.currentPrintHeads[printHeadIndex] = newPrintHead;
+    const well_sizeMM = this.currentSelectedPlate ? this.currentSelectedPlate.well_sizeMM : 1;
+    newPrintHead.printPositions = this.printPositionService.loadPrintPositionButtons(
+      'print-head',
+      printHeadIndex,
+      well_sizeMM,
+      this.needles[0].odMM);
 
-    this.updatePrintHeadProperties(printHeadIndex, {
+    this.updatePrintHeadProperties(newPrintHead, {
       index: printHeadIndex,
       color: newPrintHead.color,
       needle: newPrintHead.needle,
       printPositions: newPrintHead.printPositions,
     });
 
+    console.log(' --print-head-state-service -- createPrintHead -- next(printheads)');
     this._printHeads.next(this.currentPrintHeads);
 
     return newPrintHead;
 
   }
-
 
   // Toggle print position button's status
   toggleButtonStatus(printHeadIndex: number, buttonIndex: number): void {
@@ -248,7 +219,7 @@ export class PrintHeadStateService implements OnDestroy {
   }
 
   // Update needle property and resize print position buttons
-  updateNeedle(printHead: PrintHead, newNeedle: Needle): void {
+  updateNeedle(printHead: Printhead, newNeedle: Needle): void {
     const currentPrintHeads = this._printHeads.value;
 
     if (printHead) {
@@ -258,7 +229,7 @@ export class PrintHeadStateService implements OnDestroy {
         printHead,
         this.currentSelectedPlate.well_sizeMM,
         newNeedle.odMM);
-      this.printPositionService.printPositionsChanged.next(updatedPrintPositions);
+      console.log(' --print-head-state-service -- updateNeedle -- next(printheads)');
 
       this._printHeads.next(currentPrintHeads);
     } else {
@@ -278,6 +249,7 @@ export class PrintHeadStateService implements OnDestroy {
       selectedPrintHead.printPositions.forEach(printPosition => {
         printPosition.button.color = newColor
       });
+      console.log(' --print-head-state-service -- updateColor -- next(printheads)');
 
       this._printHeads.next(currentPrintHeads);
     } else {
@@ -291,6 +263,7 @@ export class PrintHeadStateService implements OnDestroy {
     if (currentPrintHeads[printHeadIndex]) {
       const selectedPrintHead = currentPrintHeads[printHeadIndex];
       selectedPrintHead.temperature = newTemperature;
+      console.log(' --print-head-state-service -- updateTemperature -- next(printheads)');
 
       this._printHeads.next(currentPrintHeads);
     } else {

@@ -5,19 +5,19 @@ import { Injectable } from '@angular/core';
 import { PrintHeadStateService } from "./print-head-state.service";
 import { WellsStateService } from "./wells-state.service";
 import { Well } from "../../types/Well";
-import { PrintHead } from "../../types/PrintHead";
+import { Printhead } from "../../types/Printhead";
 
 @Injectable({
   providedIn: 'root',
 })
 export class DataAggregatorService {
   private dataServiceWellsSnapshot: Well[][] = [];
-  private dataServicePrintHeadsSnapshot: PrintHead[] = [];
+  private dataServicePrintHeadsSnapshot: Printhead[] = [];
   constructor(
     private printHeadStateService: PrintHeadStateService,
     private wellStateService: WellsStateService)
   {
-    this.printHeadStateService.printHeads$.subscribe((printheads: PrintHead[]) => {
+    this.printHeadStateService.printHeads$.subscribe((printheads: Printhead[]) => {
       this.dataServicePrintHeadsSnapshot = printheads;
       console.log('data-aggregator received printheads: ', printheads);
     });

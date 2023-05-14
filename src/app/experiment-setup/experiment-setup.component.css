@@ -1,9 +1,40 @@
 .experiment-setup-container {
+  position: relative;
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
   justify-content: flex-start;
   align-items: flex-start;
+}
+mat-card {
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+  background-color: lightpink;
+}
+
+mat-card-title {
+  margin: 0.9em 1em;
+}
+
+mat-card-content {
+  background-color: lightpink;
+  display: flex;
+  justify-content: center;
+}
+
+app-plate-map {
+  width: 100%;
+  height: 100%;
+  flex: 1;
+}
+
+.experiment-setup-header {
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+  display: flex;
+  padding: 16px;
+  color: #FFFFFF;
+  background-color: mediumvioletred;
 }
 
 .printhead-container {
@@ -30,10 +61,3 @@
 /*  background-color: #eee;*/
 /*  border-radius: 50%; !* Add this property to make wells circles *!*/
 /*}*/
-
-
-
-.mat-mdc-card-header {
-  display: flex;
-  padding: 16px;
-}

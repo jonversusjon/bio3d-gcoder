@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import {Well} from "../../types/Well";
-import {PrintHead} from "../../types/PrintHead";
+import {Printhead} from "../../types/Printhead";
 import {PlateFormat} from "../../types/PlateFormat";
 import { PrintPosition } from "../../types/PrintPosition";
 import { DataAggregatorService } from "./data-aggregator.service";
@@ -38,10 +38,10 @@ export class GcodeService {
     }
     const data = this.dataService.getAggregatedData();
     const wells: Well[] = data["well-snapshot"];
-    const printHeads: PrintHead[] = data["printhead-snapshot"];
+    const printHeads: Printhead[] = data["printhead-snapshot"];
 
     const activePrintHeads = printHeads.filter(
-      (printHead: PrintHead) => printHead.active);
+      (printHead: Printhead) => printHead.active);
 
     for(const printHead of printHeads) {
 

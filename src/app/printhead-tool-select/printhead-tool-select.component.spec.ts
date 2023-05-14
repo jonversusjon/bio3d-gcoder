@@ -1,16 +1,16 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { PrintheadTypeSelectComponent } from './printhead-type-select.component';
+import { PrintheadToolSelectComponent } from './printhead-tool-select.component';
 
 describe('PrintheadTypeSelectComponent', () => {
-  let component: PrintheadTypeSelectComponent;
-  let fixture: ComponentFixture<PrintheadTypeSelectComponent>;
+  let component: PrintheadToolSelectComponent;
+  let fixture: ComponentFixture<PrintheadToolSelectComponent>;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [PrintheadTypeSelectComponent]
+      declarations: [PrintheadToolSelectComponent]
     });
-    fixture = TestBed.createComponent(PrintheadTypeSelectComponent);
+    fixture = TestBed.createComponent(PrintheadToolSelectComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

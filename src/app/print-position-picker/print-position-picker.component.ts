@@ -2,7 +2,7 @@ import {ChangeDetectorRef, Input, Component, OnDestroy} from '@angular/core';
 import {StyleService} from "../_services/style.service";
 import {PrintPositionService} from "../_services/print-position.service";
 import {Subscription} from "rxjs";
-import {PrintHead} from "../../types/PrintHead";
+import {Printhead} from "../../types/Printhead";
 import {PrintPosition} from "../../types/PrintPosition";
 import {PrintHeadStateService} from "../_services/print-head-state.service";
 import {Needle} from "../../types/Needle";
@@ -13,7 +13,7 @@ import {Needle} from "../../types/Needle";
   styleUrls: ['./print-position-picker.component.css']
 })
 export class PrintPositionPickerComponent implements OnDestroy {
-  @Input() printhead!: PrintHead;
+  @Input() printhead!: Printhead;
   @Input() selectedNeedle!: Needle;
   @Input() selectedColor!: string;
   private subscriptions: Subscription[] = [];
@@ -24,12 +24,7 @@ export class PrintPositionPickerComponent implements OnDestroy {
               public printPositionService: PrintPositionService,
               private changeDetectorRef: ChangeDetectorRef,
               private printHeadStateService: PrintHeadStateService){
-    this.subscriptions.push(
-      this.printPositionService.printPositionsChanged.subscribe(printPositions => {
-        console.log('print-position-picker was just told the printPositions are now: ', printPositions);
-      })
 
-    );
     this.printPositionButtonBaseStyle = this.styleService.getBaseStyle('print-position-button');
     this._printPositionService = printPositionService;
   }
@@ -45,10 +40,10 @@ export class PrintPositionPickerComponent implements OnDestroy {
   }
 
 
-  togglePrintHeadButton(printHead: PrintHead, printHeadButton:PrintPosition) {
+  togglePrintHeadButton(printHead: Printhead, printHeadButton:PrintPosition) {
     this.printHeadStateService.toggleButtonStatus(printHead.index, printHeadButton.index);
   }
-  getStylePrintPositionButton(printHead: PrintHead, buttonIndex: number) {
+  getStylePrintPositionButton(printHead: Printhead, buttonIndex: number) {
     const baseStyle = this.styleService.getBaseStyle('print-position-button');
     // console.log('new printPositionButtonWidthPX: ', this.printPositionService.printPositionButtonWidthPX + 'px');
     // console.log('new printPositionButtonTopsPX[buttonIndex]: ', this.printPositionService.printPositionButtonTopsPX[buttonIndex] + 'px');

@@ -1,88 +1,87 @@
-    <div class=""
-         [ngStyle]="{'height': (plateHeightPX+24) + 'px', 'width': (plateWidthPX+24) + 'px'}"
-         (mousemove)="onMouseMove($event)" (mouseleave)="onMouseLeave()">
-      <div class="plate" [ngStyle]="plateStyle">
-        <div class="blankTitle"></div>
-        <div class="colHeader" *ngFor="let colHeader of plateMap.columnHeaders; let colIndex = index"
-             [ngStyle]="colHeader.style"
-             (click)="toggleColumnSelection(selectedPlate, plateMap, colIndex, $event)">
-          {{colHeader.label}}
-        </div>
-        <div class="rowHeader" *ngFor="let rowHeader of plateMap.rowHeaders; let rowIndex = index"
-             [ngStyle]="rowHeader.style"
-             (click)="toggleRowSelection(selectedPlate, plateMap, rowIndex, $event)">
-          {{rowHeader.label}}
-        </div>
-        <div class="plate-row" *ngFor="let plateRow of plateMap.wells; let i = index;">
-          <div *ngFor="let well of plateRow; let rw = index;"
-               class="print-position-picker"
-               [ngStyle]="well.style"
-               [ngClass]="{'selected-well': well.selected, 'unselected-well': !well.selected, 'base-well-style': true}"
-               (click)="toggleWellSelection(plateMap, i,rw)"
-               (mouseenter)="toggleMagnifier(true, $event, wellElement)"
-               (mouseleave)="toggleMagnifier(false)"
-               #wellElement>
-            <svg width="100%" height="100%">
-              <g *ngFor="let printHead of printHeads; let printHeadIndex = index;">
-                <g *ngFor="let printPosition of printHead.printPositions; let buttonIndex = index">
-                  <circle *ngIf="well.selected && printPosition.selected"
-                          [attr.cx]="printPosition.originPCT_display.x + '%'"
-                          [attr.cy]="printPosition.originPCT_display.y + '%'"
-                          [attr.r]="printPosition.button.widthPX / 2"
-                          [attr.fill]="printHead.color"
-                          matTooltip="x: {{well.originMM.x + printPosition.originMM_absolute.x | number:'1.1-1'}} mm,
-                            y: {{well.originMM.y + printPosition.originMM_absolute.y | number:'1.1-1'}} mm">>
-                  </circle>
-                </g>
-              </g>
-            </svg>
-          </div>
-        </div>
-      </div>
-      <svg class="axes" [ngStyle]="axesStyle" width="100%" height="100%">
-        <g>
-          <!-- X-Axis -->
-          <line id="x-axis" [attr.x1]="axesPosition['x-axis'].x1 + '%'" [attr.y1]="axesPosition['x-axis'].y1 + '%'"
-                [attr.x2]="axesPosition['x-axis'].x2 + '%'" [attr.y2]="axesPosition['x-axis'].y2 + '%'"
-                stroke="rgba(0,0,0,0.25)"/>
-          <!-- X-Axis Major Ticks -->
-          <line *ngFor="let tick of majorTicks"
-                [attr.x1]="tick + '%'"
-                [attr.y1]="axesPosition['x-axis'].y1 - 1 + '%'"
-                [attr.x2]="tick + '%'"
-                [attr.y2]="axesPosition['x-axis'].y2 + 1 + '%'"
-                stroke="rgba(0,0,0,0.25)"/>
-          <!-- X-Axis Minor Ticks -->
-          <line *ngFor="let tick of minorTicks"
-                [attr.x1]="tick + '%'"
-                [attr.y1]="axesPosition['x-axis'].y1 - 0.5 + '%'"
-                [attr.x2]="tick + '%'"
-                [attr.y2]="axesPosition['x-axis'].y2 + 0.5 + '%'"
-                stroke="rgba(0,0,0,0.15)"/>
-
-          <!-- Y-Axis -->
-          <line id="y-axis" [attr.x1]="axesPosition['y-axis'].x1 + '%'" [attr.y1]="axesPosition['y-axis'].y1 + '%'"
-                [attr.x2]="axesPosition['y-axis'].x2 + '%'" [attr.y2]="axesPosition['y-axis'].y2 + '%'"
-                stroke="rgba(0,0,0,0.25)"/>
-          <!-- Y-Axis Major Ticks -->
-          <line *ngFor="let tick of majorTicks"
-                [attr.x1]="axesPosition['y-axis'].x1 + '%'"
-                [attr.y1]="tick + '%'"
-                [attr.x2]="axesPosition['y-axis'].x2 + 1 + '%'"
-                [attr.y2]="tick + '%'"
-                stroke="rgba(0,0,0,0.25)"/>
-          <!-- Y-Axis Minor Ticks -->
-          <line *ngFor="let tick of minorTicks"
-                [attr.x1]="axesPosition['y-axis'].x1 + '%'"
-                [attr.y1]="tick + '%'"
-                [attr.x2]="axesPosition['y-axis'].x2 + 0.5 + '%'"
-                [attr.y2]="tick + '%'"
-                stroke="rgba(0,0,0,0.15)"/>
-        </g>
-        <text class="origin-label" [attr.x]="getOriginLabelPosition().x + '%'"
-              [attr.y]="getOriginLabelPosition().y + '%'">
-          (0,0)
-        </text>
-      </svg>
+<div class="plate-container"
+     [ngStyle]="plateStyle"
+     (mousemove)="onMouseMove($event)" (mouseleave)="onMouseLeave()">
+  <div class="plate" [ngStyle]="plateStyle">
+    <div class="colHeader" *ngFor="let colHeader of plateMap.columnHeaders; let colIndex = index"
+         [ngStyle]="colHeader.style"
+         (click)="toggleColumnSelection(selectedPlate, plateMap, colIndex, $event)">
+      {{colHeader.label}}
     </div>
+    <div class="rowHeader" *ngFor="let rowHeader of plateMap.rowHeaders; let rowIndex = index"
+         [ngStyle]="rowHeader.style"
+         (click)="toggleRowSelection(selectedPlate, plateMap, rowIndex, $event)">
+      {{rowHeader.label}}
+    </div>
+    <div class="plate-row" *ngFor="let plateRow of plateMap.wells; let i = index;">
+      <div *ngFor="let well of plateRow; let rw = index;"
+           class="print-position-picker"
+           [ngStyle]="well.style"
+           [ngClass]="{'selected-well': well.selected, 'unselected-well': !well.selected, 'base-well-style': true}"
+           (click)="toggleWellSelection(plateMap, i,rw)"
+           (mouseenter)="toggleMagnifier(true, $event, wellElement)"
+           (mouseleave)="toggleMagnifier(false)"
+           #wellElement>
+        <svg width="100%" height="100%">
+          <g *ngFor="let printHead of printHeads; let printHeadIndex = index;">
+            <g *ngFor="let printPosition of printHead.printPositions; let buttonIndex = index">
+              <circle *ngIf="well.selected && printPosition.selected"
+                      [attr.cx]="printPosition.originPCT_display.x + '%'"
+                      [attr.cy]="printPosition.originPCT_display.y + '%'"
+                      [attr.r]="printPosition.button.widthPX / 2"
+                      [attr.fill]="printHead.color"
+                      matTooltip="x: {{well.originMM.x + printPosition.originMM_absolute.x | number:'1.1-1'}} mm,
+                        y: {{well.originMM.y + printPosition.originMM_absolute.y | number:'1.1-1'}} mm">>
+              </circle>
+            </g>
+          </g>
+        </svg>
+      </div>
+    </div>
+  </div>
+  <svg class="axes" [ngStyle]="axesStyle" width="100%" height="100%">
+    <g>
+      <!-- X-Axis -->
+      <line id="x-axis" [attr.x1]="axesPosition['x-axis'].x1 + '%'" [attr.y1]="axesPosition['x-axis'].y1 + '%'"
+            [attr.x2]="axesPosition['x-axis'].x2 + '%'" [attr.y2]="axesPosition['x-axis'].y2 + '%'"
+            stroke="rgba(0,0,0,0.25)"/>
+      <!-- X-Axis Major Ticks -->
+      <line *ngFor="let tick of majorTicks"
+            [attr.x1]="tick + '%'"
+            [attr.y1]="axesPosition['x-axis'].y1 - 1 + '%'"
+            [attr.x2]="tick + '%'"
+            [attr.y2]="axesPosition['x-axis'].y2 + 1 + '%'"
+            stroke="rgba(0,0,0,0.25)"/>
+      <!-- X-Axis Minor Ticks -->
+      <line *ngFor="let tick of minorTicks"
+            [attr.x1]="tick + '%'"
+            [attr.y1]="axesPosition['x-axis'].y1 - 0.5 + '%'"
+            [attr.x2]="tick + '%'"
+            [attr.y2]="axesPosition['x-axis'].y2 + 0.5 + '%'"
+            stroke="rgba(0,0,0,0.15)"/>
+
+      <!-- Y-Axis -->
+      <line id="y-axis" [attr.x1]="axesPosition['y-axis'].x1 + '%'" [attr.y1]="axesPosition['y-axis'].y1 + '%'"
+            [attr.x2]="axesPosition['y-axis'].x2 + '%'" [attr.y2]="axesPosition['y-axis'].y2 + '%'"
+            stroke="rgba(0,0,0,0.25)"/>
+      <!-- Y-Axis Major Ticks -->
+      <line *ngFor="let tick of majorTicks"
+            [attr.x1]="axesPosition['y-axis'].x1 + '%'"
+            [attr.y1]="tick + '%'"
+            [attr.x2]="axesPosition['y-axis'].x2 + 1 + '%'"
+            [attr.y2]="tick + '%'"
+            stroke="rgba(0,0,0,0.25)"/>
+      <!-- Y-Axis Minor Ticks -->
+      <line *ngFor="let tick of minorTicks"
+            [attr.x1]="axesPosition['y-axis'].x1 + '%'"
+            [attr.y1]="tick + '%'"
+            [attr.x2]="axesPosition['y-axis'].x2 + 0.5 + '%'"
+            [attr.y2]="tick + '%'"
+            stroke="rgba(0,0,0,0.15)"/>
+    </g>
+    <text class="origin-label" [attr.x]="getOriginLabelPosition().x + '%'"
+          [attr.y]="getOriginLabelPosition().y + '%'">
+      (0,0)
+    </text>
+  </svg>
+</div>
 

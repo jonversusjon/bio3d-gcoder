@@ -14,7 +14,7 @@ import {
 import {ScreenUtils} from "../_services/screen-utils";
 import {PlateFormatService} from '../_services/plate-format.service';
 import { PlateFormat } from "../../types/PlateFormat";
-import { PrintHead } from "../../types/PrintHead";
+import { Printhead } from "../../types/Printhead";
 import {StyleService} from "../_services/style.service";
 import {PlateMap} from "../../types/PlateMap";
 import {PrintHeadStateService} from "../_services/print-head-state.service";
@@ -32,7 +32,7 @@ export class PlateMapComponent implements OnInit, AfterViewInit, OnDestroy {
   @Input() plateHeightPX!: number;
   @Input() plateWidthPX!: number;
   @Input() selectedPlateOrigin!: string;
-  @Input() printHeads!: PrintHead[];
+  @Input() printHeads!: Printhead[];
   printHeadStateSubscription!: Subscription;
 
   majorTicks = Array.from({length: 11}, (_, i) => i * 10); // 0, 10, 20, ... , 100
@@ -112,11 +112,6 @@ export class PlateMapComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnInit(): void {
     this.customButtonToggleStyle = this.styleService.getBaseStyle('custom-button-toggle');
-    this.printHeadStateSubscription = this.printHeadStateService.printHeads$.subscribe((printHeads: PrintHead[]) => {
-      this.printHeads = printHeads;
-      this.onGetPrintHeadChanges(printHeads);
-      console.log('plate map updated with printHeads: ', printHeads);
-    });
   }
 
   ngAfterViewInit() {
@@ -137,12 +132,6 @@ export class PlateMapComponent implements OnInit, AfterViewInit, OnDestroy {
     // this.calibrationService.xCalibration$.subscribe(value => this.xCalibration = value);
     // this.calibrationService.yCalibration$.subscribe(value => this.yCalibration = value);
     // this.calibrationService.zCalibration$.subscribe(value => this.zCalibration = value);
-  }
-
-  onGetPrintHeadChanges(printHeads: PrintHead[]) {
-    if (printHeads.length > 0) {
-      // this.printPositionOriginsMM = printHeads.map(() => this.printPositionService.getPrintPositionOriginsMM('plate-map', this.selectedPlate.well_sizeMM));
-    }
   }
 
   initializeSelectedPlate(plateMap: PlateMap) {

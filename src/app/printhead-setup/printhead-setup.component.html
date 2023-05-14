@@ -10,12 +10,9 @@
   <mat-card-content class="printhead-cards-container">
     <div class="grid-list-container">
 <!--      <div class="flex-container" style="justify-content: center; padding-right: 0; padding-left: 0;">-->
-        <div *ngFor="let printhead of printHeads; let printHeadIndex = index" class="flex-item">
-          printHeadIndex:{{printHeadIndex}}
-          printHead.index:{{printhead.index}}
+        <div *ngFor="let printhead of printHeads" class="flex-item">
           <app-printhead-card-component
             [printhead]="printhead"
-            [printheadIndex]="printHeadIndex"
             ></app-printhead-card-component>
         </div>
       </div>

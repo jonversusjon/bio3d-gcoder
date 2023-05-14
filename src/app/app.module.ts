@@ -28,7 +28,7 @@ import { PrintPositionPickerComponent } from './print-position-picker/print-posi
 import { PrintheadSetupComponent } from './printhead-setup/printhead-setup.component';
 import { PrintheadNeedleSelectComponent } from './printhead-needle-select/printhead-needle-select.component';
 import { PrintheadColorPickerComponent } from './printhead-color-picker/printhead-color-picker.component';
-import { PrintheadTypeSelectComponent } from './printhead-type-select/printhead-type-select.component';
+import { PrintheadToolSelectComponent } from './printhead-tool-select/printhead-tool-select.component';
 
 
 @Pipe({
@@ -56,7 +56,7 @@ export class RangePipe implements PipeTransform {
         PrintheadSetupComponent,
         PrintheadNeedleSelectComponent,
         PrintheadColorPickerComponent,
-        PrintheadTypeSelectComponent
+        PrintheadToolSelectComponent
     ],
     imports: [
         BrowserModule,

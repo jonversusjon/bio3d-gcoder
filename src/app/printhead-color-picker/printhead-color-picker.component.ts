@@ -1,5 +1,5 @@
 import {Component, EventEmitter, Input, Output} from '@angular/core';
-import {PrintHead} from "../../types/PrintHead";
+import {Printhead} from "../../types/Printhead";
 import {INACTIVE_COLOR} from "../_services/style.service";
 import {PrintHeadStateService} from "../_services/print-head-state.service";
 
@@ -9,7 +9,7 @@ import {PrintHeadStateService} from "../_services/print-head-state.service";
   styleUrls: ['./printhead-color-picker.component.css']
 })
 export class PrintheadColorPickerComponent {
-  @Input() printhead!: PrintHead;
+  @Input() printhead!: Printhead;
   @Input() printheadIndex!: number;
 
   inactiveColor = INACTIVE_COLOR;

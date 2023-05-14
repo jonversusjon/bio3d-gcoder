@@ -1,11 +1,10 @@
 import { PrintCode } from "./PrintCode";
 
-export interface PrintHeadBehavior {
-  printHeadDescription: string;
+export interface PrintheadToolBehavior {
   gcode?: {
-    tCommands: PrintCode[];
-    gCommands: PrintCode[];
-    mCommands: PrintCode[];
+    tCommands?: PrintCode[];
+    gCommands?: PrintCode[];
+    mCommands?: PrintCode[];
   };
   hasCamera?: boolean;
   hasTemperatureControl?: boolean;
@@ -14,12 +13,13 @@ export interface PrintHeadBehavior {
     max: number;
     step: number;
   };
+  canExtrude: boolean;
   hasPhotocuring?: boolean;
   wavelengths?: number[];
   hasSyringePump?: boolean;
   hasEMD?: boolean;
   hasPneumaticControl?: boolean;
-  hasHDcamera?: boolean;
+  hasHdCamera?: boolean;
   supportedCameraCommands?: string[];
   hasChamberLightsControl?: boolean;
   supportedChamberLightCommands?: string[];
@@ -28,9 +28,8 @@ export interface PrintHeadBehavior {
   suggestedInk?: string[];
 }
 
-export function emptyPrintHeadBehavior(): PrintHeadBehavior {
+export function emptyPrintheadToolBehavior(): PrintheadToolBehavior {
   return {
-    printHeadDescription: "New generic printhead",
     gcode: {
       gCommands: [...commonGcodes],
       mCommands: [...commonMcodes],
@@ -39,12 +38,13 @@ export function emptyPrintHeadBehavior(): PrintHeadBehavior {
     hasCamera: false,
     hasTemperatureControl: false,
     temperatureRange: { min: 0, max: 0, step: 0 },
+    canExtrude: false,
     hasPhotocuring: false,
     wavelengths: [],
     hasSyringePump: false,
     hasEMD: false,
     hasPneumaticControl: false,
-    hasHDcamera: false,
+    hasHdCamera: false,
     supportedCameraCommands: [],
     hasChamberLightsControl: false,
     supportedChamberLightCommands: [],
@@ -54,10 +54,9 @@ export function emptyPrintHeadBehavior(): PrintHeadBehavior {
   };
 }
 
-export function getPneumaticPrintHeadBehavior() {
+export function getPneumaticPrintHeadBehavior():PrintheadToolBehavior {
   return {
-    ...emptyPrintHeadBehavior(),
-    printHeadDescription: "Pneumatic",
+    ...emptyPrintheadToolBehavior(),
     hasPneumaticControl: true,
     hasTemperatureControl: true,
     temperatureRange: {
@@ -65,50 +64,48 @@ export function getPneumaticPrintHeadBehavior() {
       max: 65,
       step: 0.5,
     },
+    canExtrude: true,
     suggestedInk: ["CELLINK", "CELLINK START", "CELLINK LAMININK+"],
   }
 }
 
-export function getEMDPrintHeadBehavior() {
+export function getEMDPrintHeadBehavior():PrintheadToolBehavior {
   return {
-    ...emptyPrintHeadBehavior(),
-    printHeadDescription: "Electro-magnetic Droplet (EMD)",
+    ...emptyPrintheadToolBehavior(),
     hasTemperatureControl: true,
     temperatureRange: {
       min: 30,
       max: 65,
       step: 0.5,
     },
+    canExtrude: true,
     suggestedInk: ["gelMA", "alginate", "fibrin", "cell media"],
   }
 }
 
-export function getSyringePumpPrintHeadBehavior() {
+export function getSyringePumpPrintHeadBehavior():PrintheadToolBehavior {
   return {
-    ...emptyPrintHeadBehavior(),
-    printHeadDescription: "Syringe Pump",
+    ...emptyPrintheadToolBehavior(),
     hasTemperatureControl: true,
     temperatureRange: {
       min: 30,
       max: 65,
       step: 0.5,
     },
+    canExtrude: true,
     suggestedInk: ["collagen", "gelMA", "alginate", "fibrin", "crosslinking solution"],
   }
 }
 
-export function getPhotocuringToolhead() {
+export function getPhotocuringToolBehavior():PrintheadToolBehavior {
   return {
-    ...emptyPrintHeadBehavior(),
-    printHeadDescription: "Syringe Pump",
+    ...emptyPrintheadToolBehavior(),
     hasPhotocuring: true,
     suggestedInk: ["GELMA", "GELXA", "START X"],
-    wavelengths: ["365nm","405nm","450nm","485nm","520nm","custom"],
-    gCode: {
-      mCommands: {
-        ...commonMcodes,
-        M805
-      }
+    wavelengths: [365,405,450,485,520],
+    gcode: {
+      gCommands: [...commonGcodes],
+      mCommands: [...commonMcodes, M805]
     }
   }
 }
@@ -183,7 +180,7 @@ export const commonGcodes: PrintCode[] = [
     description: "set position" },
 ];
 
-export const M805: PrintCode = {
+const M805: PrintCode = {
   code: "M805",
   description: "Turn on/off photocuring modules",
   parameters: {
@@ -208,11 +205,7 @@ export const M810: PrintCode = {
   }
 }
 
-
-
-export const availablePrintHeads = [
-  getPneumaticPrintHeadBehavior(),
-  getEMDPrintHeadBehavior(),
-  getSyringePumpPrintHeadBehavior(),
-];
+export interface PrintHeadBehaviorMap {
+  [key: string]: PrintheadToolBehavior;
+}
 
