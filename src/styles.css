@@ -34,3 +34,13 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 mat-form-field {
   width: 100%;
 }
+
+.mdc-evolution-chip__text-label {
+  color: purple !important;
+}
+
+mat-chip.mat-mdc-standard-chip {
+  color: purple;
+  background-color: transparent !important;
+  border: 1px solid purple;
+}

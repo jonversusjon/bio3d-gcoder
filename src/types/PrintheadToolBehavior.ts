@@ -16,6 +16,7 @@ export interface PrintheadToolBehavior {
   canExtrude: boolean;
   hasPhotocuring?: boolean;
   wavelengths?: number[];
+  ledIntensity?: number;
   hasSyringePump?: boolean;
   hasEMD?: boolean;
   hasPneumaticControl?: boolean;
@@ -27,6 +28,15 @@ export interface PrintheadToolBehavior {
   supportedVolumetricCommands?: string[];
   suggestedInk?: string[];
 }
+
+// TODO: photocuring: LED intensity
+// TODO: EMD: pressure,
+//      droplet mode: valve open time(us), cycle time(us)
+//      continuous mode: dispensing time(us)
+// TODO: syringe pump: extrusion rate (nL/s), volume of extrusion (nL)
+// TODO: camera: filename for images
+
+// TODO: ADD thermoplastic printhead
 
 export function emptyPrintheadToolBehavior(): PrintheadToolBehavior {
   return {
@@ -41,6 +51,7 @@ export function emptyPrintheadToolBehavior(): PrintheadToolBehavior {
     canExtrude: false,
     hasPhotocuring: false,
     wavelengths: [],
+    ledIntensity: 0,
     hasSyringePump: false,
     hasEMD: false,
     hasPneumaticControl: false,
@@ -110,6 +121,20 @@ export function getPhotocuringToolBehavior():PrintheadToolBehavior {
   }
 }
 
+export function getHdCameraToolBehavior():PrintheadToolBehavior {
+  return {
+    ...emptyPrintheadToolBehavior(),
+    hasCamera: true,
+    suggestedInk: ["- does not print -"]
+  }
+}
+
+export function getThermoplasicToolBehavior():PrintheadToolBehavior {
+  return {
+    ...emptyPrintheadToolBehavior(),
+    suggestedInk: ["PLA", "PCL", "PLGA"]
+  }
+}
 export const commonMcodes:PrintCode[] = [
   { code: "M750",
     description: "Start material extrusion",
@@ -203,9 +228,5 @@ export const M810: PrintCode = {
     paramNotes: ["R, E, B, N respectively stand for red, green, blue and white. Accepted values are between 0 and 255"
     ]
   }
-}
-
-export interface PrintHeadBehaviorMap {
-  [key: string]: PrintheadToolBehavior;
 }
 

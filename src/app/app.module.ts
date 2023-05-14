@@ -29,6 +29,7 @@ import { PrintheadSetupComponent } from './printhead-setup/printhead-setup.compo
 import { PrintheadNeedleSelectComponent } from './printhead-needle-select/printhead-needle-select.component';
 import { PrintheadColorPickerComponent } from './printhead-color-picker/printhead-color-picker.component';
 import { PrintheadToolSelectComponent } from './printhead-tool-select/printhead-tool-select.component';
+import {MatChipsModule} from "@angular/material/chips";
 
 
 @Pipe({
@@ -58,22 +59,23 @@ export class RangePipe implements PipeTransform {
         PrintheadColorPickerComponent,
         PrintheadToolSelectComponent
     ],
-    imports: [
-        BrowserModule,
-        FormsModule,
-        BrowserAnimationsModule,
-        MatGridListModule,
-        MatCardModule,
-        MatFormFieldModule,
-        MatInputModule,
-        MatSlideToggleModule,
-        MatSelectModule,
-        MatButtonToggleModule,
-        MatTooltipModule,
-        NgOptimizedImage,
-        MatDialogModule,
-        MatButtonModule,
-    ],
+  imports: [
+    BrowserModule,
+    FormsModule,
+    BrowserAnimationsModule,
+    MatGridListModule,
+    MatCardModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSlideToggleModule,
+    MatSelectModule,
+    MatButtonToggleModule,
+    MatTooltipModule,
+    NgOptimizedImage,
+    MatDialogModule,
+    MatButtonModule,
+    MatChipsModule,
+  ],
   providers: [
     ScreenUtils,
     { provide: MatDialogRef, useValue: {} },

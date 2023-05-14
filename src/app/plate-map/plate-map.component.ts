@@ -165,13 +165,13 @@ export class PlateMapComponent implements OnInit, AfterViewInit, OnDestroy {
     };
   }
   toggleWellSelection(plateMap: PlateMap, wellIndex: number, row: number) {
-    // this.wellsStateService.toggleWellSelection(plateMap, wellIndex, row);
+    this.wellsStateService.toggleWellSelection(plateMap, wellIndex, row);
   }
   toggleRowSelection(selectedPlate: PlateFormat, plateMap: PlateMap,rowIndex: number, event?: MouseEvent) {
-    // this.wellsStateService.toggleRowSelection(selectedPlate, plateMap, rowIndex, event);
+    this.wellsStateService.toggleRowSelection(selectedPlate, plateMap, rowIndex, event);
   }
   toggleColumnSelection(selectedPlate: PlateFormat, plateMap: PlateMap, colIndex: number, event?: MouseEvent) {
-    // this.wellsStateService.toggleColumnSelection(selectedPlate, plateMap, colIndex, event);
+    this.wellsStateService.toggleColumnSelection(selectedPlate, plateMap, colIndex, event);
   }
   updateCalibrationValues() {
     // this.calibrationService.setXCalibration(this.xCalibration);

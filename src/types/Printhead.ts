@@ -1,10 +1,5 @@
 import { PrintPosition } from "./PrintPosition";
 import {emptyNeedle, Needle} from "./Needle";
-import {
-  emptyPrintheadToolBehavior,
-  getPneumaticPrintHeadBehavior,
-  getEMDPrintHeadBehavior, getSyringePumpPrintHeadBehavior, getPhotocuringToolBehavior
-} from "./PrintheadToolBehavior";
 import {PrintheadTool,emptyPrintheadTool} from "./PrintheadTool";
 
 export interface Printhead {
@@ -38,34 +33,3 @@ export function emptyPrinthead(): Printhead {
     temperature: 0,
   }
 }
-
-export const availablePrintHeads: Printhead[] = [
-  {
-    ...emptyPrinthead(),
-    tool: {
-      description: 'Pneumatic',
-      behavior: getPneumaticPrintHeadBehavior()
-    },
-  },
-  {
-    ...emptyPrinthead(),
-    tool: {
-      description: 'EMD',
-      behavior: getEMDPrintHeadBehavior()
-    },
-  },
-  {
-    ...emptyPrinthead(),
-    tool: {
-      description: 'Syringe',
-      behavior: getSyringePumpPrintHeadBehavior()
-    },
-  },
-  {
-    ...emptyPrinthead(),
-    tool: {
-      description: 'Photocuring',
-      behavior: getPhotocuringToolBehavior()
-    },
-  }
-];

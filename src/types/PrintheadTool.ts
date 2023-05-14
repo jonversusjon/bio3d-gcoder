@@ -1,9 +1,8 @@
 import {
-  emptyPrintheadToolBehavior, getEMDPrintHeadBehavior, getPhotocuringToolBehavior,
-  getPneumaticPrintHeadBehavior, getSyringePumpPrintHeadBehavior,
+  emptyPrintheadToolBehavior, getEMDPrintHeadBehavior, getHdCameraToolBehavior, getPhotocuringToolBehavior,
+  getPneumaticPrintHeadBehavior, getSyringePumpPrintHeadBehavior, getThermoplasicToolBehavior,
   PrintheadToolBehavior
 } from "./PrintheadToolBehavior";
-import {Needle} from "./Needle";
 
 export interface PrintheadTool {
   description: string;
@@ -30,6 +29,12 @@ export const availablePrintheadTools:PrintheadTool[] = [
   },{
     description: 'Photocuring',
     behavior: getPhotocuringToolBehavior()
+  },{
+  description: 'Camera',
+    behavior: getHdCameraToolBehavior()
+  },{
+  description: 'Thermoplastic',
+    behavior: getThermoplasicToolBehavior()
   }
 ]
 
