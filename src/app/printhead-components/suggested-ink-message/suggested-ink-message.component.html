@@ -1,0 +1,10 @@
+<div class="suggested-inks-container" *ngIf="selectedPrintheadTool && selectedPrintheadTool.behavior.suggestedInk">
+  <span class="custom-form-label">Suggested for</span>
+  <div class="custom-form-content">
+    <mat-chip-set class="mat-chip-set">
+      <mat-chip *ngFor="let ink of selectedPrintheadTool.behavior.suggestedInk">
+        {{ink}}
+      </mat-chip>
+    </mat-chip-set>
+  </div>
+</div>

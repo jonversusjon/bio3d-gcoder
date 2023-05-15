@@ -1,0 +1,29 @@
+.suggested-inks-container {
+  position: relative;
+  background-color: whitesmoke;
+  padding-left: 1rem;
+  border-bottom: 1px solid darkgrey;
+}
+
+.custom-form-field {
+  position: relative;
+  padding-top: 1rem; /* Space for the label */
+  background: #fff;
+  border: 1px solid #ccc;
+}
+
+.custom-form-label {
+  position: absolute;
+  top: -6px;
+  font-size: 0.65em;
+  color: #5e5e5e;
+  font-weight: 400;
+}
+
+.custom-form-content {
+  padding-top: 1.25rem;
+}
+
+.mat-chip-set.custom-form-content {
+  position: relative;
+}
