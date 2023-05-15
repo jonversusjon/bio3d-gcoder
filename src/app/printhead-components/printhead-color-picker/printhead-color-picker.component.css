@@ -1,3 +1,6 @@
 .color-field {
   flex-shrink: 1;
+  width: 85px; /* Use the width you want */
+  box-sizing: border-box;
+  background-color: transparent;
 }

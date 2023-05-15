@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import {Component, Input} from '@angular/core';
+import {Printhead} from "../../../types/Printhead";
 
 @Component({
   selector: 'app-printhead-emd-mode',
@@ -6,5 +7,9 @@ import { Component } from '@angular/core';
   styleUrls: ['./printhead-emd-mode.component.css']
 })
 export class PrintheadEmdModeComponent {
+  @Input() printhead!: Printhead
+  public emdModes = ['droplet','continuous'];
+  onEmdModeChange(event: any) {
 
+  }
 }

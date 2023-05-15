@@ -25,22 +25,11 @@
         </div>
         <!-- row 3 -->
         <div class="printhead-card-title-row-3-wrapper">
-          <mat-form-field *ngIf="selectedPrintheadTool && selectedPrintheadTool.behavior.hasPhotocuring" appearance="fill" class="printhead-wavelength-wrapper">
-            <mat-label class="custom-mat-label">Wavelength</mat-label>
-            <mat-select [(ngModel)]="wavelength"
-                        [disabled]="!printhead.active">
-              <mat-option *ngFor="let wavelength of selectedPrintheadTool.behavior.wavelengths"
-                          [value]="wavelength">
-                {{wavelength}}
-              </mat-option>
-            </mat-select>
-          </mat-form-field>
-          <app-printhead-needle-select *ngIf="selectedPrintheadTool && selectedPrintheadTool.behavior.canExtrude" [printhead]="printhead"></app-printhead-needle-select>
-          <app-printhead-color-picker
+          <app-printhead-tool-options
             [printhead]="printhead"
             [printheadIndex]="printheadIndex"
-            class="printhead-color-picker"
-            ></app-printhead-color-picker>
+            [selectedPrintheadTool]="selectedPrintheadTool"
+          ></app-printhead-tool-options>
         </div>
       </div>
     </mat-card-title>
@@ -60,6 +49,13 @@
     </mat-card-content>
 
     <div class="footer-wrapper">
+
+      <!-- All -->
+      <app-printhead-color-picker
+        [printhead]="printhead"
+        [printheadIndex]="printheadIndex"
+        class="printhead-color-picker"
+      ></app-printhead-color-picker>
       <div class="active-toggle-container flex-item">
         <div class="toggle-text">
           <div *ngIf="printhead.active">active</div>

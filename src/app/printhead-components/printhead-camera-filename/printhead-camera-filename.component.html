@@ -1,1 +1,7 @@
-<p>printhead-camera-filename works!</p>
+<mat-form-field appearance="fill"
+                class="printhead-camera-images-filename-container"
+                subscriptSizing="dynamic">
+  <mat-label>Images filename</mat-label>
+  <input class="printhead-description-input" matInput [(ngModel)]="printhead.description"
+         [disabled]="!printhead.active">
+</mat-form-field>

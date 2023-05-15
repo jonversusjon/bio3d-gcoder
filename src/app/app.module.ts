@@ -9,7 +9,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatCardModule } from '@angular/material/card';
 import { FloorPipe } from '../types/floor.pipe';
-import { PrintHeadCardComponent } from './printhead-components/printhead-card/print-head-card.component';
+import { PrintHeadCardComponent } from './printhead-components/_printhead-card/print-head-card.component';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
@@ -40,6 +40,9 @@ import { PrintheadEmdDispensingTimeComponent } from './printhead-components/prin
 import { PrintheadSyringeExtrusionRateComponent } from './printhead-components/printhead-syringe-extrusion-rate/printhead-syringe-extrusion-rate.component';
 import { PrintheadSyringeExtrusionVolumeComponent } from './printhead-components/printhead-syringe-extrusion-volume/printhead-syringe-extrusion-volume.component';
 import { PrintheadCameraFilenameComponent } from './printhead-components/printhead-camera-filename/printhead-camera-filename.component';
+import { PrintheadToolOptionsComponent } from './printhead-components/printhead-tool-options/printhead-tool-options.component';
+import { PrintheadLedWavelengthComponent } from './printhead-components/printhead-led-wavelength/printhead-led-wavelength.component';
+import { ReactiveFormsModule } from '@angular/forms';
 
 
 @Pipe({
@@ -77,7 +80,9 @@ export class RangePipe implements PipeTransform {
         PrintheadEmdDispensingTimeComponent,
         PrintheadSyringeExtrusionRateComponent,
         PrintheadSyringeExtrusionVolumeComponent,
-        PrintheadCameraFilenameComponent
+        PrintheadCameraFilenameComponent,
+        PrintheadToolOptionsComponent,
+        PrintheadLedWavelengthComponent
     ],
   imports: [
     BrowserModule,
@@ -95,6 +100,7 @@ export class RangePipe implements PipeTransform {
     MatDialogModule,
     MatButtonModule,
     MatChipsModule,
+    ReactiveFormsModule
   ],
   providers: [
     ScreenUtils,

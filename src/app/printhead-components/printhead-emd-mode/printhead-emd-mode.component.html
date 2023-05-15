@@ -1,1 +1,12 @@
-<p>printhead-emd-mode works!</p>
+<mat-form-field *ngIf="printhead"
+                subscriptSizing="dynamic"
+                appearance="fill">
+  <mat-label class="custom-mat-label">EMD Mode</mat-label>
+  <mat-select class="needle-select custom-mat-select"
+              (selectionChange)="onEmdModeChange($event)"
+              [(ngModel)]="printhead.needle"
+              [disabled]="!printhead.active">
+    <mat-option *ngFor="let emdMode of emdModes" [value]="emdMode"
+                class="custom-mat-select-option">{{emdMode}}</mat-option>
+  </mat-select>
+</mat-form-field>

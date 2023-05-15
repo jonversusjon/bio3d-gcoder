@@ -1,8 +1,11 @@
-.printhead-camera-images-filename-container {
+.printhead-tool-options-wrapper {
   display: flex;
+  flex-wrap: wrap;
   flex-grow: 1;
 }
+
 :host {
   display: flex;
   flex-grow: 1;
 }
+

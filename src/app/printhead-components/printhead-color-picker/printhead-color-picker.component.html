@@ -1,4 +1,4 @@
-<mat-form-field subscriptSizing="dynamic" appearance="fill" class="color-field grid-item">
+<mat-form-field style="background-color: white;" subscriptSizing="dynamic" appearance="fill" class="color-field grid-item">
   <mat-label>Color</mat-label>
   <input *ngIf="printhead.active" matInput type="color" [(ngModel)]="printhead.color"
          (change)="colorChangedEvent(printhead.color)">

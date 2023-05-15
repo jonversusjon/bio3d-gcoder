@@ -61,7 +61,6 @@ export function emptyPrintheadToolBehavior(): PrintheadToolBehavior {
     supportedChamberLightCommands: [],
     hasVolumetricControl: false,
     supportedVolumetricCommands: [],
-    suggestedInk: [],
   };
 }
 
@@ -125,7 +124,6 @@ export function getHdCameraToolBehavior():PrintheadToolBehavior {
   return {
     ...emptyPrintheadToolBehavior(),
     hasCamera: true,
-    suggestedInk: ["- does not print -"]
   }
 }
 

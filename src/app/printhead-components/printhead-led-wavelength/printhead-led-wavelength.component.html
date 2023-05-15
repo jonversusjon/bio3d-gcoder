@@ -1,0 +1,13 @@
+<mat-form-field
+  appearance="fill"
+  class="printhead-wavelength-wrapper"
+>
+  <mat-label class="custom-mat-label">Wavelength</mat-label>
+  <mat-select [(ngModel)]="wavelength"
+              [disabled]="!printhead.active">
+    <mat-option *ngFor="let wavelength of selectedPrintheadTool.behavior.wavelengths"
+                [value]="wavelength">
+      {{wavelength}}
+    </mat-option>
+  </mat-select>
+</mat-form-field>

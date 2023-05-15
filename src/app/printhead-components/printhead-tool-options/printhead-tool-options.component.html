@@ -1,0 +1,55 @@
+<div class="printhead-tool-options-wrapper">
+  <!-- All extruding -->
+  <app-printhead-needle-select
+    *ngIf="selectedPrintheadTool && selectedPrintheadTool.behavior.canExtrude"
+    [printhead]="printhead"
+  ></app-printhead-needle-select>
+
+  <!-- Photocuring only -->
+  <app-printhead-led-wavelength
+    *ngIf="selectedPrintheadTool && selectedPrintheadTool.behavior.hasPhotocuring"
+    [printhead]="printhead"
+    [selectedPrintheadTool]="selectedPrintheadTool"
+  ></app-printhead-led-wavelength>
+  <app-printhead-led-intensity
+    *ngIf="selectedPrintheadTool && selectedPrintheadTool.behavior.hasPhotocuring"
+    [printhead]="printhead"
+  ></app-printhead-led-intensity>
+  <!-- hdCamera only -->
+  <app-printhead-camera-filename
+    *ngIf="selectedPrintheadTool && selectedPrintheadTool.behavior.hasCamera"
+    [printhead]="printhead"
+  ></app-printhead-camera-filename>
+
+  <!-- EMD only -->
+  <app-printhead-emd-mode
+    *ngIf="selectedPrintheadTool && selectedPrintheadTool.behavior.hasEMD"
+    [printhead]="printhead"
+  ></app-printhead-emd-mode>
+  <app-printhead-emd-dispensing-time
+    *ngIf="selectedPrintheadTool && selectedPrintheadTool.behavior.hasEMD"
+    [printhead]="printhead"
+  ></app-printhead-emd-dispensing-time>
+  <app-printhead-emd-valve-cycle-time
+    *ngIf="selectedPrintheadTool && selectedPrintheadTool.behavior.hasEMD"
+    [printhead]="printhead"
+  ></app-printhead-emd-valve-cycle-time>
+  <app-printhead-emd-valve-open-time
+    *ngIf="selectedPrintheadTool && selectedPrintheadTool.behavior.hasEMD"
+    [printhead]="printhead"
+  ></app-printhead-emd-valve-open-time>
+
+  <!-- Syringe only -->
+  <app-printhead-syringe-extrusion-rate
+    *ngIf="selectedPrintheadTool && selectedPrintheadTool.behavior.hasSyringePump"
+    [printhead]="printhead"
+  ></app-printhead-syringe-extrusion-rate>
+  <app-printhead-syringe-extrusion-volume
+    *ngIf="selectedPrintheadTool && selectedPrintheadTool.behavior.hasSyringePump"
+    [printhead]="printhead"
+  ></app-printhead-syringe-extrusion-volume>
+  <app-printhead-pressure
+    *ngIf="selectedPrintheadTool && selectedPrintheadTool.behavior.hasSyringePump"
+    [printhead]="printhead"
+  ></app-printhead-pressure>
+</div>

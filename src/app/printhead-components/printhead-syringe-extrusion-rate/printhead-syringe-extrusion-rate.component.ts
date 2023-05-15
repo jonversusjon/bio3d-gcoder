@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import {Component, Input} from '@angular/core';
+import {Printhead} from "../../../types/Printhead";
 
 @Component({
   selector: 'app-printhead-syringe-extrusion-rate',
@@ -6,5 +7,5 @@ import { Component } from '@angular/core';
   styleUrls: ['./printhead-syringe-extrusion-rate.component.css']
 })
 export class PrintheadSyringeExtrusionRateComponent {
-
+  @Input() printhead!: Printhead;
 }

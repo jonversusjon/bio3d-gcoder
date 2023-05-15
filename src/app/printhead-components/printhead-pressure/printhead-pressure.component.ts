@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import {Component, Input} from '@angular/core';
+import {Printhead} from "../../../types/Printhead";
 
 @Component({
   selector: 'app-printhead-pressure',
@@ -6,5 +7,5 @@ import { Component } from '@angular/core';
   styleUrls: ['./printhead-pressure.component.css']
 })
 export class PrintheadPressureComponent {
-
+  @Input() printhead!: Printhead;
 }

@@ -1,6 +1,5 @@
 app-printhead-type-select,
-app-printhead-needle-select,
-app-printhead-color-picker {
+app-printhead-needle-select {
   box-sizing: border-box;
 }
 
@@ -123,7 +122,7 @@ app-printhead-tool-select {
   margin-bottom: 0;
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: space-between;
   flex-grow: 1;
   height: 100%;
 }
@@ -134,6 +133,11 @@ app-printhead-tool-select {
 
 .active-toggle-container {
   margin: 1rem;
+}
+
+.printhead-card-title {
+  display: flex;
+  flex-direction: column;
 }
 
 .printhead-card-title-row-1-wrapper {
@@ -148,9 +152,6 @@ app-printhead-tool-select {
   margin-left: auto;
 }
 
-.printhead-card-title-row-3-wrapper mat-form-field input[type="color"] {
-  width: 60px; /* Use the width you want */
-}
 
 .printhead-card-text-wrapper {
   padding: 0 1rem;

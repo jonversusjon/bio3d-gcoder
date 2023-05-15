@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import {Component, Input} from '@angular/core';
+import {Printhead} from "../../../types/Printhead";
 
 @Component({
   selector: 'app-printhead-emd-valve-open-time',
@@ -6,5 +7,5 @@ import { Component } from '@angular/core';
   styleUrls: ['./printhead-emd-valve-open-time.component.css']
 })
 export class PrintheadEmdValveOpenTimeComponent {
-
+  @Input() printhead!: Printhead
 }

@@ -27,7 +27,6 @@ export class PrintHeadCardComponent implements OnInit {
 
   selectedNeedle!: Needle;
   selectedColor!: string;
-  public wavelength!: number;
 
   constructor(
     private screenUtils: ScreenUtils,

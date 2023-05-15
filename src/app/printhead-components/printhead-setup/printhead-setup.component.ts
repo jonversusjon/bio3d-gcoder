@@ -5,7 +5,7 @@ import {Subscription} from "rxjs";
 import {PrintHeadStateService} from "../../_services/print-head-state.service";
 import {PlateFormat} from "../../../types/PlateFormat";
 import {PlateFormatService} from "../../_services/plate-format.service";
-import {PrintHeadCardComponent} from "../printhead-card/print-head-card.component";
+import {PrintHeadCardComponent} from "../_printhead-card/print-head-card.component";
 
 @Component({
   selector: 'app-printhead-setup',

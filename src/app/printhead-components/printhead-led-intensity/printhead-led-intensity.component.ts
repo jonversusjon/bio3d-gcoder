@@ -1,4 +1,6 @@
-import { Component } from '@angular/core';
+import {Component, Input} from '@angular/core';
+import {Printhead} from "../../../types/Printhead";
+import {FormControl, Validators} from "@angular/forms";
 
 @Component({
   selector: 'app-printhead-led-intensity',
@@ -6,5 +8,7 @@ import { Component } from '@angular/core';
   styleUrls: ['./printhead-led-intensity.component.css']
 })
 export class PrintheadLedIntensityComponent {
+  @Input() printhead!: Printhead;
 
+  ledIntensityControl = new FormControl('', [Validators.max(255)]);
 }
