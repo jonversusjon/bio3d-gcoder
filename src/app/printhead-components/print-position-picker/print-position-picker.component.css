@@ -7,6 +7,13 @@
   box-sizing: border-box;
 }
 
+.print-position-picker-title {
+  text-align: center;
+  margin: 0 auto;
+  font-weight: 500;
+  font-size: 1.5em;
+}
+
 .print-position-picker {
   top: 0;
   left: 0;

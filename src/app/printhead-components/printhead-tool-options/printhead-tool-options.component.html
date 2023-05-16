@@ -25,17 +25,19 @@
   <app-printhead-emd-mode
     *ngIf="selectedPrintheadTool && selectedPrintheadTool.behavior.hasEMD"
     [printhead]="printhead"
+    [emdMode]="emdMode"
+    (emdModeChanged)="emdMode = $event"
   ></app-printhead-emd-mode>
   <app-printhead-emd-dispensing-time
-    *ngIf="selectedPrintheadTool && selectedPrintheadTool.behavior.hasEMD"
+    *ngIf="selectedPrintheadTool && selectedPrintheadTool.behavior.hasEMD && emdMode === 'continuous'"
     [printhead]="printhead"
   ></app-printhead-emd-dispensing-time>
   <app-printhead-emd-valve-cycle-time
-    *ngIf="selectedPrintheadTool && selectedPrintheadTool.behavior.hasEMD"
+    *ngIf="selectedPrintheadTool && selectedPrintheadTool.behavior.hasEMD && emdMode === 'droplet'"
     [printhead]="printhead"
   ></app-printhead-emd-valve-cycle-time>
   <app-printhead-emd-valve-open-time
-    *ngIf="selectedPrintheadTool && selectedPrintheadTool.behavior.hasEMD"
+    *ngIf="selectedPrintheadTool && selectedPrintheadTool.behavior.hasEMD && emdMode === 'droplet'"
     [printhead]="printhead"
   ></app-printhead-emd-valve-open-time>
 
@@ -49,7 +51,7 @@
     [printhead]="printhead"
   ></app-printhead-syringe-extrusion-volume>
   <app-printhead-pressure
-    *ngIf="selectedPrintheadTool && selectedPrintheadTool.behavior.hasSyringePump"
+    *ngIf="selectedPrintheadTool && selectedPrintheadTool.behavior.hasSyringePump || selectedPrintheadTool && selectedPrintheadTool.behavior.hasPneumaticControl"
     [printhead]="printhead"
   ></app-printhead-pressure>
 </div>

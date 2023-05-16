@@ -7,5 +7,5 @@ import {Printhead} from "../../../types/Printhead";
   styleUrls: ['./printhead-emd-valve-cycle-time.component.css']
 })
 export class PrintheadEmdValveCycleTimeComponent {
-  @Input() printhead!: Printhead
+  @Input() printhead!: Printhead;
 }

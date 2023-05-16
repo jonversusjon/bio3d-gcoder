@@ -1,8 +1,10 @@
 <mat-form-field *ngIf="printhead"
+                floatLabel="always"
                 subscriptSizing="dynamic"
                 appearance="fill"
-                class="needle-od-field grid-item"
-                style="width:115px;">
+                class="needle-od-field"
+                matTooltip="need to add odMM here"
+                >
   <mat-label class="custom-mat-label">Needle</mat-label>
   <mat-select class="needle-select custom-mat-select"
               (selectionChange)="onNeedleChange($event)"

@@ -1,7 +1,7 @@
 <mat-form-field style="background-color: white;" subscriptSizing="dynamic" appearance="fill" class="color-field grid-item">
   <mat-label>Color</mat-label>
   <input *ngIf="printhead.active" matInput type="color" [(ngModel)]="printhead.color"
-         (change)="colorChangedEvent(printhead.color)">
+         (change)="colorSelected(printhead.color)">
   <input *ngIf="!printhead.active" matInput type="color" [(ngModel)]="inactiveColor" [disabled]="true">
 </mat-form-field>
 

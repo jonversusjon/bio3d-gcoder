@@ -40,7 +40,8 @@
           <app-print-position-picker
             [printhead]="printhead"
             [selectedNeedle]="selectedNeedle"
-            [selectedColor]="selectedColor"></app-print-position-picker>
+            [color]="selectedColor"
+          ></app-print-position-picker>
         </div>
         <div class="print-depth-wrapper grid-item">
           <app-print-depth [printhead]="printhead"></app-print-depth>
@@ -54,6 +55,7 @@
       <app-printhead-color-picker
         [printhead]="printhead"
         [printheadIndex]="printheadIndex"
+        (colorChanged)="onColorChanged($event)"
         class="printhead-color-picker"
       ></app-printhead-color-picker>
       <div class="active-toggle-container flex-item">

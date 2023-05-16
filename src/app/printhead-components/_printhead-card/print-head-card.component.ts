@@ -1,8 +1,6 @@
 import {
-  Component, OnChanges,
-  OnDestroy,
-  OnInit, SimpleChanges,
-  ChangeDetectionStrategy,
+  Component,
+  OnInit,
   Input
 } from '@angular/core';
 import { ScreenUtils } from "../../_services/screen-utils";
@@ -27,6 +25,7 @@ export class PrintHeadCardComponent implements OnInit {
 
   selectedNeedle!: Needle;
   selectedColor!: string;
+  description:string = '';
 
   constructor(
     private screenUtils: ScreenUtils,
@@ -39,6 +38,9 @@ export class PrintHeadCardComponent implements OnInit {
   ngOnInit() {
     this.selectedPrintheadTool = availablePrintheadTools[0];
     this.selectedNeedle = needles[0];
+    this.printHeadStateService.printHeads$.subscribe(printHeads => {
+      this.selectedColor = printHeads[this.printheadIndex].color;
+    });
   }
 
   onPrintHeadTemperatureChange(selectedTemperature: number) {
@@ -46,10 +48,21 @@ export class PrintHeadCardComponent implements OnInit {
   }
 
   onDescriptionChange(printheadIndex: number, newDescription: string) {
+    this.description = newDescription;
     this.printHeadStateService.updatePrintHeadProperty(printheadIndex, 'description', newDescription);
   }
   OnToggleChange(isChecked: boolean) {
     this.printHeadStateService.updatePrintHeadProperty(this.printhead.index, 'active', isChecked);
+  }
+  onPrintHeadToolChange(newPrintheadTool: PrintheadTool) {
+    this.selectedPrintheadTool = newPrintheadTool;
+    this.printHeadStateService.updatePrintHeadProperty(this.printheadIndex, 'tool', newPrintheadTool);
+  }
+
+  onColorChanged(newColor: string) {
+    console.log('newColor: ', newColor);
+    this.selectedColor = newColor;
+    this.printHeadStateService.updatePrintHeadProperty(this.printheadIndex, 'color', newColor);
   }
 
   toPX(size_in_mm:number): number {
@@ -60,12 +73,6 @@ export class PrintHeadCardComponent implements OnInit {
     return (this.toPX(this.printPositionService.PRINT_PICKER_DIAM_MM));
   }
 
-  onPrintHeadToolChange(newPrintheadTool: PrintheadTool) {
-    this.selectedPrintheadTool = newPrintheadTool;
 
-    console.log(' --print-head-card-component -- onPrintHeadToolChange');
-    console.log('selectedPrintheadTool: ', newPrintheadTool);
-    console.log('newPrintHeadTool.behavior: ', newPrintheadTool.behavior);
-  }
 }
 

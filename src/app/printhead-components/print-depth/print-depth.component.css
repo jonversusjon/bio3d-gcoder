@@ -1,3 +1,11 @@
+.print-depth-title {
+  text-align: center;
+  margin: 0 auto;
+  font-weight: 500;
+  font-size: 1.5em;
+}
+
+
 .print-depth-container {
   display: flex;
   aspect-ratio: .95 / 1;

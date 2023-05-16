@@ -1,8 +1,8 @@
-import {Component, EventEmitter, Input, Output} from '@angular/core';
+import {Component, Input} from '@angular/core';
 import {Needle, needles} from "../../../types/Needle";
 import {PrintHeadStateService} from "../../_services/print-head-state.service";
 import {Printhead} from "../../../types/Printhead";
-
+// TODO: update needle select with mat tooltip giving info about the selected needle (odMM, color, etc.)
 @Component({
   selector: 'app-printhead-needle-select',
   templateUrl: './printhead-needle-select.component.html',
@@ -22,7 +22,6 @@ export class PrintheadNeedleSelectComponent {
     this.printHeadStateService.updatePrintHeadProperty(this.printhead.index, "needle", event.value);
   }
 
-  protected readonly print = print;
 }
 
 

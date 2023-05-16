@@ -15,7 +15,7 @@ import {Needle} from "../../../types/Needle";
 export class PrintPositionPickerComponent implements OnDestroy {
   @Input() printhead!: Printhead;
   @Input() selectedNeedle!: Needle;
-  @Input() selectedColor!: string;
+  @Input() color!: string;
   private subscriptions: Subscription[] = [];
 
   printPositionButtonBaseStyle = {};
@@ -45,9 +45,7 @@ export class PrintPositionPickerComponent implements OnDestroy {
   }
   getStylePrintPositionButton(printHead: Printhead, buttonIndex: number) {
     const baseStyle = this.styleService.getBaseStyle('print-position-button');
-    // console.log('new printPositionButtonWidthPX: ', this.printPositionService.printPositionButtonWidthPX + 'px');
-    // console.log('new printPositionButtonTopsPX[buttonIndex]: ', this.printPositionService.printPositionButtonTopsPX[buttonIndex] + 'px');
-    // console.log('new printPositionButtonLeftsPX[buttonIndex]: ', this.printPositionService.printPositionButtonLeftsPX[buttonIndex] + 'px');
+
     return {
       ...baseStyle,
       'width': this.printPositionService.printPositionButtonWidthPX + 'px',

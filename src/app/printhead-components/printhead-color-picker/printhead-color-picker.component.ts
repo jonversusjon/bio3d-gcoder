@@ -2,6 +2,7 @@ import {Component, EventEmitter, Input, Output} from '@angular/core';
 import {Printhead} from "../../../types/Printhead";
 import {INACTIVE_COLOR} from "../../_services/style.service";
 import {PrintHeadStateService} from "../../_services/print-head-state.service";
+import {PrintheadTool} from "../../../types/PrintheadTool";
 
 @Component({
   selector: 'app-printhead-color-picker',
@@ -11,16 +12,22 @@ import {PrintHeadStateService} from "../../_services/print-head-state.service";
 export class PrintheadColorPickerComponent {
   @Input() printhead!: Printhead;
   @Input() printheadIndex!: number;
+  @Input() selectedColor!: string;
+  @Output() colorChanged = new EventEmitter<string>();
 
   inactiveColor = INACTIVE_COLOR;
-  selectedColor!: string;
+
   constructor(private printHeadStateService: PrintHeadStateService,) {
 
   }
 
-  colorChangedEvent(color: string) {
-    this.selectedColor = color;
-    this.printHeadStateService.updatePrintHeadProperty(this.printheadIndex, 'color', color);
+  colorSelected(newColor: string) {
+    this.selectedColor = newColor;
+    this.printHeadStateService.updatePrintHeadProperty(this.printheadIndex, 'color', newColor);
+  }
+  onColorChanged(newColor: string) {
+    this.selectedColor = newColor;
+    this.colorChanged.emit(newColor);
   }
 
 }

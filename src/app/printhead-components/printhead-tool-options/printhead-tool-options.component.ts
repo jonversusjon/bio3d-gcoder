@@ -13,4 +13,7 @@ export class PrintheadToolOptionsComponent {
   @Input() selectedPrintheadTool!: PrintheadTool;
 
   public wavelength!: number;
+  emdMode!: string;
+
+
 }

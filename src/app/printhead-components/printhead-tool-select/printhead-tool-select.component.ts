@@ -1,8 +1,6 @@
 import {Component, EventEmitter, Input, Output} from '@angular/core';
 import {Printhead} from "../../../types/Printhead";
 import {PrintheadToolBehavior} from "../../../types/PrintheadToolBehavior";
-import {INACTIVE_COLOR} from "../../_services/style.service";
-import {PrintHeadStateService} from "../../_services/print-head-state.service";
 import {availablePrintheadTools, PrintheadTool} from "../../../types/PrintheadTool";
 
 @Component({
@@ -27,7 +25,6 @@ export class PrintheadToolSelectComponent {
 
   onPrintheadToolChanged(newPrintheadTool: PrintheadTool) {
     this.selectedPrintheadTool = newPrintheadTool;
-    console.log('emitting new printheadtool ', newPrintheadTool);
     this.printheadToolChanged.emit(newPrintheadTool);
   }
 }

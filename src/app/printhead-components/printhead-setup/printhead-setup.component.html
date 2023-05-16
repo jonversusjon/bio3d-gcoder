@@ -4,19 +4,21 @@
       <mat-card-title class="printhead-setup-title">Printhead Setup</mat-card-title>
       <div class="label">No of printheads:</div>
       <div class="active-printhead-toggles">
-
-
       </div>
       <input class="printhead-number-input" type="number" min="1" max="20" class="printhead-number-input"
                [(ngModel)]="printHeadCountInput" (change)="onPrintHeadCountChange()">
+      <mat-chip-set>
+        <app-printhead-chip *ngFor="let printhead of printHeads"></app-printhead-chip>
+      </mat-chip-set>
     </div>
   </mat-card-header>
   <mat-card-content class="printhead-cards-container">
     <div class="grid-list-container">
 <!--      <div class="flex-container" style="justify-content: center; padding-right: 0; padding-left: 0;">-->
-        <div *ngFor="let printhead of printHeads" class="flex-item">
+        <div *ngFor="let printhead of printHeads; let i = index;" class="flex-item">
           <app-printhead-card-component
             [printhead]="printhead"
+            [printheadIndex]="i"
             ></app-printhead-card-component>
         </div>
       </div>

@@ -178,6 +178,30 @@ export class PrintPositionService {
   }
 
 
+  calculatePrintPositionOrigins(arrayRows: number, arrayCols: number, distanceBetween: number, wellSize: number): void {
+    //this is a grid array version to match Austin's experiments
+    if (arrayRows <= 0 || arrayCols <= 0 || distanceBetween <= 0 || wellSize <= 0) {
+      console.error("Can't calculate print position origins. Error: All parameters must be nonzero. arrayRows: ", arrayRows,
+        "arrayCols: ", arrayCols, "distanceBetween: ", distanceBetween, "wellSize: ", wellSize);
+      return;
+    }
+    const dotPositions: { x: number, y: number }[] = [];
+    const radius = (Math.min(arrayRows, arrayCols) * distanceBetween) / 2;
+    const startX = -((arrayCols - 1) * distanceBetween) / 2;
+    const startY = -((arrayRows - 1) * distanceBetween) / 2;
+
+    for (let row = 0; row < arrayRows; row++) {
+      for (let col = 0; col < arrayCols; col++) {
+        const x = startX + col * distanceBetween;
+        const y = startY + row * distanceBetween;
+        dotPositions.push({ x, y });
+      }
+    }
+
+    console.log(dotPositions);
+
+  }
+
 /**
  * Load print position buttons.
  * @param {'plate-map' | 'print-head'} forWhichElement - The element for which the print position buttons are being loaded.

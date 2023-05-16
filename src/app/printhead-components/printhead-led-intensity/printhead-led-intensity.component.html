@@ -1,9 +1,13 @@
-<mat-form-field appearance="fill" class="printhead-led-intensity">
+<mat-form-field appearance="fill"
+                class="printhead-led-intensity"
+                matTooltip="intensity values from 0-255 in a.u.">
   <mat-label>LED Intensity</mat-label>
   <input matInput
          placeholder="0"
          type="number" min="1" max="255"
          class="printhead-number-input"
-         [formControl]="ledIntensityControl">
+         [formControl]="ledIntensityControl"
+         >
   <mat-error *ngIf="ledIntensityControl.hasError('max')">intensity must be 0-255</mat-error>
+
 </mat-form-field>

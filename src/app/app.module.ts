@@ -43,6 +43,7 @@ import { PrintheadCameraFilenameComponent } from './printhead-components/printhe
 import { PrintheadToolOptionsComponent } from './printhead-components/printhead-tool-options/printhead-tool-options.component';
 import { PrintheadLedWavelengthComponent } from './printhead-components/printhead-led-wavelength/printhead-led-wavelength.component';
 import { ReactiveFormsModule } from '@angular/forms';
+import { PrintheadChipComponent } from './printhead-chip/printhead-chip.component';
 
 
 @Pipe({
@@ -82,7 +83,8 @@ export class RangePipe implements PipeTransform {
         PrintheadSyringeExtrusionVolumeComponent,
         PrintheadCameraFilenameComponent,
         PrintheadToolOptionsComponent,
-        PrintheadLedWavelengthComponent
+        PrintheadLedWavelengthComponent,
+        PrintheadChipComponent
     ],
   imports: [
     BrowserModule,

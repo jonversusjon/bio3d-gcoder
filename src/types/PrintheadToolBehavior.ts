@@ -89,6 +89,7 @@ export function getEMDPrintHeadBehavior():PrintheadToolBehavior {
       step: 0.5,
     },
     canExtrude: true,
+    hasEMD: true,
     suggestedInk: ["gelMA", "alginate", "fibrin", "cell media"],
   }
 }
@@ -103,6 +104,7 @@ export function getSyringePumpPrintHeadBehavior():PrintheadToolBehavior {
       step: 0.5,
     },
     canExtrude: true,
+    hasSyringePump: true,
     suggestedInk: ["collagen", "gelMA", "alginate", "fibrin", "crosslinking solution"],
   }
 }

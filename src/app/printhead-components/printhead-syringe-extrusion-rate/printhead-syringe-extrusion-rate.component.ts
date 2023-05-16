@@ -1,5 +1,6 @@
 import {Component, Input} from '@angular/core';
 import {Printhead} from "../../../types/Printhead";
+import {FormControl, Validators} from "@angular/forms";
 
 @Component({
   selector: 'app-printhead-syringe-extrusion-rate',
@@ -8,4 +9,7 @@ import {Printhead} from "../../../types/Printhead";
 })
 export class PrintheadSyringeExtrusionRateComponent {
   @Input() printhead!: Printhead;
+
+  // syringeExtrustionRate = new FormControl('', [Validators.max(255)]);
+
 }
