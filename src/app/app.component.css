@@ -1,10 +1,24 @@
-/*.app-container {*/
-/*  padding: 24px;*/
-/*  height:100%;*/
-/*}*/
+.app-container {
+  padding: 24px;
+}
 
-/*app-experiment-setup {*/
-/*  display: flex;*/
-/*  flex:2;*/
-/*  justify-content: center;*/
-/*}*/
+.layout-container {
+  display: flex;
+  align-items: flex-start;
+}
+
+.placeholder-for-sidebar {
+  width: 140px; /* set the width of the left space */
+}
+
+@media screen and (max-width: 1000px) {
+  .placeholder-for-sidebar {
+    width: 0; /* set the width of the left space to 0 on smaller screens */
+    overflow: hidden; /* prevent content from spilling over */
+  }
+}
+
+.experiment-setup-container {
+  flex-grow: 1; /* this will take the rest of the space available */
+}
+

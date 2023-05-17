@@ -73,7 +73,8 @@ export class PrintheadSetupComponent implements OnDestroy, OnInit, OnChanges {
 
   onGetSelectedPlateChange(selectedPlate: PlateFormat) {
     for(let printhead of this.printHeads) {
-      this.printPositionService.updatePrintPositionsBasedOnNeedle(printhead, selectedPlate.well_sizeMM, printhead.needle.odMM);
+      console.log('printhead-setup.component resizing printposition buttons for printhead[', printhead.index, ']');
+      this.printPositionService.resizePrintPositions(printhead, selectedPlate.well_sizeMM, printhead.needle.odMM);
     }
   }
 }

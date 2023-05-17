@@ -7,9 +7,6 @@
         <app-printhead-chip *ngFor="let printhead of printHeads"
         [printhead]="printhead"></app-printhead-chip>
       </mat-chip-set>
-
-
-
         <input class="printhead-number-input" type="number" min="1" max="20" class="printhead-number-input"
                [(ngModel)]="printHeadCountInput" (change)="onPrintHeadCountChange()">
 

@@ -184,8 +184,8 @@ export class PrintHeadStateService implements OnDestroy {
 
     if (printHead) {
       printHead.needle = newNeedle;
-
-      const updatedPrintPositions: PrintPosition[] = this.printPositionService.updatePrintPositionsBasedOnNeedle(
+      console.log('print-head-state-service resizing printposition buttons for printhead');
+      const updatedPrintPositions: PrintPosition[] = this.printPositionService.resizePrintPositions(
         printHead,
         this.currentSelectedPlate.well_sizeMM,
         newNeedle.odMM);

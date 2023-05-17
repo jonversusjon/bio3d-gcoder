@@ -81,7 +81,7 @@ mat-card {
   color:#FFFFFF;
   border-top-left-radius: 8px;
   border-top-right-radius: 8px;
-  background-color: coral;
+  background-color: tomato;
 }
 
 .mat-card-header-grid {
@@ -123,6 +123,9 @@ printhead-chip-set-container,
 printhead-chip-set-container > * {
   grid-row: 2 / 3;
   grid-column: 1 / 3;
+  display: flex;       /* Added this line */
+  flex-wrap: nowrap;   /* Added this line */
+  overflow-x: auto;    /* Added this line */
 }
 
 /* Other styles */

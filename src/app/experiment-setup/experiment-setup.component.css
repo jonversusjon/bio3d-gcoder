@@ -3,14 +3,15 @@
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
-  justify-content: space-between;
-  align-items: center;
+  justify-content: flex-start;
+  align-items: flex-start;
 }
 
 mat-card {
   border-top-left-radius: 8px;
   border-top-right-radius: 8px;
   background-color: lightpink;
+  box-shadow: rgba(0, 0, 0, 0.19) 0 10px 20px, rgba(0, 0, 0, 0.23) 0 6px 6px;
 }
 
 mat-card-title {
@@ -41,24 +42,19 @@ app-plate-map {
 .printhead-container {
   margin-right: 16px;
   padding: 12px;
-  width: 600px;
+  flex: 1 0 500px;
 }
 
 .plate-map-container {
   padding: 12px;
-  min-width: 200px; /* minimum width for the right card */
-  max-width: 600px; /* maximum width for the right card */
-  flex-grow: 1; /* allow the right card to grow to fill available space */
+  flex: 1 0 500px;
 }
 
-@media (max-width: 600px) {
-  .experiment-setup-container {
-    flex-wrap: nowrap;
-  }
-  .printhead-container, .plate-map-container {
-    width: 100%; /* set the width of both cards to 100% on smaller screens */
-  }
-}
+/*@media (max-width: 1000px) {*/
+/*  .printhead-container, .plate-map-container {*/
+/*    width: 100%; !* set the width of both cards to 100% on smaller screens *!*/
+/*  }*/
+/*}*/
 
 .printhead-container, .plate-map-container {
   /* Add a flex-shrink value to allow the items to shrink, but not beyond a certain point */
