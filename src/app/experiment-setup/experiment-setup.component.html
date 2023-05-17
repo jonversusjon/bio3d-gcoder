@@ -1,7 +1,9 @@
 <script src="experiment-setup.component.ts"></script>
 <div class="experiment-setup-container">
   <div class="printhead-container">
-    <app-printhead-setup [selectedPlate]="selectedPlate"></app-printhead-setup>
+    <app-printhead-setup
+      [selectedPlate]="selectedPlate"
+      [wellDiamMM]="wellDiamMM"></app-printhead-setup>
   </div>
   <div class="plate-map-container">
     <mat-card>

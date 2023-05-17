@@ -1,17 +1,11 @@
-import {Component, EventEmitter, OnInit, Output} from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import { PlateFormat } from "../../types/PlateFormat";
-import { PrintHeadStateService } from "../_services/print-head-state.service";
-import {CalibrationService} from "../_services/calibration.service";
-import { WellsStateService } from "../_services/wells-state.service";
-import {PrintPositionService} from "../_services/print-position.service";
 import {StyleService} from "../_services/style.service";
 import {ScreenUtils} from "../_services/screen-utils";
 import {PlateFormatService} from "../_services/plate-format.service";
 import {MatSelectChange} from "@angular/material/select";
 import {Coordinates} from "../../types/Coordinates";
 import {Subject} from "rxjs";
-import {Printhead} from "../../types/Printhead";
-
 
 @Component({
   selector: 'app-experiment-setup',
@@ -20,7 +14,7 @@ import {Printhead} from "../../types/Printhead";
 })
 export class ExperimentSetupComponent implements OnInit {
   plateChanged$ = new Subject<PlateFormat>();
-
+  wellDiamMM!: number;
   public selectedPlate!: PlateFormat;
   public experimentSetupHeaderStyle!: any;
   plateFormats: PlateFormat[] = [];
@@ -42,6 +36,7 @@ export class ExperimentSetupComponent implements OnInit {
     this.selectedPlateOrigin = this.plateFormatService.plateOrigins[2].value;
     this.plateHeightPX = this.screenUtils.convertMMToPX(this.plateFormatService.plateHeight);
     this.plateWidthPX = this.screenUtils.convertMMToPX(this.plateFormatService.plateWidth);
+    this.wellDiamMM = this.plateFormats[0].well_sizeMM;
   }
   onSelectedPlateChanged(event: any): void {
     const newSelectedPlate = event.value;
@@ -50,13 +45,8 @@ export class ExperimentSetupComponent implements OnInit {
       this.selectedPlate = newSelectedPlate;
       this.plateFormatService.setSelectedPlate(newSelectedPlate);
       this.printPositionOriginsMM = [];
-      // for (let printHead of this.printHeads) {
-      //   this.printPositionOriginsMM.push(
-      //     // this.printPositionService.getPrintPositionOriginsMM('plate-map', 'parent-element', this.selectedPlate.well_sizeMM)
-      //   );
-      // }
+      this.wellDiamMM = this.selectedPlate.well_sizeMM;
       this.plateChanged$.next(this.selectedPlate);
-
 
       // console.log('printPositionOriginsMM after: ', this.printPositionOriginsMM);
     }
@@ -74,6 +64,10 @@ export class ExperimentSetupComponent implements OnInit {
   }
   onSelectedPlateOriginChanged(event: MatSelectChange): void {
     this.selectedPlateOrigin = event.value;
+  }
+
+  toPX(size_in_mm:number): number {
+    return this.screenUtils.convertMMToPX(size_in_mm);
   }
 }
 

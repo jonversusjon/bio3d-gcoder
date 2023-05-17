@@ -24,7 +24,7 @@ import {MatButtonModule} from "@angular/material/button";
 import { RectangleSelectionComponent } from './rectangle-selection/rectangle-selection.component';
 import { ExportGcodeFormComponent } from './export-gcode-form/export-gcode-form.component';
 import {MAT_DIALOG_DATA, MatDialogModule, MatDialogRef} from "@angular/material/dialog";
-import { PrintPositionPickerComponent } from './printhead-components/print-position-picker/print-position-picker.component';
+import { PrintPositionPickerComponent } from './printhead-components/printhead-print-position-picker/print-position-picker.component';
 import { PrintheadSetupComponent } from './printhead-components/printhead-setup/printhead-setup.component';
 import { PrintheadNeedleSelectComponent } from './printhead-components/printhead-needle-select/printhead-needle-select.component';
 import { PrintheadColorPickerComponent } from './printhead-components/printhead-color-picker/printhead-color-picker.component';

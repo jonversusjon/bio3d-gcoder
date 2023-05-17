@@ -1,11 +1,10 @@
 import {ChangeDetectorRef, Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges} from '@angular/core';
 import {StyleService} from "../../_services/style.service";
-import {emptyPrinthead, Printhead} from "../../../types/Printhead";
+import { Printhead} from "../../../types/Printhead";
 import {Subscription} from "rxjs";
 import {PrintHeadStateService} from "../../_services/print-head-state.service";
 import {PlateFormat} from "../../../types/PlateFormat";
 import {PlateFormatService} from "../../_services/plate-format.service";
-import {PrintHeadCardComponent} from "../_printhead-card/print-head-card.component";
 
 @Component({
   selector: 'app-printhead-setup',
@@ -13,11 +12,13 @@ import {PrintHeadCardComponent} from "../_printhead-card/print-head-card.compone
   styleUrls: ['./printhead-setup.component.css']
 })
 export class PrintheadSetupComponent implements OnDestroy, OnInit, OnChanges {
+  @Input() selectedPlate!: PlateFormat;
+  @Input() wellDiamMM!: number;
+
   experimentSetupHeaderStyle: any;
   printHeadCountInput: number = 1;
   printHeads: Printhead[] = [];
   private subscriptions: Subscription[] = [];
-  @Input() selectedPlate!: PlateFormat;
 
   constructor(private styleService: StyleService,
               private printHeadStateService: PrintHeadStateService,
@@ -28,11 +29,11 @@ export class PrintheadSetupComponent implements OnDestroy, OnInit, OnChanges {
         console.log('printhead-setup-component received: ', printHeads);
         this.printHeads = printHeads;
       }),
-      // this.plateFormatService.selectedPlate$.subscribe((plate) => {
-      //   console.log('print-head-card-component received: ', plate);
-      //   this.selectedPlate = plate;
-      //   this.onGetSelectedPlateChange(plate);
-      // })
+      this.plateFormatService.selectedPlate$.subscribe((plate) => {
+        console.log('print-head-setup-component received: ', plate);
+        this.selectedPlate = plate;
+        this.onGetSelectedPlateChange(plate);
+      })
     );
 
     this.experimentSetupHeaderStyle = this.styleService.getBaseStyle('experiment-setup-header');
@@ -66,5 +67,11 @@ export class PrintheadSetupComponent implements OnDestroy, OnInit, OnChanges {
 
   updateButtonsSize(printHead: Printhead, plateMapWellSize: number, needleOdMM: number) {
     // this.printPositionService.getNewButtonsSize('print-head', printHead, plateMapWellSize, needleOdMM);
+  }
+
+  onGetSelectedPlateChange(selectedPlate: PlateFormat) {
+    for(let printhead of this.printHeads) {
+      // TODO: update printhead button sizes here
+    }
   }
 }

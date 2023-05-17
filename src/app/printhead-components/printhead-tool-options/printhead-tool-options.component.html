@@ -3,6 +3,7 @@
   <app-printhead-needle-select
     *ngIf="selectedPrintheadTool && selectedPrintheadTool.behavior.canExtrude"
     [printhead]="printhead"
+    (needleChanged)="onNeedleChanged($event)"
   ></app-printhead-needle-select>
 
   <!-- Photocuring only -->

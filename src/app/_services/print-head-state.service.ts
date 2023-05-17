@@ -108,7 +108,6 @@ export class PrintHeadStateService implements OnDestroy {
    * @param {Partial<Printhead>} properties - An object containing key-value pairs of the properties to be updated.
    */
   updatePrintHeadProperties(printHead: Printhead, properties: Partial<Printhead>): void {
-    console.log(' -- print-head-state-service -- this.currentPrintheads: ', this.currentPrintHeads);
     if (this.currentPrintHeads[printHead.index]) {
       const selectedPrintHead = this.currentPrintHeads[printHead.index];
 
@@ -121,7 +120,6 @@ export class PrintHeadStateService implements OnDestroy {
           console.error(`Undefined value error: The value for ${key} in the properties object is undefined.`);
         }
       });
-      console.log(' --print-head-state-service -- updatePrintHeadProperties -- next(printheads)');
       this._printHeads.next(this.currentPrintHeads);
     } else {
       console.error(`updatePrintHeadProperties Invalid printHeadIndex: ${printHead.index}`);

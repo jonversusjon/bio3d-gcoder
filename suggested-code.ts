@@ -5,7 +5,7 @@
 // plate-map-component.html
 //<!-- ... -->
 // <div *ngFor="let well of plateRow; let rw = index"
-// class="print-position-picker"
+// class="printhead-print-position-picker"
 //   [ngStyle]="well.style"
 //   [ngClass]="{'selected-well': well.selected, 'unselected-well': !well.selected, 'base-well-style': true}"
 // (click)="toggleWellSelection(i,rw)">

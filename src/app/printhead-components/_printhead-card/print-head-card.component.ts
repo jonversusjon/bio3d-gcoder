@@ -22,24 +22,30 @@ export class PrintHeadCardComponent implements OnInit {
   @Input() printhead!: Printhead;
   @Input() printheadIndex!: number;
   @Input() selectedPrintheadTool!: PrintheadTool;
+  @Input() wellDiamMM!: number;
 
   selectedNeedle!: Needle;
   selectedColor!: string;
+  buttonWidthPX!: number;
+
   description:string = '';
 
   constructor(
     private screenUtils: ScreenUtils,
     private printHeadStateService: PrintHeadStateService,
-    private styleService: StyleService,
-    private plateFormatService: PlateFormatService,
-    private printPositionService: PrintPositionService) {
+    ) {
   }
 
   ngOnInit() {
     this.selectedPrintheadTool = availablePrintheadTools[0];
     this.selectedNeedle = needles[0];
+    this.selectedColor = this.printhead.color;
+    this.buttonWidthPX = this.printhead.buttonWidthPX;
+    console.log('ngOnInit this.buttonWidthPX: ', this.buttonWidthPX);
     this.printHeadStateService.printHeads$.subscribe(printHeads => {
+      console.log('print-head-card-component gets printheads:', printHeads);
       this.selectedColor = printHeads[this.printheadIndex].color;
+      this.buttonWidthPX = printHeads[this.printheadIndex].buttonWidthPX;
     });
   }
 
@@ -60,19 +66,9 @@ export class PrintHeadCardComponent implements OnInit {
   }
 
   onColorChanged(newColor: string) {
-    console.log('newColor: ', newColor);
     this.selectedColor = newColor;
     this.printHeadStateService.updatePrintHeadProperty(this.printheadIndex, 'color', newColor);
   }
-
-  toPX(size_in_mm:number): number {
-    return this.screenUtils.convertMMToPX(size_in_mm);
-  }
-
-  getPrintPickerWidthPX() {
-    return (this.toPX(this.printPositionService.PRINT_PICKER_DIAM_MM));
-  }
-
 
 }
 

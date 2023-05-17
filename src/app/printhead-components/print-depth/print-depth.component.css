@@ -7,6 +7,7 @@
 
 
 .print-depth-container {
+  padding: 24px;
   display: flex;
   aspect-ratio: .95 / 1;
 }
@@ -18,7 +19,7 @@
 }
 
 .image-container {
-  background-image: url('../../../assets/single_well_web.png');
+  background-image: url('/assets/app-images/single_well_web.png');
   background-repeat: no-repeat;
   background-size: 100% 100%;
   position: relative;

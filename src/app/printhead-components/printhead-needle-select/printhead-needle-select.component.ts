@@ -1,4 +1,4 @@
-import {Component, Input} from '@angular/core';
+import {Component, EventEmitter, Input, Output} from '@angular/core';
 import {Needle, needles} from "../../../types/Needle";
 import {PrintHeadStateService} from "../../_services/print-head-state.service";
 import {Printhead} from "../../../types/Printhead";
@@ -10,6 +10,7 @@ import {Printhead} from "../../../types/Printhead";
 })
 export class PrintheadNeedleSelectComponent {
   @Input() printhead!: Printhead;
+  @Output() needleChanged: EventEmitter<Needle> = new EventEmitter<Needle>();
   availableNeedles:Needle[] = [];
 
   selectedNeedle!: Needle;
@@ -19,7 +20,7 @@ export class PrintheadNeedleSelectComponent {
 
   onNeedleChange(event: any) {
     this.selectedNeedle = event.value;
-    this.printHeadStateService.updatePrintHeadProperty(this.printhead.index, "needle", event.value);
+    this.needleChanged.emit(event.value);
   }
 
 }

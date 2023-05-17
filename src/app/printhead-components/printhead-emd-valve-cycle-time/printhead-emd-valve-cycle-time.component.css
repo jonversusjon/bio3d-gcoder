@@ -9,5 +9,5 @@ input.example-right-align::-webkit-inner-spin-button {
 
 input.example-right-align {
   -moz-appearance: textfield;
-  width: 85px;
+  min-width: 85px;
 }

@@ -1,6 +1,30 @@
-.custom-icon-chip-pneumatic {
-  background-image: url('../../assets/pneumatic printhead icon.png');
-  background-size: cover; /* Adjust as needed */
+.custom-mat-chip-icon {
+  background-size: contain; /* Adjust as needed */
   background-repeat: no-repeat; /* Adjust as needed */
-  /* Additional styles if needed */
+  background-position: center;
+}
+
+mat-chip {
+  padding: 12px 6px;
+  border: none;
+  border-radius: 0;
+  min-width: 75px;
+  flex-grow:1;
+}
+
+mat-label {
+  position: absolute;
+  top: -16px;
+  left: 50%;
+  transform: translate(-50%, 0);
+  color: purple;
+  font-size: 0.85em;
+  font-weight: 500;
+  z-index: 100;
+  text-align: center;
+  width: 100%;
+}
+
+:host {
+  position: relative;
 }

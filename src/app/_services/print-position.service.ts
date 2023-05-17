@@ -64,7 +64,6 @@ export class PrintPositionService {
   public printPositionButtonTopsPX:number[] = [];
   public printPositionButtonLeftsPX:number[] = [];
   public printPositionButtonWidthPX: number[] = [9];
-  public printPositionButtonWidthPX_PlateMap: number[] = [9];
   public toScale: boolean = false;
 
   /**
@@ -94,11 +93,13 @@ export class PrintPositionService {
    * @returns {number} The calculated button width in millimeters.
    */
   getButtonWidthMM(forWhichElement: 'Well' | 'PrintHead', selectedPlateWellDiamMM: number, needleOdMM: number) {
+
     switch (forWhichElement) {
       case 'Well':
         return needleOdMM;
       case 'PrintHead':
           const scalar = selectedPlateWellDiamMM / this.PRINT_PICKER_DIAM_MM;
+          console.log('scalar: ', scalar, ' buttonWidth: ', needleOdMM / scalar);
           return needleOdMM / scalar;
       default:
         console.warn("print-position-service couldn't calculate button width; for which element did not equal 'plate-map' or 'print-head'");
@@ -127,11 +128,6 @@ export class PrintPositionService {
       const radiusMM = (0.7 * wellSizeMM) / 2;
       const centerX_MM = centerRelativeTo === 'parent-element' ? wellSizeMM / 2 : 0;
       const centerY_MM = centerRelativeTo === 'parent-element' ? wellSizeMM / 2 : 0;
-
-      // const printPositionOriginsMM: Coordinates[] = this.printPositionAngles.map(angle => ({
-      //   x: centerX_MM + (radiusMM * Math.cos(angle)),
-      //   y: centerY_MM + (radiusMM * Math.sin(angle))
-      // }));
 
       const printPositionOriginsMM: Coordinates[] = this.printPositionAngles.map(angle => {
         const x = centerX_MM + (radiusMM * Math.cos(angle));

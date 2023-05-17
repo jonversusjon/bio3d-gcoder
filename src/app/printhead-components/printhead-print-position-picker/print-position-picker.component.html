@@ -6,10 +6,12 @@
   <div class="watermark" *ngIf="!printPositionService.toScale">
     NOT TO<br>SCALE
   </div>
+
   <ng-container *ngFor="let printPosition of printhead.printPositions; let j = index">
+
     <button class="print-position-picker-position-button custom-button-toggle" [ngStyle]="{
                     'background-color': !printhead.active ? 'grey' : (printPosition.selected ? color : 'white'),
-                    'width': printPositionService.printPositionButtonWidthPX[printhead.index] + 'px',
+                    'width': (buttonWidthPX) + 'px',
                     'top': 'calc(' + printPositionService.printPositionOriginsPct[j].y + '% - ' + (printPositionService.printPositionButtonWidthPX[printhead.index]/2) + 'px)',
                     'left': 'calc(' + printPositionService.printPositionOriginsPct[j].x + '% - ' + (printPositionService.printPositionButtonWidthPX[printhead.index]/2) + 'px)'
                   }"
@@ -17,7 +19,6 @@
 
             (click)="togglePrintHeadButton(printhead, printPosition)"
     ></button>
-
   </ng-container>
 </div>
 
