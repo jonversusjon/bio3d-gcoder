@@ -10,7 +10,7 @@ export class PrintheadChipComponent {
   @Input() printhead!: Printhead;
 
   get iconUrlStyle(): string {
-    console.log('get iconUrlStyle: ', this.printhead);
+
     return `url(${this.printhead.tool.iconUrl})`
   }
 

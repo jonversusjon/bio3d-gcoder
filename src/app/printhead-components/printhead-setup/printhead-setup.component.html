@@ -3,14 +3,16 @@
     <div class="mat-card-header-grid">
       <mat-card-title class="printhead-setup-title">Printhead Setup</mat-card-title>
       <div class="label">No of printheads:</div>
-      <div class="active-printhead-toggles">
-      </div>
-      <input class="printhead-number-input" type="number" min="1" max="20" class="printhead-number-input"
-               [(ngModel)]="printHeadCountInput" (change)="onPrintHeadCountChange()">
       <mat-chip-set class="printhead-chip-set-container">
         <app-printhead-chip *ngFor="let printhead of printHeads"
         [printhead]="printhead"></app-printhead-chip>
       </mat-chip-set>
+
+
+
+        <input class="printhead-number-input" type="number" min="1" max="20" class="printhead-number-input"
+               [(ngModel)]="printHeadCountInput" (change)="onPrintHeadCountChange()">
+
     </div>
   </mat-card-header>
   <mat-card-content class="printhead-cards-container">

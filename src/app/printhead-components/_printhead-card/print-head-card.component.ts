@@ -41,13 +41,25 @@ export class PrintHeadCardComponent implements OnInit {
     this.selectedNeedle = needles[0];
     this.selectedColor = this.printhead.color;
     this.buttonWidthPX = this.printhead.buttonWidthPX;
-    console.log('ngOnInit this.buttonWidthPX: ', this.buttonWidthPX);
+
+    let printHeadProperties: Partial<Printhead> = {
+      tool: availablePrintheadTools[0],
+      needle: needles[0],
+      color: this.printhead.color,
+      buttonWidthPX: this.printhead.buttonWidthPX
+    };
+
+    this.printHeadStateService.updatePrintHeadProperties(
+      this.printhead,
+      printHeadProperties
+    );
+
     this.printHeadStateService.printHeads$.subscribe(printHeads => {
-      console.log('print-head-card-component gets printheads:', printHeads);
       this.selectedColor = printHeads[this.printheadIndex].color;
       this.buttonWidthPX = printHeads[this.printheadIndex].buttonWidthPX;
     });
   }
+
 
   onPrintHeadTemperatureChange(selectedTemperature: number) {
     // this.printHeadStateService.updateTemperature(printHeadIndex, temperature);

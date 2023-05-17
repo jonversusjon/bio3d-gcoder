@@ -32,8 +32,6 @@ export class PrintHeadStateService implements OnDestroy {
   printHeads$ = this._printHeads.asObservable();
   private currentPrintHeads:Printhead[] = [];
 
-  private _printPickerSizeMM: number = 34.8;
-
   private selectedPlateSubscription!: Subscription;
   private currentSelectedPlate: PlateFormat;
 
@@ -46,45 +44,9 @@ export class PrintHeadStateService implements OnDestroy {
                 private wellsStateService: WellsStateService,
                 ) {
       this.needles = needles;
-      const printheadCreation$ = new BehaviorSubject<boolean>(false);
-
-      // printheadCreation$
-      //   .pipe(
-      //     switchMap(created => {
-      //       if (created) {
-      //         // Perform actions and retrieve necessary data after printhead creation
-      //         // Return an observable that emits the required data for subsequent services
-      //
-      //         // Example:
-      //         // return this.someService.getDataForSubsequentServices(); // Replace with your actual service method
-      //         console.log('new thing was triggered');
-      //         return of(null);
-      //       } else {
-      //         // Return an empty observable if printhead is not created yet
-      //         return of(null);
-      //       }
-      //     })
-      //   )
-      //   .subscribe(data => {
-      //     // Handle the received data by the subsequent services
-      //     // This code block will be executed after the printhead creation and the data retrieval
-      //
-      //     if (data) {
-      //       // Perform actions with the received data
-      //       console.log('Received data for subsequent services:', data);
-      //
-      //       // Example: Notify the necessary services about the data
-      //       this.wellsStateService.notifyData(data);
-      //       this.plateFormatService.setNextPlate(data);
-      //       // ...
-      //     } else {
-      //       console.log('Printhead not created yet. Waiting for creation...');
-      //     }
-      //   });
 
       // Trigger printhead creation and update the printheadCreation$ observable
       this.createPrintHead(0); // Call this method when the printhead is created
-      printheadCreation$.next(true);
       const defaultPlateFormat: PlateFormat =  this.plateFormatService.plateFormats[0];
       this.currentSelectedPlate = defaultPlateFormat;
 

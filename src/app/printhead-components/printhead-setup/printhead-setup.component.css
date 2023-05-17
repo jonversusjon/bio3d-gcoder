@@ -87,18 +87,14 @@ mat-card {
 .mat-card-header-grid {
   display: grid;
   grid-template-columns: 1fr auto;
-  grid-template-rows: 1fr 1fr;
-  align-items: end;
+  grid-template-rows: auto auto;  /* changed from 1fr 1fr to auto auto for 2 rows */
+  align-items: start;  /* changed from end to start for top alignment */
 }
 
 .printhead-setup-title {
   grid-row: 1 / 2;
-  grid-column: 1 / 2;
-}
-
-.printhead-setup-title {
-  grid-row: 1 / 2;
-  grid-column: 1 / 2;
+  grid-column: 1 / 3; /* changed from 1 / 2 to 1 / 3 to span entire width */
+  align-self: center; /* added to vertically center align the title */
 }
 
 .input-wrapper {
@@ -116,21 +112,19 @@ mat-card {
 .printhead-number-input {
   grid-row: 2 / 3;
   grid-column: 2 / 3;
-  width: 50px; /* adjust as needed */
+  padding: 12px 6px;
+  text-align: center;
+  width: 35px;
   align-self: start;
   justify-self: end;
 }
 
-.active-printhead-toggles {
-  grid-row: 2 / 3;
-  grid-column: 1 / 2;
-  align-self: start;
-}
-
 printhead-chip-set-container,
 printhead-chip-set-container > * {
-  grid-row: 1 / 3;
+  grid-row: 2 / 3;
+  grid-column: 1 / 3;
 }
+
 /* Other styles */
 .print-head-setup-component-wrapper {
   display: flex;

@@ -5,6 +5,9 @@ import {Subscription} from "rxjs";
 import {PrintHeadStateService} from "../../_services/print-head-state.service";
 import {PlateFormat} from "../../../types/PlateFormat";
 import {PlateFormatService} from "../../_services/plate-format.service";
+import {PrintPositionService} from "../../_services/print-position.service";
+import {Well} from "../../../types/Well";
+import {PrintPosition} from "../../../types/PrintPosition";
 
 @Component({
   selector: 'app-printhead-setup',
@@ -23,7 +26,7 @@ export class PrintheadSetupComponent implements OnDestroy, OnInit, OnChanges {
   constructor(private styleService: StyleService,
               private printHeadStateService: PrintHeadStateService,
               private plateFormatService: PlateFormatService,
-              private cd: ChangeDetectorRef) {
+              private printPositionService: PrintPositionService) {
     this.subscriptions.push(
       this.printHeadStateService.printHeads$.subscribe((printHeads: Printhead[]) => {
         console.log('printhead-setup-component received: ', printHeads);
@@ -61,7 +64,6 @@ export class PrintheadSetupComponent implements OnDestroy, OnInit, OnChanges {
     }
   }
   onPrintHeadCountChange() {
-    console.log(' -- printhead-setup-component -- onPrintheadCountChange');
     this.printHeadStateService.onPrintHeadCountChange(this.printHeadCountInput);
   }
 
@@ -71,7 +73,7 @@ export class PrintheadSetupComponent implements OnDestroy, OnInit, OnChanges {
 
   onGetSelectedPlateChange(selectedPlate: PlateFormat) {
     for(let printhead of this.printHeads) {
-      // TODO: update printhead button sizes here
+      this.printPositionService.updatePrintPositionsBasedOnNeedle(printhead, selectedPlate.well_sizeMM, printhead.needle.odMM);
     }
   }
 }

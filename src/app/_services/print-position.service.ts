@@ -51,7 +51,7 @@ import {Well} from "../../types/Well";
 export class PrintPositionService {
   // constants //
   PRINT_POSITIONS_COUNT: number = 9; // One central print position surrounded by a ring of 8 print positions
-  PRINT_PICKER_DIAM_MM: number = 34.8; // the print picker size in PX doesn't change but relative needle sizes are represented based on this
+  PRINT_PICKER_DIAM_MM: number = 34.8 * 1.7; // the print picker size in PX doesn't change but relative needle sizes are represented based on this
   // in angular the actual width of anything is calculated as computedWidth = specifiedWidth + (borderLeftWidth + borderRightWidth) + (paddingLeft + paddingRight)
   BUTTON_MIN_WIDTH_PX: number = 7;
   public customButtonToggleStyle: any;
@@ -223,19 +223,27 @@ loadPrintPositionButtons(forWhichElement: 'plate-map' | 'print-head',
     'xy-plane',
     selectedPlateWellDiamMM, adj_x, adj_y);
   const printPositions = printPositionOriginsMM_display.map((coordinates, index) => {
-    const printPosition = emptyPrintPosition();
-
-    // add the properties that don't change
-    printPosition.parentIndex = parentIndex;
-    printPosition.index = index;
-    printPosition.originMM_display = coordinates;
-    printPosition.originMM_absolute = printPositionOriginsMM_absolute[index];
+    const printPosition: PrintPosition = {
+      parentIndex: parentIndex,
+      index: index,
+      selected: false,
+      button: {
+        widthPX: 0,
+        color: '',
+      },
+      originMM_display: coordinates,
+      originMM_absolute: printPositionOriginsMM_absolute[index],
+      originPCT_display: {x: (printPositionOriginsMM_display[index].x / this.PRINT_PICKER_DIAM_MM) * 100,
+        y: (printPositionOriginsMM_display[index].y / this.PRINT_PICKER_DIAM_MM) * 100}, // you need to set this according to your logic
+      elementType: 'PrintHeadButton',
+    };
 
     return printPosition;
   });
-
+  console.log('printPositions: ', printPositions);
   return printPositions;
 }
+
   updatePrintPositionsBasedOnNeedle(component: Printhead | Well, wellSizeMM: number, needleODMM: number): PrintPosition[] {
     // Get the current print positions
     const currentPrintPositions:PrintPosition[] = component.printPositions;

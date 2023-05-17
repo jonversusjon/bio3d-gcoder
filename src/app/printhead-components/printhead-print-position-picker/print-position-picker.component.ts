@@ -37,9 +37,6 @@ export class PrintPositionPickerComponent implements OnDestroy {
     this.subscriptions.forEach((subscription) => subscription.unsubscribe());
   }
 
-
-
-
   togglePrintHeadButton(printHead: Printhead, printHeadButton:PrintPosition) {
     this.printHeadStateService.toggleButtonStatus(printHead.index, printHeadButton.index);
   }
@@ -57,12 +54,10 @@ export class PrintPositionPickerComponent implements OnDestroy {
   getStylePrintPositionPicker() {
     return {
       ...this.styleService.getBaseStyle('well'),
-      width: this.getPrintPickerWidthPX() + 'px'
+      width: this.toPX(this.printPositionService.PRINT_PICKER_DIAM_MM) + 'px'
     };
   }
-  getPrintPickerWidthPX() {
-    return (this.toPX(this.printPositionService.PRINT_PICKER_DIAM_MM));
-  }
+
 
   toPX(size_in_mm:number): number {
     return this.screenUtils.convertMMToPX(size_in_mm);
