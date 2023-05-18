@@ -51,7 +51,7 @@ import {Well} from "../../types/Well";
 export class PrintPositionService {
   // constants //
   PRINT_POSITIONS_COUNT: number = 9; // One central print position surrounded by a ring of 8 print positions
-  PRINT_PICKER_DIAM_MM: number = 34.8 * 1.7; // the print picker size in PX doesn't change but relative needle sizes are represented based on this
+  PRINT_PICKER_DIAM_MM: number = 34.8; // the print picker size in PX doesn't change but relative needle sizes are represented based on this
 
   // in angular the actual width of anything is calculated as computedWidth = specifiedWidth + (borderLeftWidth + borderRightWidth) + (paddingLeft + paddingRight)
   BUTTON_MIN_WIDTH_PX: number = 7;
@@ -62,7 +62,6 @@ export class PrintPositionService {
   public printPositionButtonTopsPX:number[] = [];
   public printPositionButtonLeftsPX:number[] = [];
   public printPositionButtonWidthPX: number[] = [9];
-  public toScale: boolean = false;
 
   /**
    * Creates a new instance of the PrintPositionService.
@@ -195,10 +194,8 @@ loadPrintPositionButtons(forWhichElement: 'plate-map' | 'print-head',
   }
 
   resizePrintPositions(component: Printhead | Well, wellSizeMM: number, needleODMM: number): PrintPosition[] {
-    // Get the current print positions
     const currentPrintPositions:PrintPosition[] = component.printPositions;
 
-    // If there's no current print positions, return an empty array
     if (!currentPrintPositions) {
       console.error(`No current print positions for component ${component} index ${component.index}`);
       return [];
@@ -207,6 +204,10 @@ loadPrintPositionButtons(forWhichElement: 'plate-map' | 'print-head',
     // Create a new array for the updated print positions
     const updatedPrintPositions: PrintPosition[] = [];
 
+    // Update the size of the print position based on the needle outer diameter
+    const calculatedButtonWidthMM: number = this.getButtonWidthMM(component.elementType, wellSizeMM, needleODMM);
+    const calculatedButtonWidthPCT: number = (calculatedButtonWidthMM / this.PRINT_PICKER_DIAM_MM) * 100;
+
     // For each current print position...
     for (let i = 0; i < currentPrintPositions.length; i++) {
       // Copy the current print position
@@ -214,8 +215,9 @@ loadPrintPositionButtons(forWhichElement: 'plate-map' | 'print-head',
         ...currentPrintPositions[i]
       };
 
-      // Update the size of the print position based on the needle outer diameter
-      updatedPrintPosition.button.widthPX = this.toPX(this.getButtonWidthMM(component.elementType, wellSizeMM, needleODMM));
+      updatedPrintPosition.button.widthMM  = calculatedButtonWidthMM;
+      updatedPrintPosition.button.widthPCT = calculatedButtonWidthPCT;
+
       console.log('updatedPrintPosition after: ', currentPrintPositions[i]);
       // Add the updated print position to the array
       updatedPrintPositions.push(updatedPrintPosition);

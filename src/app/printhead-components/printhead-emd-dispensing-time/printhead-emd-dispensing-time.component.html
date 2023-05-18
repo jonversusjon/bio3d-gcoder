@@ -2,9 +2,8 @@
                 class="emd-valve-dispensing-time"
                 floatLabel="always">
   <mat-label>Dispensing time</mat-label>
-  <input matInput
-         type="number" min="1" max=""
-         class="example-right-align" placeholder="1"
-  >
+  <input matInput [formControl]="dispensingTimeControl" type="number" min="1" max=""
+         class="example-right-align" placeholder="1">
   <span matTextSuffix> μs</span>
 </mat-form-field>
+

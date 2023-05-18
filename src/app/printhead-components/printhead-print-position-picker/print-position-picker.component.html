@@ -3,7 +3,7 @@
 </div>
 <div class="print-position-picker grid-item"
      [ngStyle]="getStylePrintPositionPicker()">
-  <div class="watermark" *ngIf="!printPositionService.toScale">
+  <div class="watermark" *ngIf="!printhead.toScale">
     NOT TO<br>SCALE
   </div>
 
@@ -11,9 +11,10 @@
 
     <button class="print-position-picker-position-button custom-button-toggle" [ngStyle]="{
                     'background-color': !printhead.active ? 'grey' : (printPosition.selected ? color : 'white'),
-                    'width': (buttonWidthPX) + 'px',
-                    'top': 'calc(' + printPosition.originPCT_display.y  + '% - ' + (printhead.buttonWidthPX/2) + 'px)',
-                    'left': 'calc(' + printPosition.originPCT_display.x + '% - ' + (printhead.buttonWidthPX/2) + 'px)'
+                    'width': getButtonWidth(printPosition),
+                    'top': printPosition.originPCT_display.y  + '%',
+                    'left': printPosition.originPCT_display.x + '%',
+                    'transform': 'translate(-50%, -50%)'
                   }"
             [matTooltip]="'x: ' + ((printPosition?.originMM_absolute?.x || 0).toFixed(1)) + ', y: ' + ((printPosition?.originMM_absolute?.y || 0).toFixed(1))"
             (click)="togglePrintHeadButton(printhead, printPosition)"

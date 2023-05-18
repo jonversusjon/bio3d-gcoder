@@ -53,7 +53,7 @@ export class PrintHeadStateService implements OnDestroy {
       // this.printPositionOriginsMM = this.printPositionService.getPrintPositionOriginsMM("print-head", defaultPlateFormat.well_sizeMM);
 
       this.selectedPlateSubscription = this.plateFormatService.selectedPlate$.subscribe((plate) => {
-        // console.log('printhead state service received: ', plate);
+        console.log('printhead state service received: ', plate);
         this.currentSelectedPlate = plate;
         this.onSelectedPlateChange(plate);
       });
@@ -233,9 +233,15 @@ export class PrintHeadStateService implements OnDestroy {
 
   onSelectedPlateChange(plate: PlateFormat) {
     if (plate) {
+      console.log('print-head-state-service onSelectedPlateChange');
       for(let printHead of this.currentPrintHeads) {
-        // this.printPositionService.getNewButtonsSize('print-head', printHead, plate.well_sizeMM,printHead.needle.odMM);
+        if(printHead.needle) {
+          printHead.printPositions = this.printPositionService.resizePrintPositions(printHead, plate.well_sizeMM, printHead.needle.odMM);
+        } else {
+          console.log("print-head-state-service can't resize print positions for printhead[", printHead.index, "] until needle is selected.")
+        }
       }
+      this._printHeads.next(this.currentPrintHeads);
     } else {
       console.warn('printhead state service has no idea what plate youre talking about');
     }

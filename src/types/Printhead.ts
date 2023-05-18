@@ -9,6 +9,7 @@ export interface Printhead {
   color: string;
   active: boolean;
   printPositions: PrintPosition[];
+  toScale: boolean;
   printPositionSizeMM: number;
   buttonWidthPX: number;
   pickerWell: {sizeMM: number};
@@ -25,6 +26,7 @@ export function emptyPrinthead(): Printhead {
     color: '#FFFFFF',
     active: true,
     printPositions: [],
+    toScale: true,
     printPositionSizeMM: 0,
     buttonWidthPX: 0,
     pickerWell: {sizeMM: 0},

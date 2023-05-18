@@ -10,6 +10,7 @@ export interface Well {
   originMM: Coordinates;
   selected: boolean;
   printPositions: PrintPosition[];
+  toScale: boolean;
   style: {
     height: string;
     width: string;
@@ -31,6 +32,7 @@ export function emptyWell(): Well {
     originMM: emptyCoordinates(),
     selected: false,
     printPositions: [],
+    toScale: true,
     style: {
       height: '0px',
       width: '0px',

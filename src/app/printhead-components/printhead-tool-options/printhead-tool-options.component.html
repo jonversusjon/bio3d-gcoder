@@ -1,58 +1,54 @@
 <div class="printhead-tool-options-wrapper">
-  <!-- All extruding -->
-  <app-printhead-needle-select
-    *ngIf="selectedPrintheadTool && selectedPrintheadTool.behavior.canExtrude"
-    [printhead]="printhead"
-    (needleChanged)="onNeedleChanged($event)"
-  ></app-printhead-needle-select>
 
+  <app-printhead-needle-select
+    [hidden]="!(selectedPrintheadTool && selectedPrintheadTool.behavior.canExtrude)"
+    [printhead]="printhead"
+    (needleChanged)="onNeedleChanged($event)">
+  </app-printhead-needle-select>
   <!-- Photocuring only -->
   <app-printhead-led-wavelength
-    *ngIf="selectedPrintheadTool && selectedPrintheadTool.behavior.hasPhotocuring"
+    [hidden]="!(selectedPrintheadTool && selectedPrintheadTool.behavior.hasPhotocuring)"
     [printhead]="printhead"
     [selectedPrintheadTool]="selectedPrintheadTool"
   ></app-printhead-led-wavelength>
   <app-printhead-led-intensity
-    *ngIf="selectedPrintheadTool && selectedPrintheadTool.behavior.hasPhotocuring"
+    [hidden]="!(selectedPrintheadTool && selectedPrintheadTool.behavior.hasPhotocuring)"
     [printhead]="printhead"
   ></app-printhead-led-intensity>
   <!-- hdCamera only -->
   <app-printhead-camera-filename
-    *ngIf="selectedPrintheadTool && selectedPrintheadTool.behavior.hasCamera"
+    [style.display]="(selectedPrintheadTool && selectedPrintheadTool.behavior.hasCamera) ? 'block' : 'none'"
     [printhead]="printhead"
   ></app-printhead-camera-filename>
 
-  <!-- EMD only -->
+
+  <!---- EMD only -->
   <app-printhead-emd-mode
-    *ngIf="selectedPrintheadTool && selectedPrintheadTool.behavior.hasEMD"
-    [printhead]="printhead"
-    [emdMode]="emdMode"
-    (emdModeChanged)="emdMode = $event"
-  ></app-printhead-emd-mode>
-  <app-printhead-emd-dispensing-time
-    *ngIf="selectedPrintheadTool && selectedPrintheadTool.behavior.hasEMD && emdMode === 'continuous'"
-    [printhead]="printhead"
-  ></app-printhead-emd-dispensing-time>
-  <app-printhead-emd-valve-cycle-time
-    *ngIf="selectedPrintheadTool && selectedPrintheadTool.behavior.hasEMD && emdMode === 'droplet'"
-    [printhead]="printhead"
-  ></app-printhead-emd-valve-cycle-time>
-  <app-printhead-emd-valve-open-time
-    *ngIf="selectedPrintheadTool && selectedPrintheadTool.behavior.hasEMD && emdMode === 'droplet'"
-    [printhead]="printhead"
-  ></app-printhead-emd-valve-open-time>
+    [hidden]="!(selectedPrintheadTool && selectedPrintheadTool.behavior.hasEmd)"
+    [formControl]="emdModeControl"
+    [printhead]="printhead">
+  </app-printhead-emd-mode>
+      <app-printhead-emd-dispensing-time *ngIf="selectedPrintheadTool && selectedPrintheadTool.behavior.hasEmd && emdModeControl.value === 'continuous'"
+      [printhead]="printhead"
+    ></app-printhead-emd-dispensing-time>
+    <app-printhead-emd-valve-cycle-time *ngIf="selectedPrintheadTool && selectedPrintheadTool.behavior.hasEmd && emdModeControl.value === 'droplet'"
+      [printhead]="printhead"
+    ></app-printhead-emd-valve-cycle-time>
+    <app-printhead-emd-valve-open-time *ngIf="selectedPrintheadTool && selectedPrintheadTool.behavior.hasEmd && emdModeControl.value === 'droplet'"
+      [printhead]="printhead"
+    ></app-printhead-emd-valve-open-time>
 
   <!-- Syringe only -->
   <app-printhead-syringe-extrusion-rate
-    *ngIf="selectedPrintheadTool && selectedPrintheadTool.behavior.hasSyringePump"
+    [hidden]="!(selectedPrintheadTool && selectedPrintheadTool.behavior.hasSyringePump)"
     [printhead]="printhead"
   ></app-printhead-syringe-extrusion-rate>
   <app-printhead-syringe-extrusion-volume
-    *ngIf="selectedPrintheadTool && selectedPrintheadTool.behavior.hasSyringePump"
+    [hidden]="!(selectedPrintheadTool && selectedPrintheadTool.behavior.hasSyringePump)"
     [printhead]="printhead"
   ></app-printhead-syringe-extrusion-volume>
   <app-printhead-pressure
-    *ngIf="selectedPrintheadTool && selectedPrintheadTool.behavior.hasSyringePump || selectedPrintheadTool && selectedPrintheadTool.behavior.hasPneumaticControl"
+    [hidden]="!(selectedPrintheadTool && selectedPrintheadTool.behavior.hasSyringePump || selectedPrintheadTool && selectedPrintheadTool.behavior.hasPneumaticControl)"
     [printhead]="printhead"
   ></app-printhead-pressure>
 </div>

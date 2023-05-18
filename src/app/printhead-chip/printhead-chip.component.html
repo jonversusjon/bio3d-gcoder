@@ -1,7 +1,7 @@
 <div class="printhead-chip-container">
-  <mat-label *ngIf="printhead.description && printhead.description !== '' ">  {{printhead.description}}</mat-label>
+  <mat-label *ngIf="printhead.description && printhead.description !== '' ">{{printhead.description}}</mat-label>
   <mat-chip class="custom-mat-chip-icon"
-            [ngStyle]="{'background-image': iconUrlStyle}">
+            [ngStyle]="{'background-image': iconUrlStyle }">
   </mat-chip>
   <button [ngStyle]="{backgroundColor: printhead.color}"></button>
 </div>

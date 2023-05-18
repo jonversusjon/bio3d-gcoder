@@ -27,7 +27,6 @@
               <circle *ngIf="well.selected && printPosition.selected"
                       [attr.cx]="printPosition.originPCT_display.x + '%'"
                       [attr.cy]="printPosition.originPCT_display.y + '%'"
-                      [attr.r]="printPosition.button.widthPX / 2"
                       [attr.fill]="printHead.color"
                       matTooltip="x: {{well.originMM.x + printPosition.originMM_absolute.x | number:'1.1-1'}} mm,
                         y: {{well.originMM.y + printPosition.originMM_absolute.y | number:'1.1-1'}} mm">>

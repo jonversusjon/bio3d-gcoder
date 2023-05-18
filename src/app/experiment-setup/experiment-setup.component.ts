@@ -41,14 +41,11 @@ export class ExperimentSetupComponent implements OnInit {
   onSelectedPlateChanged(event: any): void {
     const newSelectedPlate = event.value;
     if (newSelectedPlate !== this.prevSelectedPlate) {
+      this.wellDiamMM = this.selectedPlate.well_sizeMM;
       this.prevSelectedPlate = newSelectedPlate;
       this.selectedPlate = newSelectedPlate;
       this.plateFormatService.setSelectedPlate(newSelectedPlate);
-      this.printPositionOriginsMM = [];
-      this.wellDiamMM = this.selectedPlate.well_sizeMM;
       this.plateChanged$.next(this.selectedPlate);
-
-      // console.log('printPositionOriginsMM after: ', this.printPositionOriginsMM);
     }
     // this.widthMajorTicks = this.createTickPositions(this.selectedPlate.widthMM, this.selectedPlate.lengthMM, 10, 5);
     // this.widthMinorTicks = this.createTickPositions(this.selectedPlate.widthMM, this.selectedPlate.lengthMM, 10, 1);

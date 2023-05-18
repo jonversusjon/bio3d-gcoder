@@ -13,12 +13,13 @@ export interface PrintheadToolBehavior {
     max: number;
     step: number;
   };
-  canExtrude: boolean;
+  canExtrude?: boolean;
   hasPhotocuring?: boolean;
   wavelengths?: number[];
   ledIntensity?: number;
   hasSyringePump?: boolean;
-  hasEMD?: boolean;
+  hasEmd?: boolean;
+  emdMode?: 'droplet'|'continuous';
   hasPneumaticControl?: boolean;
   hasHdCamera?: boolean;
   supportedCameraCommands?: string[];
@@ -45,22 +46,6 @@ export function emptyPrintheadToolBehavior(): PrintheadToolBehavior {
       mCommands: [...commonMcodes],
       tCommands: [],
     },
-    hasCamera: false,
-    hasTemperatureControl: false,
-    temperatureRange: { min: 0, max: 0, step: 0 },
-    canExtrude: false,
-    hasPhotocuring: false,
-    wavelengths: [],
-    ledIntensity: 0,
-    hasSyringePump: false,
-    hasEMD: false,
-    hasPneumaticControl: false,
-    hasHdCamera: false,
-    supportedCameraCommands: [],
-    hasChamberLightsControl: false,
-    supportedChamberLightCommands: [],
-    hasVolumetricControl: false,
-    supportedVolumetricCommands: [],
   };
 }
 
@@ -89,7 +74,7 @@ export function getEMDPrintHeadBehavior():PrintheadToolBehavior {
       step: 0.5,
     },
     canExtrude: true,
-    hasEMD: true,
+    hasEmd: true,
     suggestedInk: ["gelMA", "alginate", "fibrin", "cell media"],
   }
 }
@@ -132,7 +117,8 @@ export function getHdCameraToolBehavior():PrintheadToolBehavior {
 export function getThermoplasicToolBehavior():PrintheadToolBehavior {
   return {
     ...emptyPrintheadToolBehavior(),
-    suggestedInk: ["PLA", "PCL", "PLGA"]
+    suggestedInk: ["PLA", "PCL", "PLGA"],
+    canExtrude:true,
   }
 }
 export const commonMcodes:PrintCode[] = [

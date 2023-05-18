@@ -5,7 +5,8 @@ export interface PrintPosition {
   index: number;
   selected: boolean;
   button: {
-    widthPX: number;
+    widthMM: number;
+    widthPCT: number;
     color: string;
   };
   originMM_display: Coordinates;
@@ -20,7 +21,8 @@ export function emptyPrintPosition(): PrintPosition {
     index: -1,
     selected: false,
     button: {
-      widthPX: 0,
+      widthMM: 0,
+      widthPCT: 0,
       color: '#FFFFFF',
     },
     originMM_display: emptyCoordinates(),
