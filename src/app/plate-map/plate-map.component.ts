@@ -3,6 +3,8 @@
 // TODO: calculate print moves
 // TODO: this component should feed selectedPlate to the data aggregator, all of the well selected info
 //       now goes in the well-state service
+// TODO: fix the axes display
+
 import {
   AfterViewInit,
   Component,

@@ -1,0 +1,17 @@
+<mat-form-field
+  appearance="fill"
+  class="printhead-tool-position-wrapper"
+  subscriptSizing="dynamic"
+>
+  <mat-label class="custom-mat-label">Position</mat-label>
+  <mat-select [(ngModel)]="printhead.toolPosition"
+              [disabled]="!printhead.active"
+              (selectionchange)="onPrintheadToolPositionChange($event)"
+              class="custom-mat-select">
+    <mat-option *ngFor="let toolPosition of toolPositions"
+                [value]="toolPosition"
+                class="custom-mat-option">
+      {{toolPosition}}
+    </mat-option>
+  </mat-select>
+</mat-form-field>

@@ -96,6 +96,7 @@ export class PrintHeadStateService implements OnDestroy {
    * @param {string | number | boolean | Needle | PrintHeadBehavior | PrintPosition[] | { sizeMM: number }} propertyValue - The new value for the PrintHead property.
    */
   updatePrintHeadProperty<K extends keyof Printhead>(printHeadIndex: number, key: K, value: Printhead[K], emitNext: Boolean = true): void {
+
     if (this.currentPrintHeads[printHeadIndex]) {
       const selectedPrintHead = this.currentPrintHeads[printHeadIndex];
 
@@ -135,13 +136,15 @@ export class PrintHeadStateService implements OnDestroy {
     // console.log(' --print-head-state-service -- onPrintHeadCountChange -- next(printheads)');
     // this._printHeads.next(this.currentPrintHeads);
   }
+  private toolPositionsInUse = new Set<number>();
 
   private createPrintHead(printHeadIndex: number): Printhead {
     const newPrintHead: Printhead = emptyPrinthead();
     this.currentPrintHeads.push(newPrintHead);
+
+    newPrintHead.toolPosition = printHeadIndex + 1;
     newPrintHead.index = printHeadIndex;
     newPrintHead.color = this.styleService.THEME_COLORS.defaultLightTheme[printHeadIndex % this.styleService.THEME_COLORS.defaultLightTheme.length];
-
     newPrintHead.needle = this.needles[0];
     const well_sizeMM = this.currentSelectedPlate ? this.currentSelectedPlate.well_sizeMM : 1;
     newPrintHead.printPositions = this.printPositionService.loadPrintPositionButtons(

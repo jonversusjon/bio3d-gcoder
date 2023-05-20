@@ -5,6 +5,7 @@ import {PrintheadTool,emptyPrintheadTool} from "./PrintheadTool";
 export interface Printhead {
   index: number;
   tool: PrintheadTool;
+  toolPosition: number;
   description: string;
   color: string;
   active: boolean;
@@ -22,6 +23,7 @@ export function emptyPrinthead(): Printhead {
   return {
     index: -1,
     tool: emptyPrintheadTool(),
+    toolPosition: 1,
     description: '',
     color: '#FFFFFF',
     active: true,

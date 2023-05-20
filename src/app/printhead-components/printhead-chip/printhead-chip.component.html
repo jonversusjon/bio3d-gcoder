@@ -1,0 +1,18 @@
+<div class="printhead-chip-container-wrapper">
+  <div class="printhead-chip-container">
+
+    <mat-label *ngIf="printhead.description && printhead.description !== '' ">{{printhead.description}}</mat-label>
+    <mat-chip class="custom-mat-chip-icon"
+              [ngStyle]="{'background-image': iconUrlStyle }">
+    </mat-chip>
+
+    <span class="printhead-tool-position-label">{{printhead.toolPosition}}</span>
+    <button [ngStyle]="{backgroundColor: printhead.color}"></button>
+
+  </div>
+  <div [ngClass]="{'visible': printhead.temperature > 0}"
+       class="custom-mat-chip-sub-panel"
+       [style.background-image]="gradientStyle">
+    {{printhead.temperature}}°C
+  </div>
+</div>

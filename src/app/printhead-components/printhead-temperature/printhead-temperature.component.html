@@ -1,0 +1,13 @@
+<mat-form-field floatLabel="always"
+                subscriptSizing="dynamic"
+                appearance="fill"
+                class="printhead-temperature">
+  <mat-label>Temperature</mat-label>
+  <input matInput
+         [(ngModel)]="printhead.temperature"
+         placeholder=""
+         class="printhead-temperature-input"
+         style="text-align: right; letter-spacing: 2px;"
+  >
+  <span matTextSuffix style="font-size: 0.85em;"> °C</span>
+</mat-form-field>

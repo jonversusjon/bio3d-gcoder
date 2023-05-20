@@ -24,9 +24,11 @@
         <svg width="100%" height="100%">
           <g *ngFor="let printHead of printHeads; let printHeadIndex = index;">
             <g *ngFor="let printPosition of printHead.printPositions; let buttonIndex = index">
+              {{printPosition.selected}}
               <circle *ngIf="well.selected && printPosition.selected"
                       [attr.cx]="printPosition.originPCT_display.x + '%'"
                       [attr.cy]="printPosition.originPCT_display.y + '%'"
+                      [attr.r]="printPosition.button.widthMM"
                       [attr.fill]="printHead.color"
                       matTooltip="x: {{well.originMM.x + printPosition.originMM_absolute.x | number:'1.1-1'}} mm,
                         y: {{well.originMM.y + printPosition.originMM_absolute.y | number:'1.1-1'}} mm">>

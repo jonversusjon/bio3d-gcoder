@@ -1,0 +1,91 @@
+.custom-mat-chip-icon {
+  background-size: contain; /* Adjust as needed */
+  background-repeat: no-repeat; /* Adjust as needed */
+  background-position: center;
+}
+
+mat-chip {
+  padding: 12px 6px;
+  border: none;
+  border-radius: 0;
+  min-width: 50px;
+  flex-grow:1;
+}
+
+mat-label {
+  color: black;
+  font-size: 1em;
+  font-weight: 500;
+  text-align: center;
+  width: 100%;
+  margin: 0.2em 0.4em;
+  max-width: 85px; /* Adjust the width as per your requirement */
+  white-space: normal;
+}
+
+button {
+  border: 1px solid black;
+  padding: 0;
+  box-sizing: content-box;
+  position: absolute;
+  width: 12px;
+  border-radius: 50%;
+  bottom: 6px;
+  left: 6px;
+  aspect-ratio: 1 / 1;
+
+}
+:host {
+  position: relative;
+}
+
+.printhead-tool-position-label {
+  color: black;
+  position: absolute;
+  bottom: 6px;
+  right: 6px;
+  line-height: 1;
+  font-weight: 600;
+}
+
+.printhead-chip-container-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.printhead-chip-container {
+  box-shadow: rgba(0, 0, 0, 0.16) 0px 3px 6px, rgba(0, 0, 0, 0.23) 0px 3px 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border-radius: 5px;
+  background-color: lightsalmon;
+  margin: .5em;
+  position: relative;
+  z-index: 100;
+}
+
+.custom-mat-chip-sub-panel {
+  width: 70%;
+  height: 2em;
+  padding-top: 4px;
+  position: relative;
+  text-align: center;
+  background-color: lavender;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  max-height: 0;
+  color: #2b2e33;
+  transition: max-height 0.3s ease-in-out;
+  top: -24px;
+  border-bottom-left-radius: 5px;
+  border-bottom-right-radius: 5px;
+}
+
+.custom-mat-chip-sub-panel.visible {
+  max-height: 36px;
+  margin-bottom: -12px;
+  top: -12px;
+}

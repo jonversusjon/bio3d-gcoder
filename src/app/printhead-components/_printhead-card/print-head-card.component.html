@@ -11,6 +11,9 @@
             <input class="printhead-description-input" matInput [(ngModel)]="printhead.description"
                    [disabled]="!printhead.active" (ngModelChange)="onDescriptionChange(printheadIndex, $event)">
           </mat-form-field>
+          <app-printhead-tool-position
+            class="printhead-tool-position"[printhead]="printhead"
+                                       ></app-printhead-tool-position>
           <app-printhead-tool-select
             [printhead]="printhead"
             [selectedPrintheadTool]="selectedPrintheadTool"

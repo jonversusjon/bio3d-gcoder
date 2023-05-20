@@ -1,11 +1,8 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {PrintheadTool} from "../../../types/PrintheadTool";
 import {Printhead} from "../../../types/Printhead";
-import {PrintHeadStateService} from "../../_services/print-head-state.service";
 import {Needle, needles} from "../../../types/Needle";
-import {PrintPositionService} from "../../_services/print-position.service";
-import {ScreenUtils} from "../../_services/screen-utils";
-import {FormControl} from "@angular/forms";
+import {Validators, FormControl, Form} from "@angular/forms";
 
 @Component({
   selector: 'app-printhead-tool-options',
@@ -17,11 +14,26 @@ export class PrintheadToolOptionsComponent implements OnInit {
   @Input() printheadIndex!: number;
   @Input() selectedPrintheadTool!: PrintheadTool;
   @Input() well_diamMM!: number;
-  emdModeControl = new FormControl('droplet');
+
   @Output() emdModeChanged: EventEmitter<string> = new EventEmitter<string>();
 
-  public wavelength!: number;
-  emdMode!: string;
+  wavelengthControl: FormControl<number | null> = new FormControl<number | null>(405);
+
+  ledIntensityControl: FormControl<number | null> = new FormControl<number | null>
+  (255, [Validators.min(1), Validators.max(255)]);
+
+  fileNameControl: FormControl<string | null> = new FormControl<string | null>
+  ('bio3dprint_img.jpg');
+  emdModeControl: FormControl<string | null> = new FormControl<string | null>
+  ('droplet');
+  emdDispensingTimeControl: FormControl<number | null> = new FormControl<number | null>
+  (1,[Validators.min(1), Validators.max(1200)]);
+  emdValveCycleTimeControl: FormControl<number | null> = new FormControl<number | null>
+  (1,[Validators.min(1), Validators.max(1200)]);
+  emdValveOpenTimeControl: FormControl<number | null> = new FormControl<number | null>
+  (1,[Validators.min(1), Validators.max(1200)]);
+  temperatureControl: FormControl<number | null> = new FormControl<number | null>
+  (1, [Validators.min(20), Validators.max(60)]);
   selectedNeedle!: Needle;
 
   constructor() {

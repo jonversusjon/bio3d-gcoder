@@ -1,0 +1,18 @@
+.custom-mat-select {
+  text-align: center !important;
+}
+
+.custom-mat-option {
+  text-align: center !important;
+}
+
+.printhead-tool-position-wrapper {
+  width: 110px;
+}
+
+.printhead-tool-position-label {
+  font-size: 0.7em;
+  position: absolute;
+  bottom: 6px;
+  right: 6px;
+}

@@ -11,6 +11,7 @@ import {StyleService} from "../../_services/style.service";
 import { PlateFormatService } from "../../_services/plate-format.service";
 import {PrintPositionService} from "../../_services/print-position.service";
 import {PrintheadTool,availablePrintheadTools} from "../../../types/PrintheadTool";
+import {FormControl} from "@angular/forms";
 
 @Component({
   selector: 'app-printhead-card-component',
@@ -25,6 +26,7 @@ export class PrintHeadCardComponent implements OnInit {
   @Input() wellDiamMM!: number;
   @Input() selectedNeedle!: Needle;
 
+  toolPositionControl:FormControl<number | null> = new FormControl(-1);
   selectedColor!: string;
   buttonWidthPX!: number;
 
@@ -40,6 +42,7 @@ export class PrintHeadCardComponent implements OnInit {
     this.selectedPrintheadTool = availablePrintheadTools[0];
     this.selectedColor = this.printhead.color;
     this.buttonWidthPX = this.printhead.buttonWidthPX;
+    this.toolPositionControl.setValue(this.printhead.index + 1);
 
     let printHeadProperties: Partial<Printhead> = {
       tool: availablePrintheadTools[0],
@@ -95,5 +98,6 @@ export class PrintHeadCardComponent implements OnInit {
   //       z-step
   //       lag on
   //       lag off
+  protected readonly print = print;
 }
 

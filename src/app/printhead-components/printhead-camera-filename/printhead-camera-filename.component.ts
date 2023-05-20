@@ -7,5 +7,6 @@ import {Printhead} from "../../../types/Printhead";
   styleUrls: ['./printhead-camera-filename.component.css']
 })
 export class PrintheadCameraFilenameComponent {
-  @Input() printhead!: Printhead
+  @Input() printhead!: Printhead;
+  @Input() filename!: string | null;
 }

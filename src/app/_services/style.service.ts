@@ -44,4 +44,43 @@ export class StyleService {
   getBaseStyle(className: string): any {
     return this._baseStyles[className];
   }
+
+  private colors = [
+    '#ff00ff',// 246
+    '#cc02c5',// 232
+    '#99038a',// 220
+    '#660450',// 208
+    '#330616',// 196
+    '#491325',// 180
+    '#5e1d32',// 168
+    '#74283f',// 156
+    '#88324d',// 144
+    '#88324d',// 132
+    '#aa7353',// 120
+    '#b38c5a',// 108
+    '#b4a06c',// 96
+    '#baac7b',// 84
+    '#a9a881',// 72
+    '#8c9a86',// 60
+    '#728c89',// 48
+    '#f1f4f3',// 36
+    '#eaeeed',// 24
+    '#e3e8e7',// 12
+    '#1144FF' // 0
+  ].reverse();
+
+  getColorFromTemperature(temp: number) {
+    const colorIndexHigh: number = Math.floor(temp / 12) < this.colors.length ?
+      Math.floor(temp / 12) : this.colors.length;
+
+    const colorIndexLow: number = Math.floor(temp / 12) > 2?
+      Math.floor(temp / 12) - 2 : 0;
+
+    return {
+      'highTempColor': this.colors[colorIndexHigh],
+      'lowTempColor': this.colors[colorIndexLow]
+    };
+  }
+
 }
+

@@ -1,27 +1,33 @@
 <div class="printhead-tool-options-wrapper">
-
   <app-printhead-needle-select
     [hidden]="!(selectedPrintheadTool && selectedPrintheadTool.behavior.canExtrude)"
     [printhead]="printhead"
     (needleChanged)="onNeedleChanged($event)">
   </app-printhead-needle-select>
+  <app-printhead-temperature
+    [hidden]="!(selectedPrintheadTool && selectedPrintheadTool.behavior.hasTemperatureControl)"
+    [printhead]="printhead"
+    [formControl]="temperatureControl"
+  >
+  </app-printhead-temperature>
   <!-- Photocuring only -->
   <app-printhead-led-wavelength
     [hidden]="!(selectedPrintheadTool && selectedPrintheadTool.behavior.hasPhotocuring)"
     [printhead]="printhead"
     [selectedPrintheadTool]="selectedPrintheadTool"
+    [formControl]="wavelengthControl"
   ></app-printhead-led-wavelength>
   <app-printhead-led-intensity
     [hidden]="!(selectedPrintheadTool && selectedPrintheadTool.behavior.hasPhotocuring)"
     [printhead]="printhead"
+    [formControl]="ledIntensityControl"
   ></app-printhead-led-intensity>
   <!-- hdCamera only -->
   <app-printhead-camera-filename
     [style.display]="(selectedPrintheadTool && selectedPrintheadTool.behavior.hasCamera) ? 'block' : 'none'"
     [printhead]="printhead"
+    [formControl]="fileNameControl"
   ></app-printhead-camera-filename>
-
-
   <!---- EMD only -->
   <app-printhead-emd-mode
     [hidden]="!(selectedPrintheadTool && selectedPrintheadTool.behavior.hasEmd)"
@@ -30,12 +36,17 @@
   </app-printhead-emd-mode>
       <app-printhead-emd-dispensing-time *ngIf="selectedPrintheadTool && selectedPrintheadTool.behavior.hasEmd && emdModeControl.value === 'continuous'"
       [printhead]="printhead"
+      [formControl]="emdDispensingTimeControl"
     ></app-printhead-emd-dispensing-time>
     <app-printhead-emd-valve-cycle-time *ngIf="selectedPrintheadTool && selectedPrintheadTool.behavior.hasEmd && emdModeControl.value === 'droplet'"
       [printhead]="printhead"
+      [formControl]="emdValveCycleTimeControl"
+
     ></app-printhead-emd-valve-cycle-time>
     <app-printhead-emd-valve-open-time *ngIf="selectedPrintheadTool && selectedPrintheadTool.behavior.hasEmd && emdModeControl.value === 'droplet'"
       [printhead]="printhead"
+      [formControl]="emdValveOpenTimeControl"
+
     ></app-printhead-emd-valve-open-time>
 
   <!-- Syringe only -->

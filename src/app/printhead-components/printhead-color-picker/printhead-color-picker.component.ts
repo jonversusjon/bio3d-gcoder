@@ -25,9 +25,5 @@ export class PrintheadColorPickerComponent {
     this.selectedColor = newColor;
     this.printHeadStateService.updatePrintHeadProperty(this.printheadIndex, 'color', newColor);
   }
-  onColorChanged(newColor: string) {
-    this.selectedColor = newColor;
-    this.colorChanged.emit(newColor);
-  }
 
 }
